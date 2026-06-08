@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════
    Layout
 ═══════════════════════════════════════ */
-.dashboard-container {
+.admin-layout {
   display: flex;
   min-height: 100vh;
 }
@@ -9,7 +9,7 @@
 /* ═══════════════════════════════════════
    Sidebar Shell
 ═══════════════════════════════════════ */
-.sidebar {
+.admin-sidebar {
   width: 240px;
   background: #1a1d2e;
   display: flex;
@@ -21,14 +21,14 @@
   overflow: visible;
 }
 
-.sidebar.closed {
+.admin-sidebar.closed {
   width: 68px;
 }
 
 /* ═══════════════════════════════════════
    Brand
 ═══════════════════════════════════════ */
-.sidebar-brand {
+.admin-sidebar-brand {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -38,7 +38,7 @@
   overflow: hidden;
 }
 
-.sidebar.closed .sidebar-brand {
+.admin-sidebar.closed .admin-sidebar-brand {
   justify-content: center;
   padding: 14px 10px;
   gap: 0;
@@ -72,7 +72,7 @@
   flex: 1;
 }
 
-.sidebar-toggle {
+.admin-sidebar-toggle {
   width: 28px;
   height: 28px;
   background: rgba(255, 255, 255, 0.06);
@@ -89,11 +89,11 @@
   margin-left: auto;
 }
 
-.sidebar.closed .sidebar-toggle {
+.admin-sidebar.closed .admin-sidebar-toggle {
   margin-left: 0;
 }
 
-.sidebar-toggle:hover {
+.admin-sidebar-toggle:hover {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
@@ -101,14 +101,14 @@
 /* ═══════════════════════════════════════
    Navigation
 ═══════════════════════════════════════ */
-.sidebar-nav {
+.admin-sidebar-nav {
   flex: 1;
   padding: 12px 10px;
   overflow-y: auto;
   overflow-x: visible;
 }
 
-.sidebar-links {
+.admin-sidebar-links {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -120,7 +120,7 @@
 /* ═══════════════════════════════════════
    Links
 ═══════════════════════════════════════ */
-.sidebar-link {
+.admin-sidebar-link {
   position: relative;
   display: flex;
   align-items: center;
@@ -142,18 +142,18 @@
   overflow: visible;
 }
 
-.sidebar-link:hover {
+.admin-sidebar-link:hover {
   background: rgba(99, 102, 241, 0.1);
   color: #e2e8f0;
 }
 
-.sidebar-link.active {
+.admin-sidebar-link.active {
   background: rgba(99, 102, 241, 0.16);
   color: #fff;
 }
 
 /* Active left-border accent */
-.sidebar-link.active::before {
+.admin-sidebar-link.active::before {
   content: "";
   position: absolute;
   left: 0;
@@ -166,7 +166,7 @@
 }
 
 /* Icon */
-.sidebar-icon {
+.admin-sidebar-icon {
   font-size: 16px;
   flex-shrink: 0;
   display: flex;
@@ -176,29 +176,29 @@
   transition: color 0.18s;
 }
 
-.sidebar-link.active .sidebar-icon {
+.admin-sidebar-link.active .admin-sidebar-icon {
   color: #818cf8;
 }
 
 /* ═══════════════════════════════════════
    Collapsed state
 ═══════════════════════════════════════ */
-.sidebar.closed .sidebar-nav {
+.admin-sidebar.closed .admin-sidebar-nav {
   padding: 12px 8px;
 }
 
-.sidebar.closed .sidebar-link {
+.admin-sidebar.closed .admin-sidebar-link {
   justify-content: center;
   padding: 11px 0;
   gap: 0;
 }
 
-.sidebar.closed .sidebar-link.active::before {
+.admin-sidebar.closed .admin-sidebar-link.active::before {
   display: none;
 }
 
 /* Tooltip on hover when collapsed */
-.sidebar.closed .sidebar-link::after {
+.admin-sidebar.closed .admin-sidebar-link::after {
   content: attr(data-tooltip);
   position: absolute;
   left: calc(100% + 12px);
@@ -219,27 +219,27 @@
   z-index: 9999;
 }
 
-.sidebar.closed .sidebar-link:hover::after {
+.admin-sidebar.closed .admin-sidebar-link:hover::after {
   opacity: 1;
 }
 
 /* ═══════════════════════════════════════
    Footer (Logout)
 ═══════════════════════════════════════ */
-.sidebar-footer {
+.admin-sidebar-footer {
   padding: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.sidebar.closed .sidebar-footer {
+.admin-sidebar.closed .admin-sidebar-footer {
   padding: 10px 8px;
 }
 
-.sidebar-logout {
+.admin-sidebar-logout {
   color: #f87171 !important;
 }
 
-.sidebar-logout:hover {
+.admin-sidebar-logout:hover {
   background: rgba(239, 68, 68, 0.1) !important;
   color: #fca5a5 !important;
 }
@@ -247,67 +247,12 @@
 /* ═══════════════════════════════════════
    Main Content
 ═══════════════════════════════════════ */
-.main-content {
+.admin-main-content {
   flex: 1;
   padding: 2rem;
   background-color: #f7fafc;
   overflow-y: auto;
   min-height: 100vh;
-}
-
-/* ═══════════════════════════════════════
-   Dashboard Cards
-═══════════════════════════════════════ */
-.header {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  color: #1a202c;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.card {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 14px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.11);
-}
-
-.card-content {
-  text-decoration: none;
-  color: inherit;
-  display: block;
-}
-
-.card h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin-top: 0.75rem;
-}
-
-.card p {
-  font-size: 0.875rem;
-  color: #718096;
-  margin-top: 0.4rem;
-}
-
-.icon {
-  font-size: 2.8rem;
-  color: #6366f1;
 }
 
 /* ═══════════════════════════════════════

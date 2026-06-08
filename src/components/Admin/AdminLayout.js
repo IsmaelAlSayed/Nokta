@@ -28,17 +28,17 @@ const AdminLayout = ({ children }) => {
   };
 
   return (
-    <div className="dashboard-container">
-      <aside className={`sidebar ${isOpen ? "open" : "closed"}`}>
+    <div className="admin-layout">
+      <aside className={`admin-sidebar ${isOpen ? "open" : "closed"}`}>
 
         {/* Brand */}
-        <div className="sidebar-brand">
+        <div className="admin-sidebar-brand">
           <div className="sidebar-brand-logo">
             <span className="brand-dot">●</span>
           </div>
           {isOpen && <span className="brand-name">Nokta</span>}
           <button
-            className="sidebar-toggle"
+            className="admin-sidebar-toggle"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle sidebar"
           >
@@ -47,19 +47,19 @@ const AdminLayout = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="sidebar-nav">
-          <ul className="sidebar-links">
+        <nav className="admin-sidebar-nav">
+          <ul className="admin-sidebar-links">
             {navItems.map(({ to, icon, label }) => (
               <li key={to}>
                 <NavLink
                   to={to}
                   className={({ isActive }) =>
-                    `sidebar-link${isActive ? " active" : ""}`
+                    `admin-sidebar-link${isActive ? " active" : ""}`
                   }
                   data-tooltip={label}
                 >
-                  <span className="sidebar-icon">{icon}</span>
-                  {isOpen && <span className="sidebar-label">{label}</span>}
+                  <span className="admin-sidebar-icon">{icon}</span>
+                  {isOpen && <span className="admin-sidebar-label">{label}</span>}
                 </NavLink>
               </li>
             ))}
@@ -67,22 +67,22 @@ const AdminLayout = ({ children }) => {
         </nav>
 
         {/* Logout */}
-        <div className="sidebar-footer">
+        <div className="admin-sidebar-footer">
           <button
-            className="sidebar-link sidebar-logout"
+            className="admin-sidebar-link admin-sidebar-logout"
             onClick={handleLogout}
             data-tooltip="تسجيل الخروج"
           >
-            <span className="sidebar-icon">
+            <span className="admin-sidebar-icon">
               <FaSignOutAlt />
             </span>
-            {isOpen && <span className="sidebar-label">تسجيل الخروج</span>}
+            {isOpen && <span className="admin-sidebar-label">تسجيل الخروج</span>}
           </button>
         </div>
 
       </aside>
 
-      <main className="main-content">{children}</main>
+      <main className="admin-main-content">{children}</main>
     </div>
   );
 };

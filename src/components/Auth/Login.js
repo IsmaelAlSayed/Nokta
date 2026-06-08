@@ -77,6 +77,7 @@ const Login = () => {
 
   if (showReset) {
     return (
+      <div className="login-page">
       <div className="login-container">
         <div className="login-header-section">
           <div className="login-header-content">
@@ -120,10 +121,12 @@ const Login = () => {
           </p>
         </form>
       </div>
+      </div>
     );
   }
 
   return (
+    <div className="login-page">
     <div className="login-container">
       <div className="login-header-section">
         <div className="login-header-content">
@@ -171,6 +174,7 @@ const Login = () => {
           كافة الحقوق محفوظة لشركة <br /> GROW UP TECH
         </p>
       </form>
+    </div>
     </div>
   );
 };
