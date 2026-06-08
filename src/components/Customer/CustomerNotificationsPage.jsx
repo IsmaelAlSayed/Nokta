@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
+import { FaBell, FaChevronLeft } from "react-icons/fa";
 import CustomerLayout from "./CustomerLayout";
 import "../../styles/CustomerNotifications.css";
+
+const STATUS_LABELS = {
+  approved: "مقبول",
+  rejected: "مرفوض",
+  pending:  "قيد المراجعة",
+};
+
+const STATUS_COLORS = {
+  approved: "cn-status--green",
+  rejected: "cn-status--red",
+  pending:  "cn-status--yellow",
+};
 
 const CustomerNotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
@@ -12,86 +25,81 @@ const CustomerNotificationsPage = () => {
 
   useEffect(() => {
     if (!currentCustomer) return;
-
-    // Query orders where the customer is the current user.
-    const notificationsQuery = query(
+    const q = query(
       collection(db, "orders"),
       where("customerId", "==", currentCustomer.uid)
-      // Uncomment next line if you want to filter by status
-      //, where("status", "in", ["approved", "rejected"])
     );
-
-    const unsubscribe = onSnapshot(
-      notificationsQuery,
-      (snapshot) => {
-        const notifs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        // Sort notifications by createdAt in descending order (newest first)
-        const sortedNotifs = notifs.sort((a, b) => {
-          const aDate = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate() : new Date(0);
-          const bDate = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate() : new Date(0);
-          return bDate - aDate;
+    return onSnapshot(q, (snap) => {
+      const notifs = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const aT = a.createdAt?.toDate?.() ?? new Date(0);
+          const bT = b.createdAt?.toDate?.() ?? new Date(0);
+          return bT - aT;
         });
-        setNotifications(sortedNotifs);
-      },
-      (error) => {
-        console.error("Error fetching customer notifications:", error);
-      }
-    );
-    return () => unsubscribe();
+      setNotifications(notifs);
+    });
   }, [currentCustomer]);
 
-  const handleNotificationClick = async (notification) => {
-    // If the notification is unread, mark it as read
-    if (!notification.customerRead) {
+  const handleClick = async (n) => {
+    if (!n.customerRead) {
       try {
-        await updateDoc(doc(db, "orders", notification.id), { customerRead: true });
-      } catch (error) {
-        console.error("Error marking notification as read:", error);
-      }
+        await updateDoc(doc(db, "orders", n.id), { customerRead: true });
+      } catch (_) {}
     }
-    // Navigate to a detailed view (adjust the route as needed)
-    navigate(`/customer/order/${notification.id}`);
+    navigate(`/customer/order/${n.id}`);
   };
 
-  // Count unread notifications
-  const unreadCount = notifications.filter(n => !n.customerRead).length;
+  const unreadCount = notifications.filter((n) => !n.customerRead).length;
 
   return (
     <CustomerLayout>
-      <div className="customer-notifications-page">
-        <h1>إشعاراتك</h1>
-        <div className="notification-header">
-          <p>عدد الإشعارات الجديدة: {unreadCount}</p>
+      <div className="cn-page">
+        {/* ── Header ── */}
+        <div className="cn-hero">
+          <div className="cn-hero-icon"><FaBell /></div>
+          <div>
+            <h1 className="cn-hero-title">إشعاراتي</h1>
+            {unreadCount > 0 && (
+              <p className="cn-hero-sub">{unreadCount} إشعار جديد</p>
+            )}
+          </div>
         </div>
+
         {notifications.length === 0 ? (
-          <p className="no-notifications">لا توجد إشعارات.</p>
+          <div className="cn-empty">
+            <div className="cn-empty-icon">🔔</div>
+            <p className="cn-empty-title">لا توجد إشعارات</p>
+            <p className="cn-empty-sub">ستظهر طلباتك وتحديثاتها هنا</p>
+          </div>
         ) : (
-          <div className="notifications-list">
-            {notifications.map((notification) => (
+          <div className="cn-list">
+            {notifications.map((n) => (
               <div
-                key={notification.id}
-                className={`notification-card ${notification.customerRead ? "read" : "unread"}`}
-                onClick={() => handleNotificationClick(notification)}
+                key={n.id}
+                className={`cn-card ${n.customerRead ? "" : "cn-card--unread"}`}
+                onClick={() => handleClick(n)}
               >
-                <h3>{notification.prizeName}</h3>
-                <p>
-                  <strong>الحالة:</strong> {notification.status}
-                </p>
-                {notification.rejectionReason && (
-                  <p>
-                    <strong>سبب الرفض:</strong> {notification.rejectionReason}
-                  </p>
-                )}
-                <p>
-                  <strong>الوقت:</strong>{" "}
-                  {notification.createdAt?.toDate
-                    ? notification.createdAt.toDate().toLocaleString()
-                    : "غير محدد"}
-                </p>
-                {!notification.customerRead && <span className="new-label">جديد</span>}
+                <div className="cn-card-body">
+                  <div className="cn-card-top">
+                    <h3 className="cn-prize-name">{n.prizeName || "جائزة"}</h3>
+                    {!n.customerRead && <span className="cn-new-label">جديد</span>}
+                  </div>
+                  <div className="cn-card-meta">
+                    <span className={`cn-status ${STATUS_COLORS[n.status] || "cn-status--yellow"}`}>
+                      {STATUS_LABELS[n.status] || n.status}
+                    </span>
+                    <span className="cn-date">
+                      {n.createdAt?.toDate
+                        ? n.createdAt.toDate().toLocaleDateString("ar-SA")
+                        : "غير محدد"}
+                    </span>
+                  </div>
+                  {n.rejectionReason && (
+                    <p className="cn-rejection">سبب الرفض: {n.rejectionReason}</p>
+                  )}
+                </div>
+                <FaChevronLeft className="cn-arrow" />
               </div>
             ))}
           </div>

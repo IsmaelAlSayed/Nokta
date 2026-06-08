@@ -1,269 +1,194 @@
-/* Layout */
+/* ═══════════════════════════════════════
+   Customer Layout Shell
+═══════════════════════════════════════ */
+.cust-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f4f6fa;
+  font-family: 'Tajawal', sans-serif;
+  direction: rtl;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════
+   Header
+═══════════════════════════════════════ */
+.cust-header {
+  background: #1a1d2e;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.cust-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.2);
+  border: 2px solid rgba(249, 115, 22, 0.4);
+  color: #f97316;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.cust-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cust-header-name {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cust-header-card {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  direction: ltr;
+  text-align: right;
+}
+
+.cust-bell {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.cust-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+/* ═══════════════════════════════════════
+   Main Content
+═══════════════════════════════════════ */
+.cust-main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 76px;
+}
+
+/* ═══════════════════════════════════════
+   Bottom Navigation
+═══════════════════════════════════════ */
+.cust-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: stretch;
+  z-index: 200;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cust-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 6px;
+  text-decoration: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  transition: color 0.2s;
+}
+
+.cust-nav-item.active {
+  color: #f97316;
+}
+
+.cust-nav-icon {
+  font-size: 20px;
+}
+
+.cust-nav-bell-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cust-nav-badge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+}
+
+/* ═══════════════════════════════════════
+   Legacy classes (used by LoyaltyDashboard)
+═══════════════════════════════════════ */
 .customer-layout {
-    display: flex;
-    min-height: 100vh;
-    background: #f4f4f9;
-    font-family: 'Arial', sans-serif;
-    overflow-x: hidden; /* Prevent scroll when sidebar is open */
-  }
-  
-  /* Sidebar */
-  .sidebar {
-    width: 250px;
-    background-color: #333;
-    color: white;
-    position: fixed;
-    top: 0;
-    left: -250px; /* Hidden by default */
-    height: 100vh;
-    z-index: 1000;
-    transition: left 0.3s ease;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-  }
-  
-  .sidebar.open {
-    left: 0; /* Slide in when open */
-  }
-  
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    background-color: #222;
-  }
-  
-  .logo {
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-  }
-  
-  .sidebar-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar-nav li {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #444;
-  }
-  
-  .sidebar-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    display: block;
-  }
-  
-  /* .sidebar-nav a:hover {
-    background-color: #c52323;
-    border-radius: 5px;
-    padding: 10px;
-  } */
-  
-  /* Main Content */
-  .main-content {
-    flex: 1;
-    transition: margin-left 0.3s ease;
-    margin-left: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    background-color: #24252c;
-  }
-  
-  /* When Sidebar is Open */
-  .main-content.shifted {
-    margin-left: 250px;
-  }
-  
-  /* Header */
-  .header {
-    background: #fff;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 500;
-  }
-  
-  .menu-button {
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-  }
-  
-  /* Profile Info */
-  .profile-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .profile-pic,
-  .default-profile-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: #eee;
-    margin-right: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: #666;
-  }
-  
-  .profile-name h2 {
-    font-size: 16px;
-    margin: 0;
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .profile-name p {
-    margin: 0;
-    font-size: 12px;
-    color: gray;
-  }
-  
-  /* Footer */
-  .customer-footer {
-    background: white;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    margin-top: auto;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .main-content.shifted {
-      margin-left: 0; /* Keep content in place on mobile */
-    }
-  
-    .sidebar {
-      left: -100%;
-      width: 80%;
-    }
-  
-    .sidebar.open {
-      left: 0;
-    }
-  
-    .header {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  }
+  display: flex;
+  min-height: 100vh;
+  background: #f4f4f9;
+  font-family: 'Arial', sans-serif;
+  overflow-x: hidden;
+}
 
-  /* Sidebar Styles */
-
-  
-  .sidebar.open {
-    left: 0; /* Slide in */
-  }
-  
-  /* Sidebar Header */
-  .sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ff5722; /* Bright accent color */
-    padding: 15px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  
-  .logo a {
-    color: white;
-    text-decoration: none;
-    font-size: 24px;
-    font-weight: bold;
-  }
-  
-  .close-btn {
-    background: transparent;
-    border: none;
-    font-size: 24px;
-    color: white;
-    cursor: pointer;
-  }
-  
-  /* Navigation Links */
-  .sidebar-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 20px;
-  }
-  
-  .sidebar-nav li {
-    text-align: left;
-  }
-  
-  .sidebar-nav a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: white;
-    background: #ff5722;
-    border-radius: 8px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    font-size: 16px;
-    font-weight: 500;
-  }
-  
-  .sidebar-nav a:hover {
-    /* background: #ff7043; */
-    transform: translateX(5px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  }
-  
-  /* Main Content Adjustment */
-  .main-content.shifted {
-    margin-left: 250px;
-    transition: margin-left 0.3s ease-in-out;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .sidebar {
-      width: 80%;
-    }
-  
-    .main-content.shifted {
-      margin-left: 0;
-    }
-  }
-  
-  /* Sidebar Styles */
 .sidebar {
+  width: 250px;
+  background-color: #24252c;
+  color: #ecf0f1;
   position: fixed;
   top: 0;
   left: 0;
-  width: 280px;
-  height: 100%;
-  background-color: #24252c; 
-  color: #ecf0f1; /* Light text */
+  height: 100vh;
+  z-index: 1000;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
-  z-index: 1000;
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
@@ -278,15 +203,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: #24252c;
+  background-color: #ff5722;
   border-bottom: 1px solid rgba(236, 240, 241, 0.2);
 }
 
-.sidebar-header .logo a {
+.logo a {
+  color: white;
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: bold;
-  color: #ecf0f1;
 }
 
 .close-btn {
@@ -295,11 +220,6 @@
   color: #ecf0f1;
   font-size: 1.4rem;
   cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-  color: #1abc9c;
 }
 
 .sidebar-nav {
@@ -311,36 +231,68 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .sidebar-nav li {
-  margin-bottom: 20px;
+  text-align: right;
 }
 
 .sidebar-nav a {
-  text-decoration: none;
-  font-size: 1.1rem;
-  color: #ecf0f1;
   display: flex;
   align-items: center;
-  transition: color 0.3s ease;
+  gap: 10px;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #ecf0f1;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background 0.3s ease;
 }
 
-.sidebar-nav a svg {
-  margin-right: 10px;
-  font-size: 1.4rem;
+.sidebar-nav a:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.main-content {
+  flex: 1;
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  background-color: #24252c;
+}
+
+.main-content.shifted {
+  margin-left: 250px;
 }
 
 .header {
+  background: #fff;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  padding: 1rem;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 500;
+}
+
+.menu-button {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 20px;
 }
 
@@ -350,23 +302,36 @@
   gap: 10px;
 }
 
+.default-profile-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #666;
+}
+
 .profile-pic {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .profile-name h2 {
+  font-size: 16px;
   margin: 0;
-  font-size: 1.5rem;
+  font-weight: bold;
   color: #333;
 }
 
 .profile-name p {
   margin: 0;
-  font-size: 0.9rem;
-  color: #777;
+  font-size: 12px;
+  color: gray;
 }
 
 .customer-notification-link {
@@ -381,17 +346,6 @@
   transition: color 0.3s ease;
 }
 
-.customer-notification-icon:hover {
-  color: #007bff;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 20px;
-}
-
 .customer-notification-badge {
   position: absolute;
   top: -5px;
@@ -402,4 +356,12 @@
   padding: 2px 6px;
   font-size: 0.75rem;
   font-weight: bold;
+}
+
+.customer-footer {
+  background: #1a1b21;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  padding: 14px 0;
+  font-size: 12px;
 }

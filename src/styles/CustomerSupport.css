@@ -1,84 +1,221 @@
-/* CustomerSupport.css */
+/* ═══════════════════════════════════════
+   Customer Support Page
+═══════════════════════════════════════ */
+.cs-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-.customer-support-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .support-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  .support-header h1 {
-    font-size: 2rem;
-    color: #333333;
-    margin: 0;
-  }
-  
-  .support-content p {
-    font-size: 1rem;
-    color: #555555;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
-  }
-  
-  .support-form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #333333;
-  }
-  
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-  }
-  
-  button[type="submit"] {
-    background-color: #24252c;
-    color: #ffffff;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  button[type="submit"]:hover {
-    background-color: #0056b3;
-  }
-  
-  .support-status {
-    margin-top: 1rem;
-    font-size: 1rem;
-    text-align: center;
-    color: #28a745;
-  }
-  
+/* ── Hero ── */
+.cs-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+}
+
+.cs-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-hero-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.cs-hero-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+/* ── Card ── */
+.cs-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.cs-card-header {
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cs-card-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* ── Form ── */
+.cs-form {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cs-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cs-input {
+  padding: 10px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  text-align: right;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cs-input:focus {
+  border-color: #f97316;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.cs-textarea {
+  padding: 10px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  text-align: right;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cs-textarea:focus {
+  border-color: #f97316;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.cs-success {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.cs-submit-btn {
+  background: #f97316;
+  color: #fff;
+  border: none;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  width: 100%;
+}
+
+.cs-submit-btn:hover { background: #ea6c0a; transform: translateY(-1px); }
+.cs-submit-btn:active { transform: translateY(0); }
+.cs-submit-btn:disabled { background: #fdba74; cursor: not-allowed; transform: none; }
+
+/* ── History ── */
+.cs-history {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cs-history-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+}
+
+.cs-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cs-request-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+}
+
+.cs-request-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.cs-request-subject {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cs-request-date {
+  font-size: 12px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.cs-request-msg {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 6px;
+  line-height: 1.5;
+}
+
+.cs-request-phone {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}

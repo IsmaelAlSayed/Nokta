@@ -1,89 +1,167 @@
-.customer-order-detail-page {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    font-family: 'Cairo', sans-serif;
-  }
-  
-  .customer-order-detail-page h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  .prize-image-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-  }
-  
-  .prize-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  .order-details {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #555;
-  }
-  
-  .order-details p {
-    margin: 0.75rem 0;
-  }
-  
-  .order-details strong {
-    color: #333;
-  }
-  
-  .back-button {
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    text-align: center;
-    transition: background-color 0.3s ease;
-  }
-  
-  .back-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .loading,
-  .error {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #777;
-  }
+/* ═══════════════════════════════════════
+   Customer Order Detail Page
+═══════════════════════════════════════ */
+.cod-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-  .prize-image-container {
-    text-align: center;
-    margin-bottom: 20px;
-    /* padding: 10px; */
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background-color: #fafafa;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .prize-image-order {
-    max-width: 100%;
-    height: auto;
-    border-radius: 6px;
-    object-fit: cover;
-  }
-  
-  .no-image {
-    text-align: center;
-    color: #999;
-    font-style: italic;
-    margin-bottom: 20px;
-  }
-  
+/* ── Back ── */
+.cod-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.18s;
+  align-self: flex-start;
+}
+
+.cod-back:hover { background: #f1f5f9; }
+
+/* ── Title ── */
+.cod-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* ── Prize Image ── */
+.cod-img-wrap {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.cod-prize-img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 220px;
+}
+
+.cod-no-img {
+  background: #f1f5f9;
+  border-radius: 16px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #cbd5e1;
+}
+
+/* ── Status ── */
+.cod-status-wrap {
+  text-align: center;
+}
+
+.cod-status {
+  display: inline-block;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cod-status--green {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.cod-status--red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.cod-status--yellow {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* ── Details Card ── */
+.cod-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.cod-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cod-row:last-child {
+  border-bottom: none;
+}
+
+.cod-row--rejection {
+  background: #fef2f2;
+}
+
+.cod-label {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.cod-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 500;
+  flex: 1;
+  text-align: right;
+}
+
+.cod-row--rejection .cod-value {
+  color: #dc2626;
+}
+
+/* ── Loading / Error ── */
+.cod-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40vh;
+}
+
+.cod-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: codSpin 0.7s linear infinite;
+}
+
+@keyframes codSpin {
+  to { transform: rotate(360deg); }
+}
+
+.cod-error {
+  text-align: center;
+  padding: 40px 20px;
+  color: #dc2626;
+  font-size: 14px;
+}
