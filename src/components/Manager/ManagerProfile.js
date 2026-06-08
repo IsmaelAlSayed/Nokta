@@ -1,234 +1,204 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider, signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import ManagerLayout from "./ManagerLayout";
-import "../../styles/ManagerProfile.css";
+import {
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  signOut,
+} from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
+import ManagerLayout from "./ManagerLayout";
+import "../../styles/ManagerDashboard.css";
 
 const ManagerProfile = () => {
   const [profile, setProfile] = useState({
-    name: "",
-    phoneNumber: "",
-    address: "",
-    businessName: "",
-    email: "",
-    logoUrl: "", // store logo URL from Firebase Storage, if any
+    name: "", phoneNumber: "", address: "", businessName: "", email: "", logoUrl: "",
   });
   const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [logoFile, setLogoFile] = useState(null);
-  const [logoPreview, setLogoPreview] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+  const [newPassword, setNewPassword]         = useState("");
+  const [showCurrent, setShowCurrent]         = useState(false);
+  const [showNew, setShowNew]                 = useState(false);
+  const [logoFile, setLogoFile]               = useState(null);
+  const [logoPreview, setLogoPreview]         = useState("");
+  const [loading, setLoading]                 = useState(true);
+  const [msg, setMsg]                         = useState("");
+  const [msgType, setMsgType]                 = useState("success");
 
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile(docSnap.data());
-        } else {
-          console.error("Profile not found");
-        }
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      }
+    if (!currentUser) return;
+    getDoc(doc(db, "users", currentUser.uid)).then((snap) => {
+      if (snap.exists()) setProfile(snap.data());
       setLoading(false);
-    };
-
-    if (currentUser) {
-      fetchProfile();
-    }
+    });
   }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      [name]: value,
-    }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCurrentPasswordChange = (e) => {
-    setCurrentPassword(e.target.value);
-  };
-
-  const handleNewPasswordChange = (e) => {
-    setNewPassword(e.target.value);
-  };
-
-  // Handle file selection and preview generation
-  const handleLogoFileChange = (e) => {
+  const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
-    } else {
-      setLogoFile(null);
-      setLogoPreview("");
     }
   };
 
-  const handleUpdateProfile = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    setMessage("");
+    setMsg("");
     try {
       const userRef = doc(db, "users", currentUser.uid);
-      // Update basic profile info (excluding password)
       await updateDoc(userRef, {
         name: profile.name,
         phoneNumber: profile.phoneNumber,
         address: profile.address,
         businessName: profile.businessName,
       });
-      let updateMsg = "Profile updated successfully.";
 
-      // If a logo file is selected, upload it to Firebase Storage and update the logoUrl field in Firestore
       if (logoFile) {
         const storage = getStorage();
-        const logoStorageRef = ref(storage, `logos/${currentUser.uid}/${logoFile.name}`);
-        await uploadBytes(logoStorageRef, logoFile);
-        const url = await getDownloadURL(logoStorageRef);
+        const logoRef = ref(storage, `logos/${currentUser.uid}/${logoFile.name}`);
+        await uploadBytes(logoRef, logoFile);
+        const url = await getDownloadURL(logoRef);
         await updateDoc(userRef, { logoUrl: url });
-        // Update local state with the new logo URL and clear file/preview states
         setProfile((prev) => ({ ...prev, logoUrl: url }));
         setLogoFile(null);
         setLogoPreview("");
-        updateMsg += " Logo updated successfully.";
       }
 
-      // If a new password is provided, update the password
       if (newPassword) {
         if (!currentPassword) {
-          setMessage("Please enter your current password to update the password.");
+          setMsg("أدخل كلمة المرور الحالية لتحديث كلمة المرور");
+          setMsgType("error");
           return;
         }
-        const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
-        await reauthenticateWithCredential(currentUser, credential);
+        const cred = EmailAuthProvider.credential(currentUser.email, currentPassword);
+        await reauthenticateWithCredential(currentUser, cred);
         await updatePassword(currentUser, newPassword);
-        updateMsg += " Password updated successfully.";
         setCurrentPassword("");
         setNewPassword("");
       }
-      setMessage(updateMsg);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      setMessage("Failed to update profile: " + error.message);
+
+      setMsg("تم تحديث الملف الشخصي بنجاح");
+      setMsgType("success");
+    } catch (err) {
+      setMsg("حدث خطأ: " + err.message);
+      setMsgType("error");
     }
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/login");
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+    await signOut(auth);
+    navigate("/login");
   };
 
-  if (loading) {
-    return <p className="loading">Loading profile...</p>;
-  }
+  const displayLogo = logoPreview || profile.logoUrl;
+
+  if (loading) return (
+    <ManagerLayout>
+      <div className="mgrp-loading"><div className="mgrp-spinner" /></div>
+    </ManagerLayout>
+  );
 
   return (
     <ManagerLayout>
-      <div className="manager-profile-container">
-        <div className="profile-header">
-          <h1>Manager Profile</h1>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
+      <div className="mgrp-page">
+        {/* ── Hero ── */}
+        <div className="mgrp-hero">
+          <div className="mgrp-avatar">
+            {displayLogo
+              ? <img src={displayLogo} alt="logo" className="mgrp-avatar-img" />
+              : (profile.businessName?.charAt(0).toUpperCase() || "م")}
+          </div>
+          <h2 className="mgrp-hero-name">{profile.businessName || profile.name}</h2>
+          <p className="mgrp-hero-email">{profile.email}</p>
+          <button className="mgrp-logout-btn" onClick={handleLogout}>تسجيل الخروج</button>
         </div>
-        {/* Logo display area */}
-        <div className="logo-container">
-          {logoPreview ? (
-            <img src={logoPreview} alt="Logo Preview" className="logo-image" />
-          ) : profile.logoUrl ? (
-            <img src={profile.logoUrl} alt="Logo" className="logo-image" />
-          ) : (
-            <div className="default-logo">
-              {profile.businessName ? profile.businessName.charAt(0).toUpperCase() : ""}
+
+        {/* ── Info Form ── */}
+        <form className="mgrp-card" onSubmit={handleSave}>
+          <p className="mgrp-card-title">المعلومات الشخصية</p>
+
+          {/* Logo upload */}
+          <div className="mgrp-field">
+            <label className="mgrp-label">شعار المتجر</label>
+            <label className="mgrp-file-label">
+              <FaCamera />
+              <span>{logoFile ? logoFile.name : "اختر صورة الشعار"}</span>
+              <input type="file" accept="image/*" className="mgrp-file-input" onChange={handleLogoChange} />
+            </label>
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">الاسم</label>
+            <input className="mgrp-input" type="text" name="name" value={profile.name} onChange={handleChange} required />
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">رقم الهاتف</label>
+            <input className="mgrp-input" type="text" name="phoneNumber" value={profile.phoneNumber} onChange={handleChange} />
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">العنوان</label>
+            <textarea className="mgrp-textarea" name="address" value={profile.address} onChange={handleChange} />
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">اسم المتجر</label>
+            <input className="mgrp-input" type="text" name="businessName" value={profile.businessName} onChange={handleChange} />
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">البريد الإلكتروني (لا يمكن تغييره)</label>
+            <input className="mgrp-input" type="email" value={profile.email} disabled />
+          </div>
+
+          <p className="mgrp-card-title" style={{ marginTop: 4 }}>تغيير كلمة المرور</p>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">كلمة المرور الحالية</label>
+            <div className="mgrp-pw-wrap">
+              <input
+                className="mgrp-input"
+                type={showCurrent ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+              <button type="button" className="mgrp-pw-toggle" onClick={() => setShowCurrent((v) => !v)}>
+                {showCurrent ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
+          </div>
+
+          <div className="mgrp-field">
+            <label className="mgrp-label">كلمة المرور الجديدة</label>
+            <div className="mgrp-pw-wrap">
+              <input
+                className="mgrp-input"
+                type={showNew ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <button type="button" className="mgrp-pw-toggle" onClick={() => setShowNew((v) => !v)}>
+                {showNew ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" className="mgrp-save-btn">حفظ التغييرات</button>
+
+          {msg && (
+            <p className={`mgrp-msg${msgType === "error" ? " mgrp-msg-error" : ""}`}>{msg}</p>
           )}
-        </div>
-        <form className="profile-form" onSubmit={handleUpdateProfile}>
-          <div className="form-group">
-            <label>Logo Image</label>
-            <input type="file" accept="image/*" onChange={handleLogoFileChange} />
-          </div>
-          <div className="form-group">
-            <label>Name</label>
-            <input 
-              type="text"
-              name="name"
-              value={profile.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input 
-              type="text"
-              name="phoneNumber"
-              value={profile.phoneNumber}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Address</label>
-            <textarea 
-              name="address"
-              value={profile.address}
-              onChange={handleChange}
-            ></textarea>
-          </div>
-          <div className="form-group">
-            <label>Business Name</label>
-            <input 
-              type="text"
-              name="businessName"
-              value={profile.businessName}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Email (cannot be changed)</label>
-            <input 
-              type="email"
-              name="email"
-              value={profile.email}
-              disabled
-            />
-          </div>
-          <div className="form-group">
-            <label>Current Password (required to update password)</label>
-            <input 
-              type="password"
-              name="currentPassword"
-              value={currentPassword}
-              onChange={handleCurrentPasswordChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>New Password</label>
-            <input 
-              type="password"
-              name="newPassword"
-              value={newPassword}
-              onChange={handleNewPasswordChange}
-            />
-          </div>
-          <button type="submit" className="update-button">
-            Update Profile
-          </button>
-          {message && <p className="update-message">{message}</p>}
         </form>
       </div>
     </ManagerLayout>
