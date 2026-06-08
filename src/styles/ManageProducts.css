@@ -1,0 +1,235 @@
+.manage-products-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .error-message {
+    color: #e53e3e;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .product-form {
+    margin-bottom: 2rem;
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    outline: none;
+  }
+  
+  .input-field:focus {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
+  }
+  
+  .submit-button,
+  .cancel-button {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: background-color 0.3s;
+  }
+  
+  .submit-button {
+    background-color: #2b6cb0;
+    color: #fff;
+  }
+  
+  .submit-button:hover {
+    background-color: #2c5282;
+  }
+  
+  .cancel-button {
+    background-color: #e53e3e;
+    color: #fff;
+  }
+  
+  .cancel-button:hover {
+    background-color: #c53030;
+  }
+  
+  .product-list {
+    margin-top: 2rem;
+  }
+  
+  .product-item {
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .edit-button,
+  .delete-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .edit-button {
+    background-color: #4a5568;
+    color: #fff;
+    margin-right: 0.5rem;
+  }
+  
+  .edit-button:hover {
+    background-color: #2d3748;
+  }
+  
+  .delete-button {
+    background-color: #e53e3e;
+    color: #fff;
+  }
+  
+  .delete-button:hover {
+    background-color: #c53030;
+  }
+  
+  .product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-top: 10px;
+    border-radius: 4px;
+  }
+
+  /* Main container */
+.manage-products-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f9fafb;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header */
+  .header {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #2d3748;
+    text-align: center;
+  }
+  
+  /* Product list section */
+  .product-list {
+    margin-top: 2rem;
+  }
+  
+  .product-list h2 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 1rem;
+  }
+  
+  /* Individual product item */
+  .product-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .product-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Product image */
+  .product-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 1rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  /* Product details */
+  .product-details {
+    flex: 1;
+    margin-left: 1rem;
+  }
+  
+  .product-details strong {
+    font-size: 1rem;
+    color: #4a5568;
+  }
+  
+  .product-details p {
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 0.2rem 0;
+  }
+  
+  /* Actions */
+  .product-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .edit-button,
+  .delete-button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .edit-button {
+    background-color: #3182ce; /* Blue button */
+    color: white;
+    margin-right: 0.5rem;
+  }
+  
+  .edit-button:hover {
+    background-color: #2b6cb0;
+  }
+  
+  .delete-button {
+    background-color: #e53e3e; /* Red button */
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #c53030;
+  }
+
+  

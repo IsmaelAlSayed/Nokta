@@ -1,0 +1,221 @@
+/* CustomerOrdersModal.css */
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #ffffff;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 750px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    animation: modalFadeIn 0.3s ease-out;
+  }
+  
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Modal Header */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.75rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+  
+  /* No Orders Message */
+  .no-orders {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #777;
+    padding: 1.5rem 0;
+  }
+  
+  /* Order List */
+  .order-list {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+  }
+  
+  /* Order Card */
+  .order-card {
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Order Card Header */
+  .order-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  
+  .order-serial,
+  .order-date {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  /* Order Card Body */
+  .order-card-body {
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 0.75rem 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Order Item */
+  .order-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  
+  .order-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .order-item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 1rem;
+  }
+  
+  .order-item-details {
+    flex-grow: 1;
+  }
+  
+  .order-item-name {
+    display: block;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.25rem;
+  }
+  
+  .order-item-info {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  /* Order Card Footer */
+  .order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .order-total {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  /* Invoice Button */
+  .invoice-button {
+    display: inline-flex;
+    align-items: center;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .invoice-button:hover {
+    background-color: #0069d9;
+  }
+  
+  .invoice-button:disabled {
+    background-color: #89b0f7;
+    cursor: not-allowed;
+  }
+  
+  .invoice-icon {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f7f7f7; /* Light background for contrast */
+    padding: 1rem 1.5rem; /* Increased padding for better spacing */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 2px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.75rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .close-button {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+  

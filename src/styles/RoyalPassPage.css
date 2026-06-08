@@ -1,0 +1,287 @@
+/* RoyalPassPage.css */
+
+/* Container and Header */
+.royal-pass-page-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+  
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.75rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  .back-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.75rem; /* Adjust size as needed */
+    color: #007bff;
+    transition: color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    color: #0056b3;
+  }
+  
+  /* Friendly Royal Pass Info */
+  .royal-pass-info {
+    text-align: center;
+    background-color: #f0f8ff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .royal-pass-info p {
+    margin: 0.5rem 0;
+    line-height: 1.4;
+  }
+  
+  /* Vertical Progress Container */
+  .royal-pass-progress-container {
+    position: relative;
+    height: 100vh;
+  }
+  
+  /* Vertical progress line centered */
+  .royal-pass-line {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 100%;
+    background-color: #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+  }
+  
+  /* Vertical fill (growing upward) */
+  .royal-pass-fill {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    background-color: #007bff;
+    border-radius: 4px;
+    transition: height 0.5s ease;
+  }
+  
+  /* Prize markers container */
+  .royal-pass-prizes {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Each prize marker as a rectangle, centered on the vertical line */
+  .royal-pass-prize {
+    position: absolute;
+    width: 270px;
+    height: 170px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* Prize icon container and image */
+  .prize-icon-container {
+    position: relative;
+    width: 265px;
+    height: 165px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  
+  .prize-icon {
+    width: 265px;
+    height: 165px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .prize-icon.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ddd;
+    font-size: 2rem;
+    color: #777;
+    border-radius: 4px;
+  }
+  
+  /* Lock overlay */
+  .lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.75);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    opacity: 1;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  
+  .royal-pass-prize.unlocked .lock-overlay {
+    animation: unlockLock 1s forwards;
+  }
+  
+  @keyframes unlockLock {
+    from {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.2) rotate(90deg);
+    }
+  }
+  
+  /* Prize details overlay on top of the image */
+  .prize-details-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  
+  /* Prize details text */
+  .prize-name {
+    font-size: 1rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .prize-threshold {
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 0.25rem;
+  }
+  
+  .prize-remaining {
+    display: block;
+    font-size: 0.85rem;
+    color: #ff6666;
+    margin-top: 0.25rem;
+  }
+  
+  /* Mobile Styles */
+  @media (max-width: 768px) {
+    .royal-pass-page-container {
+      padding: 1rem;
+      margin: 1rem;
+    }
+    .page-header h1 {
+      font-size: 1.5rem;
+    }
+    .back-button {
+      font-size: 1.5rem;
+    }
+    .royal-pass-info {
+      font-size: 1rem;
+      padding: 0.75rem 1rem;
+    }
+    .royal-pass-progress-container {
+      height: 100vh;
+    }
+    .royal-pass-line {
+      width: 4px;
+    }
+    .royal-pass-fill {
+      width: 4px;
+    }
+    .royal-pass-prize {
+      width: 240px;
+      height: 150px;
+    }
+    .prize-icon-container {
+      width: 230px;
+      height: 140px;
+    }
+    .prize-icon {
+      width: 230px;
+      height: 140px;
+    }
+    .prize-icon.placeholder {
+      font-size: 1.8rem;
+    }
+    .lock-overlay {
+      font-size: 1.4rem;
+    }
+    .prize-details-overlay {
+      font-size: 0.8rem;
+      padding: 0.3rem;
+    }
+    .prize-name {
+      font-size: 0.9rem;
+    }
+    .prize-threshold, .prize-remaining {
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Friendly Page Header */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f8ff; /* soft light blue */
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.75rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .back-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.75rem;  /* size of the icon */
+    color: #007bff;      /* friendly blue color */
+    transition: color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    color: #0056b3;
+  }
+  

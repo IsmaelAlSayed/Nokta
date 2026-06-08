@@ -1,0 +1,219 @@
+/* CustomerDashboard.css */
+
+/* Overall Dashboard Container */
+.customer-dashboard-container {
+    padding: 2rem;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0;
+  background: #24252c url('../images/BG.png') no-repeat center center;
+  background-size: cover;
+
+  }
+  
+  /* Dashboard Header */
+  .dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 2rem;
+    color: white;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Offers Section */
+  .offers-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+  }
+  
+  .offers-section h2 {
+    font-size: 1.75rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Grid for Manager Cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+  }
+  
+  /* Manager Card Style */
+  .manager-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .manager-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #007bff;
+    font-weight: 600;
+  }
+  
+  .manager-card p {
+    font-size: 1rem;
+    color: #555;
+    margin: 0.25rem 0;
+  }
+  
+  .manager-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* No Offers Message */
+  .no-offers {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #777;
+    margin-top: 2rem;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .customer-dashboard-container {
+      padding: 1rem;
+    }
+    
+    .dashboard-header h1 {
+      font-size: 1.75rem;
+    }
+    
+    .offers-section h2 {
+      font-size: 1.5rem;
+    }
+    
+    .cards-grid {
+      gap: 0;
+      padding: 0;
+    }
+    
+    .manager-card {
+      /* padding: 1rem; */
+      width: 100%;
+      margin: 5px;
+    }
+    
+    .manager-card h3 {
+      font-size: 1.3rem;
+    }
+    
+    .manager-card p {
+      font-size: 0.9rem;
+    }
+  }
+  
+  .cards-grid {
+    display: flex !important;
+  }
+
+  /* Container and Header */
+.customer-dashboard-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 20px;
+}
+
+/* Grid layout for manager cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Manager Card Style */
+.manager-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.manager-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+}
+
+/* Logo Container and Image Styles */
+.manager-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.manager-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #dddddd;
+}
+
+.default-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #337ab7;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  border: 2px solid #dddddd;
+}
+
+/* Business Name and Offer Count Styles */
+.manager-business-name {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333333;
+  margin: 10px 0 5px;
+}
+
+.offer-count {
+  font-size: 1rem;
+  color: #777777;
+}
+
+.no-offers {
+  font-size: 1.2rem;
+  color: #777777;
+  text-align: center;
+  margin-top: 20px;
+}
