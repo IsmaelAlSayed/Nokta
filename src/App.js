@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import AdminDashboard from "./components/Dashboards/AdminDashboard";
@@ -35,6 +36,7 @@ import CustomerOrderDetailPage from "./components/Customer/CustomerOrderDetailPa
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -160,7 +162,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          /<Route
+          <Route
             path="/manager/support-requests"
             element={
               <ProtectedRoute role="manager">
@@ -169,7 +171,7 @@ function App() {
             }
           />
           <Route
-            path="manager/notifications"
+            path="/manager/notifications"
             element={
               <ProtectedRoute role="manager">
                 <ManagerNotificationsPage />
@@ -233,14 +235,6 @@ function App() {
             }
           />
           <Route
-            path="/customer/support"
-            element={
-              <ProtectedRoute role="customer">
-                <CustomerSupport />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/customer/notifications"
             element={
               <ProtectedRoute role="customer">
@@ -257,9 +251,8 @@ function App() {
             }
           />
         </Routes>
-
       </Router>
-
+      </ToastProvider>
     </AuthProvider>
   );
 }

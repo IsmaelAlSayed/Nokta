@@ -5,15 +5,18 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc,
   doc,
   runTransaction,
+  query,
+  where,
 } from "firebase/firestore";
 import DiscountModal from "./DiscountModal";
 import ManagerLayout from "./ManagerLayout";
+import { useToast } from "../../context/ToastContext";
 import "../../styles/AddOrder.css";
 
 const AddOrder = () => {
+  const { showToast } = useToast();
   // State variables
   const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
@@ -196,12 +199,15 @@ const AddOrder = () => {
       const paddedSerial = newSerialNumber.toString().padStart(13, "0");
       const serialNumber = `ORD-${paddedSerial}`;
   
-      // Fetch the loyalty configuration for the selected customer.
-      // (This assumes that each configuration document has a "customers" array.)
-      const loyaltySnapshot = await getDocs(collection(db, "loyaltyPoints"));
-      const loyaltyConfig = loyaltySnapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .find((config) => config.customers.includes(selectedCustomer));
+      // Fetch the loyalty configuration for the selected customer using indexed query
+      const loyaltyQuery = query(
+        collection(db, "loyaltyPoints"),
+        where("customers", "array-contains", selectedCustomer)
+      );
+      const loyaltySnapshot = await getDocs(loyaltyQuery);
+      const loyaltyConfig = loyaltySnapshot.docs.length > 0
+        ? { id: loyaltySnapshot.docs[0].id, ...loyaltySnapshot.docs[0].data() }
+        : null;
   
       let earnedPoints = 0;
       if (loyaltyConfig) {
@@ -244,10 +250,11 @@ const AddOrder = () => {
       setSearchQuery("");
       setFilteredCustomers([]);
       setError("");
-      alert(
-        `Order added successfully! ${
-          earnedPoints > 0 ? `Loyalty Points Earned: ${earnedPoints}` : ""
-        }`
+      showToast(
+        earnedPoints > 0
+          ? `تمت إضافة الطلب بنجاح — النقاط المكتسبة: ${Math.round(earnedPoints)}`
+          : "تمت إضافة الطلب بنجاح",
+        "success"
       );
     } catch (err) {
       console.error("Error adding order:", err);
