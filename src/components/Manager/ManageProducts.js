@@ -1,404 +1,270 @@
 import React, { useEffect, useState } from "react";
 import { db, storage } from "../../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import EditProductModal from "./EditProductModal";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaSearch, FaCamera } from "react-icons/fa";
 import MangerLayout from "./ManagerLayout";
-import ConfirmDeleteModal from "./ConfirmDeleteModal"; // Import confirmation modal
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import "../../styles/ManageProducts.css";
 
+const EMPTY_FORM = { name: "", price: "", description: "", category: "", subcategory: "", image: null };
+
 const ManageProducts = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts]           = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [productForm, setProductForm] = useState({
-    name: "",
-    price: "",
-    description: "",
-    category: "",
-    subcategory: "",
-    image: null,
-  });
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [error, setError] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
+  const [searchQuery, setSearchQuery]     = useState("");
+  const [categories, setCategories]       = useState([]);
   const [allSubcategories, setAllSubcategories] = useState([]);
-  
-  // State to manage deletion confirmation
+  const [subcategories, setSubcategories] = useState([]);
+
+  const [showModal, setShowModal]         = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [form, setForm]                   = useState(EMPTY_FORM);
+  const [previewUrl, setPreviewUrl]       = useState("");
+  const [uploading, setUploading]         = useState(false);
+  const [error, setError]                 = useState("");
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
-  // Fetch initial data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetch = async () => {
       try {
-        // Fetch products
-        const productSnapshot = await getDocs(collection(db, "products"));
-        const productList = productSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Fetch categories
-        const categorySnapshot = await getDocs(collection(db, "categories"));
-        const categoryList = categorySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Fetch subcategories
-        const subcategorySnapshot = await getDocs(collection(db, "subcategories"));
-        const subcategoryList = subcategorySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setProducts(productList);
-        setFilteredProducts(productList); // Initially display all products
-        setCategories(categoryList);
-        setAllSubcategories(subcategoryList);
-      } catch (error) {
-        setError("Failed to fetch data.");
-      }
+        const [prodSnap, catSnap, subSnap] = await Promise.all([
+          getDocs(collection(db, "products")),
+          getDocs(collection(db, "categories")),
+          getDocs(collection(db, "subcategories")),
+        ]);
+        const prods = prodSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setProducts(prods); setFilteredProducts(prods);
+        setCategories(catSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setAllSubcategories(subSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (_) {}
     };
-    fetchData();
+    fetch();
   }, []);
 
-  // Update filteredProducts whenever products or searchQuery changes
   useEffect(() => {
     setFilteredProducts(
-      products.filter((product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      products.filter((p) => p.name?.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [products, searchQuery]);
 
-  // Handle form changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProductForm((prev) => ({ ...prev, [name]: value }));
+  const openAdd = () => {
+    setEditingProduct(null);
+    setForm(EMPTY_FORM);
+    setPreviewUrl("");
+    setError("");
+    setShowModal(true);
   };
 
-  // Handle category selection
-  const handleCategoryChange = (e) => {
-    const categoryId = e.target.value;
-    setProductForm({
-      ...productForm,
-      category: categoryId,
-      subcategory: ""
-    });
-    const filteredSubs = allSubcategories.filter(
-      (sub) => sub.category === categoryId
-    );
-    setSubcategories(filteredSubs);
+  const openEdit = (product) => {
+    setEditingProduct(product);
+    setForm({ ...EMPTY_FORM, name: product.name, price: product.price, description: product.description, category: product.category, subcategory: product.subcategory || "" });
+    setPreviewUrl(product.imageUrl || "");
+    setSubcategories(allSubcategories.filter((s) => s.category === product.category));
+    setError("");
+    setShowModal(true);
   };
 
-  // Handle image upload
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProductForm((prev) => ({ ...prev, image: file }));
+      setForm((prev) => ({ ...prev, image: file }));
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  // Upload image to Firebase Storage
-  const uploadImage = async (image) => {
-    const timestamp = Date.now();
-    const originalName = image.name;
-    const uniqueName = `${originalName}_${timestamp}`;
-    const imagePath = `products/${uniqueName}`;
-    const imageRef = ref(storage, imagePath);
-    await uploadBytes(imageRef, image);
-    // Wait for the resize extension to process the image (adjust delay as needed)
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    // Construct the expected resized image filename (adjust naming as needed)
-    const resizedFileName = `${uniqueName}_200x200`;
-    const resizedImagePath = `products/${resizedFileName}`;
-    return await getDownloadURL(ref(storage, resizedImagePath));
+  const handleCategoryChange = (e) => {
+    const catId = e.target.value;
+    setForm((prev) => ({ ...prev, category: catId, subcategory: "" }));
+    setSubcategories(allSubcategories.filter((s) => s.category === catId));
   };
 
-  // Add new product
-  const handleAddProduct = async () => {
-    const { name, price, description, category, subcategory, image } = productForm;
-    if (!name || !price || !category || !image) {
-      setError("Name, Price, Category, and Image are required");
+  const uploadImage = async (image) => {
+    const uniqueName = `${image.name}_${Date.now()}`;
+    const imgRef = ref(storage, `products/${uniqueName}`);
+    await uploadBytes(imgRef, image);
+    await new Promise((r) => setTimeout(r, 5000));
+    return await getDownloadURL(ref(storage, `products/${uniqueName}_200x200`));
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.price || !form.category) {
+      setError("الاسم والسعر والتصنيف مطلوبة");
+      return;
+    }
+    if (!editingProduct && !form.image) {
+      setError("الصورة مطلوبة");
       return;
     }
     setUploading(true);
+    setError("");
     try {
-      const imageUrl = await uploadImage(image);
-      const docRef = await addDoc(collection(db, "products"), {
-        name,
-        price: parseFloat(price),
-        description,
-        category,
-        subcategory: subcategory || null,
-        imageUrl,
-      });
-      const newProduct = {
-        id: docRef.id,
-        name,
-        price: parseFloat(price),
-        description,
-        category,
-        subcategory,
+      let imageUrl = editingProduct?.imageUrl || "";
+      if (form.image) imageUrl = await uploadImage(form.image);
+
+      const data = {
+        name: form.name,
+        price: parseFloat(form.price),
+        description: form.description,
+        category: form.category,
+        subcategory: form.subcategory || null,
         imageUrl,
       };
-      setProducts((prevProducts) => [...prevProducts, newProduct]);
-      setProductForm({
-        name: "",
-        price: "",
-        description: "",
-        category: "",
-        subcategory: "",
-        image: null,
-      });
-      setError("");
-    } catch (err) {
-      setError("Failed to add product: " + err.message);
-    } finally {
-      setUploading(false);
-    }
-  };
 
-  // Edit product
-  const handleEditProduct = (product) => {
-    setEditingProduct(product);
-  };
-
-  // Save edited product
-  const handleSaveEdit = async (updatedProduct) => {
-    if (!editingProduct) return;
-    setUploading(true);
-    try {
-      let imageUrl = updatedProduct.imageUrl;
-      if (updatedProduct.image) {
-        imageUrl = await uploadImage(updatedProduct.image);
+      if (editingProduct) {
+        await updateDoc(doc(db, "products", editingProduct.id), data);
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProduct.id ? { ...p, ...data } : p))
+        );
+      } else {
+        const ref = await addDoc(collection(db, "products"), data);
+        setProducts((prev) => [...prev, { id: ref.id, ...data }]);
       }
-      await updateDoc(doc(db, "products", editingProduct.id), {
-        name: updatedProduct.name,
-        price: parseFloat(updatedProduct.price),
-        description: updatedProduct.description,
-        category: updatedProduct.category,
-        subcategory: updatedProduct.subcategory || null,
-        imageUrl: imageUrl,
-      });
-      setProducts((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === editingProduct.id ? { ...product, ...updatedProduct, imageUrl } : product
-        )
-      );
-      setEditingProduct(null);
-      setError("");
+      setShowModal(false);
     } catch (err) {
-      setError("Failed to update product: " + err.message);
-    } finally {
-      setUploading(false);
+      setError("فشل الحفظ: " + err.message);
     }
+    setUploading(false);
   };
 
-  // Open the delete confirmation modal
-  const confirmDeleteProduct = (id) => {
-    setProductToDelete(id);
-    setShowDeleteModal(true);
-  };
+  const confirmDelete = (id) => { setProductToDelete(id); setShowDeleteModal(true); };
 
-  // Delete product
   const handleDeleteProduct = async (id) => {
     try {
       await deleteDoc(doc(db, "products", id));
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.id !== id)
-      );
-    } catch (err) {
-      setError("Failed to delete product: " + err.message);
-    }
-  };
-
-  // Handle search (filtered via useEffect)
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
-  // Confirm deletion callback
-  const onConfirmDelete = () => {
-    handleDeleteProduct(productToDelete);
-    setShowDeleteModal(false);
-    setProductToDelete(null);
-  };
-
-  // Cancel deletion callback
-  const onCancelDelete = () => {
-    setShowDeleteModal(false);
-    setProductToDelete(null);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (_) {}
   };
 
   return (
     <MangerLayout>
-      <div className="manage-products-container">
-        <h1 className="header">Manage Products</h1>
-        {error && <p className="error-message">{error}</p>}
-
-        {/* Product Form */}
-        <div className="product-form">
-          <h2>{editingProduct ? "Edit Product" : "Add New Product"}</h2>
-          <input
-            type="text"
-            name="name"
-            value={productForm.name}
-            onChange={handleChange}
-            placeholder="Product Name"
-            className="input-field"
-          />
-          <input
-            type="number"
-            name="price"
-            value={productForm.price}
-            onChange={handleChange}
-            placeholder="Price"
-            className="input-field"
-          />
-          <textarea
-            name="description"
-            value={productForm.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="input-field"
-          />
-          {/* Category Dropdown */}
-          <select
-            name="category"
-            value={productForm.category}
-            onChange={handleCategoryChange}
-            className="input-field"
-          >
-            <option value="">Select Category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          {/* Subcategory Dropdown */}
-          <select
-            name="subcategory"
-            value={productForm.subcategory}
-            onChange={handleChange}
-            className="input-field"
-            disabled={!productForm.category}
-          >
-            <option value="">Select Subcategory (Optional)</option>
-            {subcategories.map((sub) => (
-              <option key={sub.id} value={sub.id}>
-                {sub.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="file"
-            onChange={handleImageChange}
-            accept="image/*"
-            className="input-field"
-          />
-          <button
-            onClick={handleAddProduct}
-            className="submit-button"
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : "Add Product"}
+      <div className="mp-page">
+        {/* Header */}
+        <div className="mp-header">
+          <h1 className="mp-title">المنتجات</h1>
+          <button className="mp-btn-add" onClick={openAdd}>
+            <FaPlus /> إضافة
           </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="search-bar">
+        {/* Search */}
+        <div className="mp-search-wrap">
+          <FaSearch className="mp-search-icon" />
           <input
+            className="mp-search"
             type="text"
+            placeholder="البحث عن منتج..."
             value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search products..."
-            className="search-input"
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        {/* Product List */}
-        <div className="product-list">
-          <h2>Product List</h2>
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => {
-              const category = categories.find((c) => c.id === product.category);
-              const subcategory = allSubcategories.find((s) => s.id === product.subcategory);
+        {/* Product list */}
+        {filteredProducts.length === 0 ? (
+          <p className="mp-empty">لا توجد منتجات</p>
+        ) : (
+          <div className="mp-list">
+            {filteredProducts.map((product) => {
+              const cat = categories.find((c) => c.id === product.category);
+              const sub = allSubcategories.find((s) => s.id === product.subcategory);
               return (
-                <div key={product.id} className="product-item">
-                  <img
-                    src={product.imageUrl}
-                    alt={product.name}
-                    className="product-image"
-                  />
-                  <div className="product-details">
-                    <p>
-                      <strong>Name:</strong> {product.name}
-                    </p>
-                    <p>
-                      <strong>Category:</strong> {category?.name || "Unknown Category"}
-                    </p>
-                    <p>
-                      <strong>Subcategory:</strong> {subcategory?.name || "None"}
-                    </p>
-                    <p>
-                      <strong>Price:</strong> ${product.price.toFixed(2)}
-                    </p>
-                    <p>
-                      <strong>Description:</strong> {product.description}
-                    </p>
+                <div key={product.id} className="mp-item">
+                  <img src={product.imageUrl} alt={product.name} className="mp-item-img" />
+                  <div className="mp-item-info">
+                    <p className="mp-item-name">{product.name}</p>
+                    <p className="mp-item-meta">{cat?.name || "—"}{sub ? ` ← ${sub.name}` : ""}</p>
+                    <p className="mp-item-price">{product.price?.toFixed(2)} ₪</p>
                   </div>
-                  <div className="product-actions">
-                    <button
-                      onClick={() => handleEditProduct(product)}
-                      className="edit-button"
-                    >
-                      Edit
+                  <div className="mp-item-actions">
+                    <button className="mp-icon-btn mp-icon-btn-edit" onClick={() => openEdit(product)}>
+                      <FaEdit />
                     </button>
-                    <button
-                      onClick={() => confirmDeleteProduct(product.id)}
-                      className="delete-button"
-                    >
-                      Delete
+                    <button className="mp-icon-btn mp-icon-btn-del" onClick={() => confirmDelete(product.id)}>
+                      <FaTrash />
                     </button>
                   </div>
                 </div>
               );
-            })
-          ) : (
-            <p>No products found.</p>
-          )}
-        </div>
-
-        {/* Edit Product Modal */}
-        {editingProduct && (
-          <EditProductModal
-            product={editingProduct}
-            categories={categories}
-            allSubcategories={allSubcategories}
-            onClose={() => setEditingProduct(null)}
-            onSave={handleSaveEdit}
-          />
+            })}
+          </div>
         )}
 
-        {/* Delete Confirmation Modal */}
+        {/* Add / Edit Modal */}
+        {showModal && (
+          <div className="mp-overlay" onClick={() => setShowModal(false)}>
+            <div className="mp-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="mp-modal-header">
+                <h2>{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</h2>
+                <button className="mp-modal-close" onClick={() => setShowModal(false)}><FaTimes /></button>
+              </div>
+              <form className="mp-form" onSubmit={handleSave}>
+                {error && <p style={{ color: "#ef4444", fontSize: 13, margin: 0 }}>{error}</p>}
+
+                {previewUrl && (
+                  <img src={previewUrl} alt="preview" className="mp-img-preview" />
+                )}
+
+                <div className="mp-field">
+                  <label>صورة المنتج</label>
+                  <label className="mp-file-label">
+                    <FaCamera />
+                    <span>{form.image ? form.image.name : "اختر صورة"}</span>
+                    <input type="file" accept="image/*" className="mp-file-input" onChange={handleImageChange} />
+                  </label>
+                </div>
+
+                <div className="mp-field">
+                  <label>اسم المنتج</label>
+                  <input className="mp-input" type="text" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} required />
+                </div>
+
+                <div className="mp-field">
+                  <label>السعر (₪)</label>
+                  <input className="mp-input" type="number" step="0.01" value={form.price} onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))} required />
+                </div>
+
+                <div className="mp-field">
+                  <label>الوصف</label>
+                  <textarea className="mp-textarea" value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+                </div>
+
+                <div className="mp-field">
+                  <label>التصنيف</label>
+                  <select className="mp-select" value={form.category} onChange={handleCategoryChange} required>
+                    <option value="">اختر التصنيف</option>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+
+                <div className="mp-field">
+                  <label>التصنيف الفرعي (اختياري)</label>
+                  <select className="mp-select" value={form.subcategory} onChange={(e) => setForm((p) => ({ ...p, subcategory: e.target.value }))} disabled={!form.category}>
+                    <option value="">بدون تصنيف فرعي</option>
+                    {subcategories.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+
+                {uploading && <p className="mp-uploading">جاري الرفع، انتظر...</p>}
+
+                <div className="mp-modal-footer">
+                  <button type="button" className="mp-btn-cancel" onClick={() => setShowModal(false)}>إلغاء</button>
+                  <button type="submit" className="mp-btn-save" disabled={uploading}>
+                    {uploading ? "جاري..." : editingProduct ? "حفظ" : "إضافة"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         {showDeleteModal && (
           <ConfirmDeleteModal
-            message="Are you sure you want to delete this product?"
-            onConfirm={onConfirmDelete}
-            onCancel={onCancelDelete}
+            message="هل أنت متأكد من حذف هذا المنتج؟"
+            onConfirm={() => { handleDeleteProduct(productToDelete); setShowDeleteModal(false); setProductToDelete(null); }}
+            onCancel={() => { setShowDeleteModal(false); setProductToDelete(null); }}
           />
         )}
       </div>

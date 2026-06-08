@@ -16,6 +16,7 @@ import ProfilePage from "./components/Admin/ProfilePage";
 import AddOrder from "./components/Manager/AddOrder";
 import LoyaltyPoints from "./components/Manager/LoyaltyPoints";
 import CustomerOrdersModal from "./components/Manager/CustomerOrdersModal";
+import ManagerCustomerOrdersPage from "./components/Manager/ManagerCustomerOrdersPage";
 import InvoiceView from "./components/Manager/InvoiceView";
 import ManageCategories from "./components/Manager/ManageCategories";
 import ManagerProfile from "./components/Manager/ManagerProfile";
@@ -118,7 +119,7 @@ function App() {
             path="/manager/customer-orders"
             element={
               <ProtectedRoute role="manager">
-                <CustomerOrdersModal />
+                <ManagerCustomerOrdersPage />
               </ProtectedRoute>
             }
           />

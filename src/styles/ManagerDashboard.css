@@ -432,6 +432,155 @@
   background: #059669;
 }
 
+/* ═══════════════════════════════════════
+   Manager Customer Orders Page  (mco-*)
+═══════════════════════════════════════ */
+.mco-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mco-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.mco-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.mco-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(16, 185, 129, 0.2);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: mcoSpin 0.7s linear infinite;
+}
+
+@keyframes mcoSpin { to { transform: rotate(360deg); } }
+
+.mco-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.mco-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mco-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mco-serial {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.mco-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mco-customer {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.mco-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mco-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.mco-item-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.mco-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  flex: 1;
+  margin: 0;
+}
+
+.mco-item-qty {
+  font-size: 12px;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.mco-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+}
+
+.mco-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: #10b981;
+  margin: 0;
+}
+
+.mco-invoice-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mco-invoice-btn:hover    { background: rgba(16, 185, 129, 0.16); }
+.mco-invoice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .mgrp-msg {
   font-size: 13px;
   color: #10b981;

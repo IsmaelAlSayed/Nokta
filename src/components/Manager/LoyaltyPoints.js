@@ -1,266 +1,118 @@
 import React, { useState, useEffect } from "react";
 import { db, storage, auth } from "../../firebaseConfig";
 import {
-  collection,
-  getDocs,
-  setDoc,
-  deleteDoc,
-  doc,
-  updateDoc,
-  query,
-  where,
-  arrayUnion,
-  arrayRemove
+  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where, arrayUnion, arrayRemove,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaUsers, FaCamera } from "react-icons/fa";
 import AssignedCustomersModal from "./AssignedCustomersModal";
 import MangerLayout from "./ManagerLayout";
 import "../../styles/LoyaltyPoints.css";
 
-const LoyaltyPoints = () => {
-  // Loyalty configuration states
-  const [loyaltyPointsList, setLoyaltyPointsList] = useState([]);
-  const [name, setName] = useState("");
-  const [pointsPerDollar, setPointsPerDollar] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  
-  // Loading and messaging states
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+const EMPTY_PRIZE = { prizeName: "", exchangingValue: "", tier: "", prizeImage: null, prizeImageUrl: "" };
 
-  // Customer assignment states
-  const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
+const LoyaltyPoints = () => {
+  const [loyaltyPointsList, setLoyaltyPointsList] = useState([]);
+  const [isLoading, setIsLoading]                 = useState(false);
+  const [msg, setMsg]                             = useState("");
+  const [msgType, setMsgType]                     = useState("ok");
+
+  /* ── Form ── */
+  const [editingId, setEditingId]           = useState(null);
+  const [name, setName]                     = useState("");
+  const [pointsPerDollar, setPointsPerDollar] = useState("");
   const [selectedCustomers, setSelectedCustomers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
+  const [prizes, setPrizes]                 = useState([]);
+  const [currentPrize, setCurrentPrize]     = useState(EMPTY_PRIZE);
+
+  /* ── Customers ── */
+  const [customers, setCustomers]           = useState([]);
+  const [searchTerm, setSearchTerm]         = useState("");
+
+  /* ── Assigned Customers Modal ── */
+  const [modalOpen, setModalOpen]           = useState(false);
   const [currentLoyalty, setCurrentLoyalty] = useState(null);
 
-  // Prize/Award states
-  const [prizes, setPrizes] = useState([]);
-  const [currentPrize, setCurrentPrize] = useState({
-    prizeName: "",
-    exchangingValue: "",
-    tier: "", // new field for tier level
-    prizeImage: null,
-    prizeImageUrl: ""
-  });
-
-  // Get the currently logged-in manager's UID.
   const currentManager = auth.currentUser;
 
-  // Fetch loyalty configurations and customers for the current manager
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch loyalty configurations for the current manager.
-        const loyaltyQuery = query(
-          collection(db, "loyaltyPoints"),
-          where("managerId", "==", currentManager.uid)
-        );
-        const [loyaltySnapshot, customerSnapshot] = await Promise.all([
-          getDocs(loyaltyQuery),
-          getDocs(collection(db, "users"))
+        const [loySnap, custSnap] = await Promise.all([
+          getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid))),
+          getDocs(collection(db, "users")),
         ]);
-
-        const loyaltyList = loyaltySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        const customerList = customerSnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((user) => user.role === "customer");
-
-        setLoyaltyPointsList(loyaltyList);
-        setCustomers(customerList);
-        setFilteredCustomers(customerList);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data.");
-      }
+        setLoyaltyPointsList(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setCustomers(custSnap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((u) => u.role === "customer"));
+      } catch (_) {}
       setIsLoading(false);
     };
-
     fetchData();
   }, [currentManager.uid]);
 
-  // Clear messages after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setError("");
-      setSuccess("");
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [error, success]);
-
-  // Filter customers by search term
-  useEffect(() => {
-    const filtered = customers.filter((customer) =>
-      customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phoneNumber?.includes(searchTerm)
-    );
-    setFilteredCustomers(filtered);
-  }, [searchTerm, customers]);
-
-  // Upload prize image to Firebase Storage; returns download URL (or empty string if none)
   const uploadPrizeImage = async (image) => {
     if (!image) return "";
-    const timestamp = Date.now();
-    const originalName = image.name;
-    const uniqueName = `${originalName}_${timestamp}`;
-    const imagePath = `prizes/${uniqueName}`;
-    const imageRef = ref(storage, imagePath);
-    await uploadBytes(imageRef, image);
-    return await getDownloadURL(imageRef);
+    const name = `${image.name}_${Date.now()}`;
+    const imgRef = ref(storage, `prizes/${name}`);
+    await uploadBytes(imgRef, image);
+    return await getDownloadURL(imgRef);
   };
 
-  // Handler for adding a prize to the prizes array
   const handleAddPrize = async () => {
-    if (!currentPrize.prizeName.trim()) {
-      setError("Prize name is required.");
-      return;
-    }
+    if (!currentPrize.prizeName.trim()) { setMsg("اسم الجائزة مطلوب"); setMsgType("err"); return; }
     if (isNaN(currentPrize.exchangingValue) || Number(currentPrize.exchangingValue) <= 0) {
-      setError("Exchanging value must be a positive number.");
-      return;
+      setMsg("قيمة الاستبدال يجب أن تكون موجبة"); setMsgType("err"); return;
     }
     let prizeImageUrl = "";
     if (currentPrize.prizeImage) {
-      try {
-        prizeImageUrl = await uploadPrizeImage(currentPrize.prizeImage);
-      } catch (err) {
-        console.error("Error uploading prize image:", err);
-        setError("Failed to upload prize image.");
-        return;
-      }
+      try { prizeImageUrl = await uploadPrizeImage(currentPrize.prizeImage); }
+      catch (_) { setMsg("فشل رفع صورة الجائزة"); setMsgType("err"); return; }
     }
-    const newPrize = {
+    setPrizes((prev) => [...prev, {
       prizeName: currentPrize.prizeName,
       exchangingValue: Number(currentPrize.exchangingValue),
       tier: currentPrize.tier ? Number(currentPrize.tier) : null,
-      prizeImageUrl
-    };
-    setPrizes((prev) => [...prev, newPrize]);
-    // Clear current prize form
-    setCurrentPrize({
-      prizeName: "",
-      exchangingValue: "",
-      tier: "",
-      prizeImage: null,
-      prizeImageUrl: ""
-    });
+      prizeImageUrl,
+    }]);
+    setCurrentPrize(EMPTY_PRIZE);
+    setMsg("");
   };
 
-  // Remove prize from the prizes list by index
-  const handleRemovePrize = (index) => {
-    setPrizes((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Save the loyalty configuration (create or update)
   const handleSaveConfiguration = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
-      setError("Please enter a name for the loyalty configuration.");
-      return;
-    }
+    if (!name.trim()) { setMsg("أدخل اسم البرنامج"); setMsgType("err"); return; }
     if (isNaN(pointsPerDollar) || Number(pointsPerDollar) <= 0) {
-      setError("Points per dollar must be a positive number.");
-      return;
+      setMsg("نقاط الشيكل يجب أن تكون موجبة"); setMsgType("err"); return;
     }
     setIsLoading(true);
     try {
-      const configData = {
-        name,
-        pointsPerDollar: Number(pointsPerDollar),
-        customers: selectedCustomers,
-        managerId: currentManager.uid,
-        prizes // include the prizes array in the configuration
-      };
-
+      const configData = { name, pointsPerDollar: Number(pointsPerDollar), customers: selectedCustomers, managerId: currentManager.uid, prizes };
       if (editingId) {
         await setDoc(doc(db, "loyaltyPoints", editingId), configData);
-        setSuccess("Configuration updated successfully!");
+        setMsg("تم التحديث بنجاح"); setMsgType("ok");
       } else {
         const newDoc = doc(collection(db, "loyaltyPoints"));
         await setDoc(newDoc, configData);
-        setSuccess("Configuration created successfully!");
+        setMsg("تم الإنشاء بنجاح"); setMsgType("ok");
       }
-
-      // Refresh configurations for the current manager.
-      const loyaltyQuery = query(
-        collection(db, "loyaltyPoints"),
-        where("managerId", "==", currentManager.uid)
-      );
-      const snapshot = await getDocs(loyaltyQuery);
-      setLoyaltyPointsList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-      
+      const snap = await getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid)));
+      setLoyaltyPointsList(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       resetForm();
-    } catch (err) {
-      console.error("Error saving configuration:", err);
-      setError("Failed to save configuration.");
-    }
-    setIsLoading(false);
-  };
-
-  // Customer assignment handlers
-  const handleAssignCustomers = async (loyaltyId) => {
-    if (selectedCustomers.length === 0) {
-      setError("Please select at least one customer.");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await updateDoc(doc(db, "loyaltyPoints", loyaltyId), {
-        customers: arrayUnion(...selectedCustomers)
-      });
-      setSuccess("Customers assigned successfully!");
-      setSelectedCustomers([]);
-      const loyaltyQuery = query(
-        collection(db, "loyaltyPoints"),
-        where("managerId", "==", currentManager.uid)
-      );
-      const snapshot = await getDocs(loyaltyQuery);
-      setLoyaltyPointsList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    } catch (err) {
-      console.error("Error assigning customers:", err);
-      setError("Failed to assign customers.");
-    }
-    setIsLoading(false);
-  };
-
-  const handleRemoveCustomer = async (loyaltyId, customerId) => {
-    setIsLoading(true);
-    try {
-      await updateDoc(doc(db, "loyaltyPoints", loyaltyId), {
-        customers: arrayRemove(customerId)
-      });
-      setSuccess("Customer removed successfully!");
-      const loyaltyQuery = query(
-        collection(db, "loyaltyPoints"),
-        where("managerId", "==", currentManager.uid)
-      );
-      const snapshot = await getDocs(loyaltyQuery);
-      setLoyaltyPointsList(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    } catch (err) {
-      console.error("Error removing customer:", err);
-      setError("Failed to remove customer.");
+    } catch (_) {
+      setMsg("فشل الحفظ"); setMsgType("err");
     }
     setIsLoading(false);
   };
 
   const handleDeleteLoyalty = async (loyaltyId) => {
-    if (!window.confirm("Are you sure you want to delete this configuration?")) return;
+    if (!window.confirm("هل أنت متأكد من الحذف؟")) return;
     setIsLoading(true);
     try {
       await deleteDoc(doc(db, "loyaltyPoints", loyaltyId));
-      setSuccess("Configuration deleted successfully!");
-      setLoyaltyPointsList((prev) => prev.filter((item) => item.id !== loyaltyId));
-    } catch (err) {
-      console.error("Error deleting configuration:", err);
-      setError("Failed to delete configuration.");
-    }
+      setLoyaltyPointsList((prev) => prev.filter((i) => i.id !== loyaltyId));
+      setMsg("تم الحذف"); setMsgType("ok");
+    } catch (_) {}
     setIsLoading(false);
   };
 
@@ -270,209 +122,150 @@ const LoyaltyPoints = () => {
     setPointsPerDollar(config.pointsPerDollar);
     setSelectedCustomers(config.customers || []);
     setPrizes(config.prizes || []);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const resetForm = () => {
-    setEditingId(null);
-    setName("");
-    setPointsPerDollar("");
-    setSelectedCustomers([]);
-    setPrizes([]);
-    setCurrentPrize({
-      prizeName: "",
-      exchangingValue: "",
-      tier: "",
-      prizeImage: null,
-      prizeImageUrl: ""
-    });
+    setEditingId(null); setName(""); setPointsPerDollar("");
+    setSelectedCustomers([]); setPrizes([]); setCurrentPrize(EMPTY_PRIZE);
   };
 
-  // Open modal to manage assigned customers
-  const handleOpenModal = (loyalty) => {
-    setCurrentLoyalty(loyalty);
-    setModalOpen(true);
-  };
+  const filteredCustomers = customers.filter(
+    (c) => c.name?.toLowerCase().includes(searchTerm.toLowerCase()) || c.phoneNumber?.includes(searchTerm)
+  );
 
   return (
     <MangerLayout>
-      <div className="loyalty-points-container">
-        <h1>Loyalty Points Management</h1>
-        
-        {/* Create / Edit Configuration Form */}
-        <div className="form-section">
-          <h2>{editingId ? "Edit Configuration" : "Create New Configuration"}</h2>
-          <form onSubmit={handleSaveConfiguration}>
-            <div className="form-group">
-              <label>Name:</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className="form-group">
-              <label>Points per Dollar:</label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                value={pointsPerDollar}
-                onChange={(e) => setPointsPerDollar(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            
-            {/* Prize / Award Section */}
-            <div className="prize-section">
-              <h3>Awards / Prizes (e.g. Royal Pass rewards)</h3>
-              <div className="current-prize-form">
-                <input
-                  type="text"
-                  placeholder="Prize Name (required)"
-                  value={currentPrize.prizeName}
-                  onChange={(e) =>
-                    setCurrentPrize((prev) => ({ ...prev, prizeName: e.target.value }))
-                  }
-                />
-                <input
-                  type="number"
-                  placeholder="Exchanging Value (required)"
-                  value={currentPrize.exchangingValue}
-                  onChange={(e) =>
-                    setCurrentPrize((prev) => ({
-                      ...prev,
-                      exchangingValue: e.target.value,
-                    }))
-                  }
-                />
-                <input
-                  type="number"
-                  placeholder="Tier (optional)"
-                  value={currentPrize.tier}
-                  onChange={(e) =>
-                    setCurrentPrize((prev) => ({ ...prev, tier: e.target.value }))
-                  }
-                />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setCurrentPrize((prev) => ({
-                      ...prev,
-                      prizeImage: e.target.files[0],
-                    }))
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={handleAddPrize}
-                  disabled={isLoading}
-                >
-                  Add Prize
-                </button>
+      <div className="lp-page">
+        <h1 className="lp-title">برامج الولاء</h1>
+
+        {msg && <p className={`lp-msg lp-msg-${msgType}`}>{msg}</p>}
+
+        {/* ── Create / Edit Form ── */}
+        <form className="lp-card" onSubmit={handleSaveConfiguration}>
+          <p className="lp-card-title">{editingId ? "تعديل البرنامج" : "إنشاء برنامج جديد"}</p>
+
+          <div className="lp-field">
+            <label className="lp-label">اسم البرنامج</label>
+            <input className="lp-input" type="text" value={name} onChange={(e) => setName(e.target.value)} disabled={isLoading} required />
+          </div>
+
+          <div className="lp-field">
+            <label className="lp-label">نقطة لكل شيكل</label>
+            <input className="lp-input" type="number" step="0.1" min="0" value={pointsPerDollar} onChange={(e) => setPointsPerDollar(e.target.value)} disabled={isLoading} required />
+          </div>
+
+          {/* Prizes */}
+          <div className="lp-card" style={{ boxShadow: "none", background: "#f8fafc", padding: 12 }}>
+            <p className="lp-card-title" style={{ paddingBottom: 8, marginBottom: 0 }}>الجوائز</p>
+            <div className="lp-prize-grid">
+              <div className="lp-field" style={{ gridColumn: "span 2" }}>
+                <input className="lp-input" type="text" placeholder="اسم الجائزة" value={currentPrize.prizeName} onChange={(e) => setCurrentPrize((p) => ({ ...p, prizeName: e.target.value }))} />
               </div>
-              <div className="prizes-list">
-                {prizes.map((prize, index) => (
-                  <div key={index} className="prize-item">
-                    <p>
-                      <strong>{prize.prizeName}</strong> 
-                      {prize.tier && ` (Tier ${prize.tier})`} - Exchanging Value: ${prize.exchangingValue}
-                    </p>
-                    {prize.prizeImageUrl && (
-                      <img src={prize.prizeImageUrl} alt={prize.prizeName} className="prize-image" />
-                    )}
-                    <button type="button" onClick={() => handleRemovePrize(index)}>Remove</button>
+              <div className="lp-field">
+                <input className="lp-input" type="number" placeholder="قيمة الاستبدال" value={currentPrize.exchangingValue} onChange={(e) => setCurrentPrize((p) => ({ ...p, exchangingValue: e.target.value }))} />
+              </div>
+              <div className="lp-field">
+                <input className="lp-input" type="number" placeholder="المستوى (اختياري)" value={currentPrize.tier} onChange={(e) => setCurrentPrize((p) => ({ ...p, tier: e.target.value }))} />
+              </div>
+              <label className="lp-file-label">
+                <FaCamera /> {currentPrize.prizeImage ? currentPrize.prizeImage.name : "صورة الجائزة (اختياري)"}
+                <input type="file" accept="image/*" className="lp-file-input" onChange={(e) => setCurrentPrize((p) => ({ ...p, prizeImage: e.target.files[0] }))} />
+              </label>
+              <button type="button" className="lp-prize-add-btn" onClick={handleAddPrize}>
+                <FaPlus style={{ marginLeft: 6 }} /> إضافة جائزة للقائمة
+              </button>
+            </div>
+
+            {prizes.length > 0 && (
+              <div className="lp-prizes">
+                {prizes.map((prize, i) => (
+                  <div key={i} className="lp-prize-item">
+                    {prize.prizeImageUrl && <img src={prize.prizeImageUrl} alt={prize.prizeName} className="lp-prize-img" />}
+                    <div className="lp-prize-info">
+                      <p className="lp-prize-name">{prize.prizeName}</p>
+                      <p className="lp-prize-pts">{prize.exchangingValue} نقطة</p>
+                    </div>
+                    <button type="button" className="lp-prize-remove" onClick={() => setPrizes((p) => p.filter((_, ix) => ix !== i))}>
+                      <FaTimes />
+                    </button>
                   </div>
                 ))}
               </div>
-            </div>
-            
-            {/* Customer Assignment Section */}
-            <div className="customer-management">
-              <h3>Assign Customers</h3>
-              <input
-                type="text"
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-bar"
-              />
-              <div className="customer-list">
-                {customers
-                  .filter(customer =>
-                    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    customer.phoneNumber?.includes(searchTerm)
-                  )
-                  .map(customer => (
-                    <div key={customer.id} className="customer-item">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={selectedCustomers.includes(customer.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedCustomers(prev => [...prev, customer.id]);
-                            } else {
-                              setSelectedCustomers(prev => prev.filter(id => id !== customer.id));
-                            }
-                          }}
-                        />
-                        {customer.name} ({customer.phoneNumber})
-                      </label>
-                    </div>
-                  ))}
-              </div>
-            </div>
-            
-            <button type="submit" disabled={isLoading}>
-              {editingId ? "Update" : "Create"} Configuration
-            </button>
-            {editingId && <button type="button" onClick={resetForm}>Cancel</button>}
-          </form>
-        </div>
-        
-        {error && <div className="alert error">{error}</div>}
-        {success && <div className="alert success">{success}</div>}
+            )}
+          </div>
 
-        <div className="configurations-list">
-          <h2>Existing Configurations</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Points/Dollar</th>
-                <th>Actions</th>
-                <th>Manage Customers</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loyaltyPointsList.map(config => (
-                <tr key={config.id}>
-                  <td>{config.name}</td>
-                  <td>{config.pointsPerDollar}</td>
-                  <td className="actions">
-                    <button onClick={() => handleEdit(config)} disabled={isLoading}>
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteLoyalty(config.id)}
-                      disabled={isLoading}
-                      className="delete"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                  <td>
-                    <button onClick={() => handleOpenModal(config)}>Manage Customers</button>
-                  </td>
-                </tr>
+          {/* Customer assignment */}
+          <div className="lp-card" style={{ boxShadow: "none", background: "#f8fafc", padding: 12 }}>
+            <p className="lp-card-title" style={{ paddingBottom: 8, marginBottom: 0 }}>تحديد الزبائن</p>
+            <input
+              className="lp-cust-search"
+              type="text"
+              placeholder="بحث بالاسم أو الهاتف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="lp-cust-list">
+              {filteredCustomers.map((c) => (
+                <div key={c.id} className="lp-cust-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedCustomers.includes(c.id)}
+                    onChange={(e) => {
+                      setSelectedCustomers((prev) =>
+                        e.target.checked ? [...prev, c.id] : prev.filter((id) => id !== c.id)
+                      );
+                    }}
+                  />
+                  <span className="lp-cust-name">{c.name || "—"}</span>
+                  <span className="lp-cust-phone">{c.phoneNumber}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </div>
 
-        {/* Assigned Customers Modal */}
+          <button type="submit" className="lp-save-btn" disabled={isLoading}>
+            {isLoading ? "جاري..." : editingId ? "تحديث البرنامج" : "إنشاء البرنامج"}
+          </button>
+          {editingId && (
+            <button type="button" className="lp-cancel-btn" onClick={resetForm}>إلغاء التعديل</button>
+          )}
+        </form>
+
+        {/* ── Existing configs ── */}
+        {isLoading && loyaltyPointsList.length === 0 ? (
+          <div className="lp-loading"><div className="lp-spinner" /></div>
+        ) : (
+          <>
+            <p className="lp-card-title">البرامج الحالية ({loyaltyPointsList.length})</p>
+            {loyaltyPointsList.map((config) => (
+              <div key={config.id} className="lp-config-item">
+                <div className="lp-config-top">
+                  <div>
+                    <p className="lp-config-name">{config.name}</p>
+                    <p className="lp-config-rate">{config.pointsPerDollar} نقطة / شيكل</p>
+                  </div>
+                  <div className="lp-config-pts-badge">
+                    <span className="lp-config-pts-val">{config.customers?.length || 0}</span>
+                    <span className="lp-config-pts-lbl">زبون</span>
+                  </div>
+                </div>
+                <div className="lp-config-actions">
+                  <button className="lp-cfg-btn lp-cfg-btn-edit" onClick={() => handleEdit(config)} disabled={isLoading}>
+                    <FaEdit style={{ marginLeft: 4 }} /> تعديل
+                  </button>
+                  <button className="lp-cfg-btn lp-cfg-btn-cust" onClick={() => { setCurrentLoyalty(config); setModalOpen(true); }}>
+                    <FaUsers style={{ marginLeft: 4 }} /> الزبائن
+                  </button>
+                  <button className="lp-cfg-btn lp-cfg-btn-del" onClick={() => handleDeleteLoyalty(config.id)} disabled={isLoading}>
+                    <FaTrash style={{ marginLeft: 4 }} /> حذف
+                  </button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
         {modalOpen && currentLoyalty && (
           <AssignedCustomersModal
             loyalty={currentLoyalty}

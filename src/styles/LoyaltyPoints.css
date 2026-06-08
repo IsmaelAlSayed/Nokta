@@ -1,579 +1,365 @@
-.loyalty-points-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: #f7fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header {
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #2d3748;
-    margin-bottom: 1.5rem;
-  }
-  
-  .loading-message,
-  .error-message,
-  .success-message {
-    text-align: center;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .loading-message {
-    color: #3182ce;
-  }
-  
-  .error-message {
-    color: #e53e3e;
-  }
-  
-  .success-message {
-    color: #38a169;
-  }
-  
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .form-label {
-    font-size: 1rem;
-    color: #4a5568;
-  }
-  
-  .input-field {
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  
-  .input-field:focus {
-    border-color: #3182ce;
-    box-shadow: 0 0 4px rgba(49, 130, 206, 0.5);
-  }
-  
-  .save-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    background-color: #48bb78;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.2s;
-  }
-  
-  .save-button:hover {
-    background-color: #38a169;
-    transform: translateY(-2px);
-  }
-  
-  .save-button:disabled {
-    background-color: #cbd5e0;
-    cursor: not-allowed;
-  }
-  
-  /* Loyalty Points Container */
-.loyalty-points-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: #f7fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  .header {
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #2d3748;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Messages */
-  .loading-message,
-  .error-message,
-  .success-message {
-    text-align: center;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .loading-message {
-    color: #3182ce;
-  }
-  
-  .error-message {
-    color: #e53e3e;
-  }
-  
-  .success-message {
-    color: #38a169;
-  }
-  
-  /* Form Section */
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .input-field {
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-  }
-  
-  .save-button {
-    background-color: #48bb78;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .save-button:hover {
-    background-color: #38a169;
-  }
-  
-  /* List Section */
-  .loyalty-list-section {
-    margin-top: 2rem;
-  }
-  
-  .list-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2d3748;
-    margin-bottom: 1rem;
-  }
-  
-  .loyalty-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
-  }
-  
-  .loyalty-table th,
-  .loyalty-table td {
-    border: 1px solid #e2e8f0;
-    padding: 0.75rem;
-    text-align: center;
-  }
-  
-  .loyalty-table th {
-    background-color: #edf2f7;
-    font-weight: bold;
-    color: #2d3748;
-  }
-  
-  .edit-button {
-    background-color: #3182ce;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-right: 0.5rem;
-  }
-  
-  .edit-button:hover {
-    background-color: #2b6cb0;
-  }
-  
-  .delete-button {
-    background-color: #e53e3e;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .delete-button:hover {
-    background-color: #c53030;
-  }
-  
-  .loyalty-table th,
-.loyalty-table td {
-  border: 1px solid #e2e8f0;
-  padding: 0.75rem;
-  text-align: left;
+/* ═══════════════════════════════════════
+   Loyalty Points Management  (lp-*)
+═══════════════════════════════════════ */
+.lp-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 20px;
 }
 
-.loyalty-table th {
-  background-color: #edf2f7;
-  font-weight: bold;
+.lp-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
-/* Base Styles */
-.loyalty-management {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .management-header {
-    margin-bottom: 30px;
-    text-align: center;
-  }
-  
-  .status-messages {
-    margin: 20px 0;
-  }
-  
-  .alert {
-    padding: 15px;
-    border-radius: 5px;
-    margin: 10px 0;
-  }
-  
-  .alert.error {
-    background-color: #ffe6e6;
-    color: #cc0000;
-  }
-  
-  .alert.success {
-    background-color: #e6ffe6;
-    color: #006600;
-  }
-  
-  /* Form Styles */
-  .loyalty-form {
-    background: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 8px 0 8px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .form-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-  }
-  
-  /* Customer Selector */
-  .customer-selector {
-    background: white;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-  }
-  
-  .search-header {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  
-  .customer-list-container {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-  
-  .select-all {
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .customer-list {
-    display: grid;
-    gap: 10px;
-    padding: 10px 0;
-  }
-  
-  .customer-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    background: #f9f9f9;
-  }
-  
-  .customer-info {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Configurations Table */
-  .configurations-table {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    color: black;
-  }
-  
-  th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-  }
-  
-  .assigned-customers {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .customer-tag {
-    background: #e9ecef;
-    padding: 4px 8px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .remove-btn {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 0 4px;
-  }
-  
-  .table-actions {
-    display: flex;
-    gap: 8px;
-  }
-  
-  /* Modal Styles */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  
-  .modal {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    min-width: 400px;
-  }
-  
-  .modal-actions {
-    margin-top: 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-  
-  /* Buttons */
-  button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  .primary-btn {
-    background: #007bff;
-    color: white;
-  }
-  
-  .secondary-btn {
-    background: #6c757d;
-    color: white;
-  }
-  
-  .delete-btn {
-    background: #dc3545;
-    color: white;
-  }
-  
-  .edit-btn {
-    background: #ffc107;
-    color: black;
-  }
-  
-  /* Loading Skeleton */
-  .skeleton-item {
-    padding: 15px;
-    background: white;
-    margin-bottom: 10px;
-    border-radius: 4px;
-  }
-  
-  .skeleton-line {
-    height: 12px;
-    background: #eee;
-    margin-bottom: 8px;
-    border-radius: 4px;
-  }
+/* ── Msg ── */
+.lp-msg {
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
 
-  .customer-list {
-    max-height: 300px; /* Limit height */
-    overflow-y: auto; /* Enable vertical scrolling */
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-    background: #fff;
-  }
-  
-  .customer-item {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .customer-item label {
-    cursor: pointer;
-    width: 100%;
-  }
-  
-  .search-bar {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .configurations-list {
-    display: flex !important;
-    flex-direction: column;
-  }
+.lp-msg-ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
+.lp-msg-err { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
 
-  /* Additional styles for Prize / Award section */
-.prize-section {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-  }
-  
-  .prize-section h3 {
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    color: #444;
-  }
-  
-  .current-prize-form {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-  }
-  
-  .current-prize-form input[type="text"],
-  .current-prize-form input[type="number"],
-  .current-prize-form input[type="file"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .current-prize-form button {
-    padding: 0.5rem 1rem;
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .current-prize-form button:hover {
-    background-color: #218838;
-  }
-  
-  .prizes-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .prize-item {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .prize-image {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-left: 1rem;
-  }
-  
-  .prize-item button {
-    padding: 0.25rem 0.5rem;
-    background: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .prize-item button:hover {
-    background: #c82333;
-  }
-  
+/* ── Card ── */
+.lp-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lp-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* ── Form field ── */
+.lp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.lp-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.lp-input,
+.lp-select {
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.lp-input:focus,
+.lp-select:focus { border-color: #10b981; background: #fff; }
+
+.lp-input:disabled { color: #94a3b8; cursor: not-allowed; }
+
+/* ── Prize add row ── */
+.lp-prize-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.lp-file-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 12px;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #64748b;
+  font-family: 'Tajawal', sans-serif;
+  grid-column: span 2;
+  transition: border-color 0.2s;
+}
+
+.lp-file-label:hover { border-color: #10b981; color: #10b981; }
+.lp-file-input { display: none; }
+
+.lp-prize-add-btn {
+  grid-column: span 2;
+  padding: 9px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1.5px dashed rgba(16, 185, 129, 0.4);
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lp-prize-add-btn:hover { background: rgba(16, 185, 129, 0.14); }
+
+/* ── Prizes list ── */
+.lp-prizes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lp-prize-item {
+  background: #f8fafc;
+  border-radius: 9px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lp-prize-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.lp-prize-info { flex: 1; }
+
+.lp-prize-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.lp-prize-pts {
+  font-size: 12px;
+  color: #f97316;
+  font-weight: 600;
+  margin: 0;
+}
+
+.lp-prize-remove {
+  background: rgba(239, 68, 68, 0.07);
+  border: none;
+  color: #ef4444;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+
+.lp-prize-remove:hover { background: rgba(239, 68, 68, 0.15); }
+
+/* ── Customer search + checkboxes ── */
+.lp-cust-search {
+  padding: 9px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.lp-cust-search:focus { border-color: #10b981; }
+
+.lp-cust-list {
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+}
+
+.lp-cust-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lp-cust-item:hover { background: #f0fdf4; }
+
+.lp-cust-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+.lp-cust-name {
+  font-size: 13px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.lp-cust-phone {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ── Buttons ── */
+.lp-save-btn {
+  width: 100%;
+  padding: 12px;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lp-save-btn:hover    { background: #059669; }
+.lp-save-btn:disabled { background: #6ee7b7; cursor: not-allowed; }
+
+.lp-cancel-btn {
+  width: 100%;
+  padding: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+}
+
+/* ── Config list ── */
+.lp-config-item {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lp-config-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.lp-config-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.lp-config-rate {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.lp-config-pts-badge {
+  background: rgba(249, 115, 22, 0.08);
+  border-radius: 8px;
+  padding: 5px 10px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lp-config-pts-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f97316;
+  display: block;
+  line-height: 1;
+}
+
+.lp-config-pts-lbl {
+  font-size: 10px;
+  color: #94a3b8;
+  display: block;
+}
+
+.lp-config-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.lp-cfg-btn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.lp-cfg-btn-edit   { background: rgba(14, 165, 233, 0.08);  color: #0ea5e9; }
+.lp-cfg-btn-del    { background: rgba(239, 68, 68, 0.07);   color: #ef4444; }
+.lp-cfg-btn-cust   { background: rgba(16, 185, 129, 0.08);  color: #059669; }
+.lp-cfg-btn-edit:hover  { background: rgba(14, 165, 233, 0.18); }
+.lp-cfg-btn-del:hover   { background: rgba(239, 68, 68, 0.16); }
+.lp-cfg-btn-cust:hover  { background: rgba(16, 185, 129, 0.16); }
+
+/* ── Loading ── */
+.lp-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.lp-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(16, 185, 129, 0.2);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: lpSpin 0.7s linear infinite;
+}
+
+@keyframes lpSpin { to { transform: rotate(360deg); } }
