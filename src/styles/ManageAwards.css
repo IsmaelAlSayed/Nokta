@@ -1,183 +1,293 @@
-/* ManageAwards.css */
+/* ═══════════════════════════════════════
+   Manage Awards  (maw-*)
+═══════════════════════════════════════ */
+.maw-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
-.manage-awards-container {
-    max-width: 1000px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
-  
-  .header {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  .alert {
-    text-align: center;
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-  
-  .alert.error {
-    background-color: #f8d7da;
-    color: #842029;
-  }
-  
-  .alert.success {
-    background-color: #d1e7dd;
-    color: #0f5132;
-  }
-  
-  .form-section {
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-  }
-  
-  .form-section h2 {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-    color: #444;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #555;
-  }
-  
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-  }
-  
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #007bff;
-  }
-  
-  .submit-button {
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-right: 1rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .submit-button:hover {
-    background-color: #0069d9;
-  }
-  
-  .cancel-button {
-    padding: 0.75rem 1.5rem;
-    background-color: #6c757d;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .cancel-button:hover {
-    background-color: #5a6268;
-  }
-  
-  .awards-list h2 {
-    font-size: 1.75rem;
-    color: #444;
-    margin-bottom: 1rem;
-    text-align: center;
-  }
-  
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-  }
-  
-  .award-card {
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .award-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  }
-  
-  .award-name {
-    font-size: 1.5rem;
-    color: #007bff;
-    margin-bottom: 0.5rem;
-  }
-  
-  .award-value {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 0.75rem;
-  }
-  
-  .award-image {
-    width: 100%;
-    height: auto;
-    max-height: 150px;
-    object-fit: contain;
-    margin-bottom: 0.75rem;
-  }
-  
-  .award-actions button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    margin: 0.25rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .award-actions .edit-button {
-    background-color: #ffc107;
-    color: #fff;
-  }
-  
-  .award-actions .edit-button:hover {
-    background-color: #e0a800;
-  }
-  
-  .award-actions .delete-button {
-    background-color: #dc3545;
-    color: #fff;
-  }
-  
-  .award-actions .delete-button:hover {
-    background-color: #c82333;
-  }
-  
+/* ── Header ── */
+.maw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.maw-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.maw-btn-add {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.maw-btn-add:hover { background: #059669; }
+
+/* ── Msg ── */
+.maw-msg {
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.maw-msg-ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
+.maw-msg-err { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+
+/* ── Empty ── */
+.maw-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ── Award grid ── */
+.maw-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.maw-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: box-shadow 0.2s;
+}
+
+.maw-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09); }
+
+.maw-card-img {
+  width: 100%;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.maw-card-img-placeholder {
+  width: 100%;
+  height: 100px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  font-size: 28px;
+}
+
+.maw-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.maw-card-pts {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+  margin: 0;
+}
+
+.maw-card-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.maw-icon-btn {
+  flex: 1;
+  padding: 7px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: background 0.18s;
+  gap: 5px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.maw-icon-btn-edit  { background: rgba(14, 165, 233, 0.08); color: #0ea5e9; }
+.maw-icon-btn-del   { background: rgba(239, 68, 68, 0.07);  color: #ef4444; }
+.maw-icon-btn-edit:hover { background: rgba(14, 165, 233, 0.18); }
+.maw-icon-btn-del:hover  { background: rgba(239, 68, 68, 0.16); }
+
+/* ── Modal ── */
+.maw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 17, 34, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.maw-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  overflow: hidden;
+  animation: mawIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes mawIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.maw-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.maw-modal-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.maw-modal-close {
+  width: 30px;
+  height: 30px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 7px;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.maw-form {
+  padding: 16px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.maw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.maw-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.maw-input {
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.maw-input:focus { border-color: #10b981; background: #fff; }
+
+.maw-file-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #64748b;
+  font-family: 'Tajawal', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.maw-file-label:hover { border-color: #10b981; color: #10b981; }
+.maw-file-input { display: none; }
+
+.maw-modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 0 20px 16px;
+}
+
+.maw-btn-save {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.maw-btn-save:hover    { background: #059669; }
+.maw-btn-save:disabled { background: #6ee7b7; cursor: not-allowed; }
+
+.maw-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+}

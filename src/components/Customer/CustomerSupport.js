@@ -1,48 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { collection, addDoc, getDocs, query, where, orderBy, serverTimestamp } from "firebase/firestore";
+import {
+  collection, addDoc, getDocs, query, where, orderBy, serverTimestamp,
+} from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
-import CustomerLayout from "../Customer/CustomerLayout";
+import { FaHeadset, FaChevronDown } from "react-icons/fa";
+import CustomerLayout from "./CustomerLayout";
 import "../../styles/CustomerSupport.css";
 
 const CustomerSupport = () => {
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [phone, setPhone] = useState("");
-  const [status, setStatus] = useState("");
-  const [customerRequests, setCustomerRequests] = useState([]);
+  const [subject, setSubject]   = useState("");
+  const [message, setMessage]   = useState("");
+  const [phone, setPhone]       = useState("");
+  const [sending, setSending]   = useState(false);
+  const [sent, setSent]         = useState(false);
+  const [requests, setRequests] = useState([]);
   const currentCustomer = auth.currentUser;
 
-  // Fetch the current customer's support requests
-  const fetchCustomerRequests = async () => {
+  const fetchRequests = async () => {
     try {
       const q = query(
         collection(db, "supportRequests"),
         where("customerEmail", "==", currentCustomer.email),
         orderBy("createdAt", "desc")
       );
-      const snapshot = await getDocs(q);
-      const requests = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      console.log("Fetched customer requests:", requests);
-      setCustomerRequests(requests);
-    } catch (error) {
-      console.error("Error fetching customer requests:", error);
-      setStatus("Error fetching your support requests. Please check the console for details.");
-    }
+      const snap = await getDocs(q);
+      setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    } catch (_) {}
   };
 
   useEffect(() => {
-    if (currentCustomer && currentCustomer.email) {
-      fetchCustomerRequests();
-    }
+    if (currentCustomer?.email) fetchRequests();
   }, [currentCustomer]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSending(true);
     try {
-      // Add a new support request to Firestore including phone number
       await addDoc(collection(db, "supportRequests"), {
         subject,
         message,
@@ -50,86 +43,103 @@ const CustomerSupport = () => {
         customerEmail: currentCustomer.email,
         createdAt: serverTimestamp(),
       });
-      setStatus("Your support request has been submitted. We'll get back to you soon.");
+      setSent(true);
       setSubject("");
       setMessage("");
       setPhone("");
-      fetchCustomerRequests();
-    } catch (error) {
-      console.error("Error sending support request:", error);
-      setStatus("There was an error submitting your request. Please try again later.");
-    }
+      fetchRequests();
+      setTimeout(() => setSent(false), 4000);
+    } catch (_) {}
+    setSending(false);
   };
 
   return (
     <CustomerLayout>
-      <div className="customer-support-container">
-        <header className="support-header">
-          <h1>Customer Support</h1>
-        </header>
-        <section className="support-content">
-          <p>
-            If you have any issues or need help, please fill out the form below and our support team will assist you as soon as possible.
-          </p>
-          <form className="support-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="subject">Subject:</label>
+      <div className="cs-page">
+        {/* ── Hero ── */}
+        <div className="cs-hero">
+          <div className="cs-hero-icon"><FaHeadset /></div>
+          <div>
+            <h1 className="cs-hero-title">الدعم والمساعدة</h1>
+            <p className="cs-hero-sub">فريقنا مستعد للمساعدة في أي وقت</p>
+          </div>
+        </div>
+
+        {/* ── Form Card ── */}
+        <div className="cs-card">
+          <div className="cs-card-header">
+            <h2>أرسل طلب دعم</h2>
+          </div>
+          <form onSubmit={handleSubmit} className="cs-form">
+            {sent && (
+              <div className="cs-success">
+                تم إرسال طلبك بنجاح، سنتواصل معك قريباً
+              </div>
+            )}
+            <div className="cs-field">
+              <label>الموضوع</label>
               <input
                 type="text"
-                id="subject"
+                className="cs-input"
+                placeholder="موضوع طلبك"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number:</label>
+            <div className="cs-field">
+              <label>رقم الهاتف</label>
               <input
                 type="tel"
-                id="phone"
+                className="cs-input"
+                placeholder="+966 5X XXX XXXX"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter your phone number"
+                dir="ltr"
                 required
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="message">Message:</label>
+            <div className="cs-field">
+              <label>الرسالة</label>
               <textarea
-                id="message"
+                className="cs-textarea"
+                placeholder="اشرح مشكلتك أو استفسارك بالتفصيل..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                rows={4}
                 required
-              ></textarea>
+              />
             </div>
-            <button type="submit">Submit Request</button>
+            <button type="submit" className="cs-submit-btn" disabled={sending}>
+              {sending ? "جاري الإرسال..." : "إرسال الطلب"}
+            </button>
           </form>
-          {status && <p className="support-status">{status}</p>}
-        </section>
+        </div>
 
-        <section className="support-history">
-          <h2>Your Support Requests</h2>
-          {customerRequests.length > 0 ? (
-            <div className="requests-list">
-              {customerRequests.map((request) => (
-                <div key={request.id} className="request-card">
-                  <div className="request-header">
-                    <h3>{request.subject}</h3>
-                    <span className="request-date">
-                      {request.createdAt && request.createdAt.toDate
-                        ? request.createdAt.toDate().toLocaleDateString()
-                        : "Pending..."}
+        {/* ── History ── */}
+        {requests.length > 0 && (
+          <div className="cs-history">
+            <h3 className="cs-history-title">طلباتك السابقة</h3>
+            <div className="cs-requests">
+              {requests.map((r) => (
+                <div key={r.id} className="cs-request-card">
+                  <div className="cs-request-top">
+                    <span className="cs-request-subject">{r.subject}</span>
+                    <span className="cs-request-date">
+                      {r.createdAt?.toDate
+                        ? r.createdAt.toDate().toLocaleDateString("ar-SA")
+                        : "قيد المعالجة"}
                     </span>
                   </div>
-                  <p className="request-message">{request.message}</p>
-                  <p className="request-phone">Phone: {request.phone}</p>
+                  <p className="cs-request-msg">{r.message}</p>
+                  {r.phone && (
+                    <p className="cs-request-phone" dir="ltr">{r.phone}</p>
+                  )}
                 </div>
               ))}
             </div>
-          ) : (
-            <p>You haven't submitted any support requests yet.</p>
-          )}
-        </section>
+          </div>
+        )}
       </div>
     </CustomerLayout>
   );

@@ -4,14 +4,15 @@
     padding: 0;
     font-family: 'Tajawal', sans-serif;
   }
-  
-  body {
+
+  .login-page {
     background-color: #000;
+    display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
   }
-  
+
   .login-container {
     width: 100%;
     max-width: 430px;
@@ -40,6 +41,27 @@
   .login-back-icon {
     font-size: 24px;
     cursor: pointer;
+  }
+
+  .login-back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .login-message--ok {
+    color: #16a34a;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 10px;
   }
   
   .login-title {
@@ -110,6 +132,12 @@
   
   .login-button:hover {
     background: #333;
+  }
+
+  .login-button:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.8;
   }
   
   /* Divider */

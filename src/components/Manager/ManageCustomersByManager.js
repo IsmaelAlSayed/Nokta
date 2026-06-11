@@ -1,351 +1,298 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where } from "firebase/firestore";
+import {
+  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where,
+} from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword,
+} from "firebase/auth";
 import { auth, db } from "../../firebaseConfig";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from "firebase/auth";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import { FaPlus, FaTimes, FaEdit, FaTrash, FaSearch, FaEye, FaEyeSlash } from "react-icons/fa";
 import MangerLayout from "./ManagerLayout";
 import CustomerOrdersModal from "./CustomerOrdersModal";
 import CustomerLoyaltyModal from "./CustomerLoyaltyModal";
 import "../../styles/ManageCustomers.css";
 
-const ManageCustomersByManager = () => {
-  // Customer and loyalty configuration states
-  const [customers, setCustomers] = useState([]);
-  const [loyaltyConfigs, setLoyaltyConfigs] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  // States for adding new customers
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  
-  // Messaging state
-  const [error, setError] = useState("");
-  
-  // Modal states for orders and loyalty values
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
-  const [customerOrders, setCustomerOrders] = useState([]);
-  const [loyaltyModalVisible, setLoyaltyModalVisible] = useState(false);
-  const [selectedCustomerForLoyalty, setSelectedCustomerForLoyalty] = useState(null);
-  
-  // Edit customer state
-  const [editingCustomer, setEditingCustomer] = useState(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    phoneNumber: "",
-    address: "",
-    password: "",
-  });
+const COLORS = ["#10b981", "#3b82f6", "#f97316", "#8b5cf6", "#ef4444", "#0ea5e9"];
 
-  // Fetch customers and loyalty configurations
+const ManageCustomersByManager = () => {
+  const [customers, setCustomers]               = useState([]);
+  const [loyaltyConfigs, setLoyaltyConfigs]     = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [searchQuery, setSearchQuery]           = useState("");
+  const [deletingId, setDeletingId]             = useState(null);
+
+  /* ── Add modal ── */
+  const [showAddModal, setShowAddModal]   = useState(false);
+  const [email, setEmail]                 = useState("");
+  const [password, setPassword]           = useState("");
+  const [confirmPwd, setConfirmPwd]       = useState("");
+  const [showPwd, setShowPwd]             = useState(false);
+  const [addError, setAddError]           = useState("");
+
+  /* ── Edit modal ── */
+  const [editingCustomer, setEditingCustomer] = useState(null);
+  const [editForm, setEditForm]               = useState({ name: "", phoneNumber: "", address: "", password: "" });
+  const [showEditPwd, setShowEditPwd]         = useState(false);
+
+  /* ── Orders / Loyalty modals ── */
+  const [selectedCustomer, setSelectedCustomer]           = useState(null);
+  const [isOrdersModalOpen, setIsOrdersModalOpen]         = useState(false);
+  const [customerOrders, setCustomerOrders]               = useState([]);
+  const [loyaltyModalVisible, setLoyaltyModalVisible]     = useState(false);
+  const [selectedCustomerForLoyalty, setSelectedCustomerForLoyalty] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch customers from "users" collection (role === "customer")
-        const customerSnapshot = await getDocs(collection(db, "users"));
-        const customerList = customerSnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((user) => user.role === "customer");
-        setCustomers(customerList);
-        setFilteredCustomers(customerList);
-        
-        // Fetch loyalty configurations from "loyaltyPoints" collection
-        const loyaltySnapshot = await getDocs(collection(db, "loyaltyPoints"));
-        const loyaltyList = loyaltySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setLoyaltyConfigs(loyaltyList);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to load data.");
-      }
+        const customerSnap = await getDocs(collection(db, "users"));
+        const list = customerSnap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((u) => u.role === "customer");
+        setCustomers(list);
+        setFilteredCustomers(list);
+
+        const loySnap = await getDocs(collection(db, "loyaltyPoints"));
+        setLoyaltyConfigs(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (_) {}
     };
     fetchData();
   }, []);
 
-  // Clear messages after 5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setError("");
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, [error]);
-
-  // Handle search input
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    if (query === "") {
-      setFilteredCustomers(customers);
-    } else {
-      const lowercasedQuery = query.toLowerCase();
-      const filtered = customers.filter(
-        (customer) =>
-          (customer.name && customer.name.toLowerCase().includes(lowercasedQuery)) ||
-          (customer.phoneNumber && customer.phoneNumber.includes(lowercasedQuery))
-      );
-      setFilteredCustomers(filtered);
-    }
+  const handleSearch = (q) => {
+    setSearchQuery(q);
+    if (!q) { setFilteredCustomers(customers); return; }
+    const lq = q.toLowerCase();
+    setFilteredCustomers(customers.filter(
+      (c) => c.name?.toLowerCase().includes(lq) || c.phoneNumber?.includes(q)
+    ));
   };
 
-  // Add new customer
   const handleAddCustomer = async () => {
-    if (!email || !password) {
-      setError("Email and password are required.");
-      return;
-    }
-    const currentAdmin = auth.currentUser;
-    const currentAdminEmail = currentAdmin.email;
-    const currentAdminPassword = prompt("Please enter your admin password to confirm this action:");
-    if (!currentAdminPassword) {
-      setError("Admin password is required.");
-      return;
-    }
+    if (!email || !password) { setAddError("البريد وكلمة المرور مطلوبان"); return; }
+    const currentManager = auth.currentUser;
+    const managerEmail = currentManager.email;
+    if (!confirmPwd) { setAddError("أدخل كلمة مرور المدير للتأكيد"); return; }
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = cred.user;
       await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        role: "customer",
-        name: "",
-        phoneNumber: "",
-        address: "",
+        email: user.email, role: "customer", name: "", phoneNumber: "", address: "",
       });
-      await signInWithEmailAndPassword(auth, currentAdminEmail, currentAdminPassword);
+      await signInWithEmailAndPassword(auth, managerEmail, confirmPwd);
       const newCustomer = { id: user.uid, email: user.email, role: "customer" };
       setCustomers((prev) => [...prev, newCustomer]);
       setFilteredCustomers((prev) => [...prev, newCustomer]);
-      setEmail("");
-      setPassword("");
-      setError("");
+      setEmail(""); setPassword(""); setConfirmPwd(""); setAddError("");
+      setShowAddModal(false);
     } catch (err) {
-      setError(err.message);
+      setAddError(err.message);
     }
   };
 
-  // Delete a customer
   const handleDeleteCustomer = async (id) => {
     try {
       await deleteDoc(doc(db, "users", id));
-      const updatedCustomers = customers.filter((customer) => customer.id !== id);
-      setCustomers(updatedCustomers);
-      setFilteredCustomers(updatedCustomers);
-    } catch (err) {
-      console.error("Error deleting customer:", err);
-    }
+      const updated = customers.filter((c) => c.id !== id);
+      setCustomers(updated); setFilteredCustomers(updated); setDeletingId(null);
+    } catch (_) {}
   };
 
-  // Handle edit customer
   const handleEditCustomer = (customer) => {
     setEditingCustomer(customer);
-    setEditForm({
-      name: customer.name || "",
-      phoneNumber: customer.phoneNumber || "",
-      address: customer.address || "",
-      password: "",
-    });
+    setEditForm({ name: customer.name || "", phoneNumber: customer.phoneNumber || "", address: customer.address || "", password: "" });
   };
 
-  // Save edited customer information
   const handleSaveEdit = async () => {
     if (!editingCustomer) return;
-    const { id } = editingCustomer;
     try {
-      await updateDoc(doc(db, "users", id), {
-        name: editForm.name,
-        phoneNumber: editForm.phoneNumber,
-        address: editForm.address,
+      await updateDoc(doc(db, "users", editingCustomer.id), {
+        name: editForm.name, phoneNumber: editForm.phoneNumber, address: editForm.address,
       });
-      if (editForm.password) {
-        const user = await auth.getUserByEmail(editingCustomer.email);
-        await updatePassword(user, editForm.password);
-      }
-      const updatedCustomers = customers.map((customer) =>
-        customer.id === id
-          ? { ...customer, name: editForm.name, phoneNumber: editForm.phoneNumber, address: editForm.address }
-          : customer
+      const updated = customers.map((c) =>
+        c.id === editingCustomer.id ? { ...c, ...editForm } : c
       );
-      setCustomers(updatedCustomers);
-      setFilteredCustomers(updatedCustomers);
-      setEditingCustomer(null);
-      setEditForm({ name: "", phoneNumber: "", address: "", password: "" });
-    } catch (err) {
-      console.error("Error updating customer:", err);
-    }
+      setCustomers(updated); setFilteredCustomers(updated); setEditingCustomer(null);
+    } catch (_) {}
   };
 
-  // Open modal to view orders
   const handleViewOrders = async (customer) => {
     setSelectedCustomer(customer);
     setIsOrdersModalOpen(true);
     try {
-      const ordersQuery = query(collection(db, "orders"), where("customerId", "==", customer.id));
-      const querySnapshot = await getDocs(ordersQuery);
-      const orders = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setCustomerOrders(orders);
-    } catch (err) {
-      console.error("Error fetching customer orders:", err);
-    }
+      const q = query(collection(db, "orders"), where("customerId", "==", customer.id));
+      const snap = await getDocs(q);
+      setCustomerOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    } catch (_) {}
   };
 
-  // Helper: Return comma-separated loyalty configuration names for a customer.
-  const getCustomerLoyaltyConfigs = (customerId) => {
-    const configs = loyaltyConfigs.filter(
-      (config) => config.customers && config.customers.includes(customerId)
-    );
-    return configs.map((config) => config.name).join(", ") || "None";
-  };
-
-  // Open modal to view loyalty point values for a customer.
-  const handleViewLoyalty = (customer) => {
-    setSelectedCustomerForLoyalty(customer);
-    setLoyaltyModalVisible(true);
+  const getCustomerLoyalty = (id) => {
+    const names = loyaltyConfigs
+      .filter((c) => c.customers?.includes(id))
+      .map((c) => c.name);
+    return names.join("، ") || "—";
   };
 
   return (
     <MangerLayout>
-      <div className="container">
-        <h1 className="header-manager">Manage Customers</h1>
-        
-        {/* Search Bar */}
-        <div className="search-bar">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search by name or phone number"
-            className="search-input"
-          />
-        </div>
-
-        {/* Add Customer Form */}
-        <div className="form-section">
-          <h2 className="text-xl font-semibold mb-2">Add New Customer</h2>
-          {error && <p className="text-red-500 mb-2">{error}</p>}
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Customer Email"
-            className="p-2 border rounded mr-2"
-          />
-          <div className="password-container">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="p-2 border rounded mr-2"
-            />
-            <span
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </span>
+      <div className="mc-page">
+        {/* Header */}
+        <div className="mc-header">
+          <div>
+            <h1 className="mc-title">إدارة الزبائن</h1>
+            <p className="mc-subtitle">{customers.length} زبون مسجل</p>
           </div>
-          <button
-            onClick={handleAddCustomer}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Add Customer
+          <button className="mc-btn-add" onClick={() => { setShowAddModal(true); setAddError(""); }}>
+            <FaPlus /> إضافة زبون
           </button>
         </div>
 
-        {/* Edit Customer Form */}
-        {editingCustomer && (
-          <div className="form-section">
-            <h2 className="text-xl font-semibold mb-2">Edit Customer</h2>
-            <input
-              type="text"
-              value={editForm.name}
-              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-              placeholder="Customer Name"
-              className="p-2 border rounded mb-2 w-full"
-            />
-            <input
-              type="text"
-              value={editForm.phoneNumber}
-              onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })}
-              placeholder="Phone Number"
-              className="p-2 border rounded mb-2 w-full"
-            />
-            <input
-              type="text"
-              value={editForm.address}
-              onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-              placeholder="Address"
-              className="p-2 border rounded mb-2 w-full"
-            />
-            <input
-              type="password"
-              value={editForm.password}
-              onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-              placeholder="New Password (optional)"
-              className="p-2 border rounded mb-2 w-full"
-            />
-            <button
-              onClick={handleSaveEdit}
-              className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-            >
-              Save
+        {/* Search */}
+        <div className="mc-search-wrap">
+          <FaSearch className="mc-search-icon" />
+          <input
+            className="mc-search"
+            type="text"
+            placeholder="البحث بالاسم أو الهاتف..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+          {searchQuery && (
+            <button className="mc-search-clear" onClick={() => handleSearch("")}>
+              <FaTimes />
             </button>
-            <button
-              onClick={() => setEditingCustomer(null)}
-              className="bg-gray-500 text-white px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Customer List */}
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Current Customers</h2>
-          <ul className="customer-list">
-            {filteredCustomers.map((customer) => (
-              <li
-                key={customer.id}
-                className="flex justify-between items-center p-2 bg-white shadow mb-2 rounded"
-              >
-                <span>
-                  <strong>Name:</strong> {customer.name || "No name provided"} <br />
-                  <strong>Email:</strong> {customer.email} <br />
-                  <strong>Phone:</strong> {customer.phoneNumber || "No phone number"} <br />
-                  <strong>Loyalty Config:</strong> {getCustomerLoyaltyConfigs(customer.id)}
-                </span>
-                <div>
-                  <button
-                    onClick={() => handleEditCustomer(customer)}
-                    className="text-blue-500 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCustomer(customer.id)}
-                    className="text-red-500"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => handleViewOrders(customer)}
-                    className="text-green-500 mr-2"
-                  >
-                    View Orders
-                  </button>
-                  <button
-                    onClick={() => handleViewLoyalty(customer)}
-                    className="text-purple-500"
-                  >
-                    View Loyalty Value
-                  </button>
+        {/* Customer list */}
+        {filteredCustomers.length === 0 ? (
+          <div className="mc-empty">
+            <div className="mc-empty-icon">👥</div>
+            <p className="mc-empty-title">لا يوجد زبائن</p>
+            <p className="mc-empty-sub">اضغط إضافة زبون للبدء</p>
+          </div>
+        ) : (
+          <ul className="mc-list">
+            {filteredCustomers.map((customer, i) => (
+              <li key={customer.id} className="mc-card">
+                <div className="mc-avatar" style={{ background: COLORS[i % COLORS.length] }}>
+                  {customer.name?.charAt(0)?.toUpperCase() || "؟"}
                 </div>
+                <div className="mc-info">
+                  <p className="mc-name">
+                    {customer.name || <span className="mc-no-name">بدون اسم</span>}
+                  </p>
+                  <p className="mc-detail">{customer.phoneNumber || customer.email}</p>
+                  <p className="mc-detail" style={{ color: "#10b981", fontSize: 12 }}>
+                    {getCustomerLoyalty(customer.id)}
+                  </p>
+                </div>
+
+                {deletingId === customer.id ? (
+                  <div className="mc-confirm">
+                    <span>حذف؟</span>
+                    <button className="mc-btn-danger-sm" onClick={() => handleDeleteCustomer(customer.id)}>نعم</button>
+                    <button className="mc-btn-ghost-sm" onClick={() => setDeletingId(null)}>لا</button>
+                  </div>
+                ) : (
+                  <div className="mc-actions">
+                    <button
+                      className="mc-icon-btn mc-icon-btn--edit"
+                      title="تعديل"
+                      onClick={() => handleEditCustomer(customer)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="mc-icon-btn mc-icon-btn--delete"
+                      title="حذف"
+                      onClick={() => setDeletingId(customer.id)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
-        </div>
+        )}
 
-        {/* Customer Orders Modal */}
+        {/* ── Add Modal ── */}
+        {showAddModal && (
+          <div className="mc-overlay" onClick={() => setShowAddModal(false)}>
+            <div className="mc-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="mc-modal-header">
+                <h2>إضافة زبون جديد</h2>
+                <button className="mc-modal-close" onClick={() => setShowAddModal(false)}><FaTimes /></button>
+              </div>
+              <div className="mc-form">
+                {addError && <p className="mc-form-error">{addError}</p>}
+                <div className="mc-field">
+                  <label>البريد الإلكتروني</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+                </div>
+                <div className="mc-field">
+                  <label>كلمة مرور الزبون</label>
+                  <div className="mc-pw-wrap">
+                    <input
+                      type={showPwd ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                    />
+                    <button type="button" className="mc-pw-toggle" onClick={() => setShowPwd((v) => !v)}>
+                      {showPwd ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                </div>
+                <div className="mc-field">
+                  <label>كلمة مرورك (للتأكيد)</label>
+                  <input
+                    type="password"
+                    value={confirmPwd}
+                    onChange={(e) => setConfirmPwd(e.target.value)}
+                    placeholder="أدخل كلمة مرورك الحالية"
+                  />
+                </div>
+                <div className="mc-modal-footer">
+                  <button className="mc-btn-ghost" onClick={() => setShowAddModal(false)}>إلغاء</button>
+                  <button className="mc-btn-primary" onClick={handleAddCustomer}>إضافة</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Edit Modal ── */}
+        {editingCustomer && (
+          <div className="mc-overlay" onClick={() => setEditingCustomer(null)}>
+            <div className="mc-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="mc-modal-header">
+                <h2>تعديل بيانات الزبون</h2>
+                <button className="mc-modal-close" onClick={() => setEditingCustomer(null)}><FaTimes /></button>
+              </div>
+              <div className="mc-form">
+                <div className="mc-field">
+                  <label>الاسم</label>
+                  <input className="rtl-input" type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} placeholder="اسم الزبون" />
+                </div>
+                <div className="mc-field">
+                  <label>رقم الهاتف</label>
+                  <input type="text" value={editForm.phoneNumber} onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })} />
+                </div>
+                <div className="mc-field">
+                  <label>العنوان</label>
+                  <input className="rtl-input" type="text" value={editForm.address} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} />
+                </div>
+                <div className="mc-modal-footer">
+                  <button className="mc-btn-ghost" onClick={() => setEditingCustomer(null)}>إلغاء</button>
+                  <button className="mc-btn-primary" onClick={handleSaveEdit}>حفظ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Orders Modal */}
         {isOrdersModalOpen && selectedCustomer && (
           <CustomerOrdersModal
             customer={selectedCustomer}
@@ -354,7 +301,7 @@ const ManageCustomersByManager = () => {
           />
         )}
 
-        {/* Customer Loyalty Value Modal */}
+        {/* Loyalty Modal */}
         {loyaltyModalVisible && selectedCustomerForLoyalty && (
           <CustomerLoyaltyModal
             customer={selectedCustomerForLoyalty}

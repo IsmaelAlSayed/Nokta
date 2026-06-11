@@ -1,101 +1,313 @@
-.profile-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #f7fafc; /* Light gray background */
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.profile-header {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #2d3748;
-}
-
-.profile-form {
+/* ═══════════════════════════════════════
+   Page
+═══════════════════════════════════════ */
+.pp-page {
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
+  gap: 20px;
 }
 
-.profile-form label {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  color: #4a5568;
-}
-
-.profile-input {
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #cbd5e0;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  outline: none;
-}
-
-.profile-input:focus {
-  border-color: #63b3ed; /* Blue border on focus */
-  box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.5);
-}
-
-.password-container {
+/* ═══════════════════════════════════════
+   Loading
+═══════════════════════════════════════ */
+.pp-loading {
   display: flex;
   align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.pp-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: ppSpin 0.7s linear infinite;
+}
+
+@keyframes ppSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════
+   Hero banner
+═══════════════════════════════════════ */
+.pp-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 26px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #fff;
   position: relative;
+  overflow: hidden;
 }
 
-.password-container .toggle-password {
+.pp-hero::before {
+  content: "";
   position: absolute;
-  right: 10px;
-  cursor: pointer;
-  font-size: 1.25rem;
-  color: #4a5568;
+  top: -40px;
+  left: -40px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+  pointer-events: none;
 }
 
-.password-container .toggle-password:hover {
-  color: #2b6cb0;
+.pp-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  z-index: 1;
 }
 
-.save-button,
-.logout-button {
-  padding: 0.75rem;
-  font-size: 1rem;
+.pp-hero-info {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pp-hero-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 5px;
+  line-height: 1.2;
+}
+
+.pp-hero-unnamed {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.pp-hero-email {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0 0 10px;
+  direction: ltr;
+  text-align: right;
+}
+
+.pp-role-badge {
+  display: inline-block;
+  background: rgba(99, 102, 241, 0.28);
+  color: #a5b4fc;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+/* ═══════════════════════════════════════
+   Cards
+═══════════════════════════════════════ */
+.pp-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.pp-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.pp-card-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.pp-card-icon {
+  font-size: 15px;
+  color: #6366f1;
+}
+
+.pp-card-icon--blue {
+  color: #0ea5e9;
+}
+
+/* ═══════════════════════════════════════
+   Form
+═══════════════════════════════════════ */
+.pp-form {
+  padding: 20px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Two-column row */
+.pp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .pp-row { grid-template-columns: 1fr; }
+}
+
+/* Field */
+.pp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pp-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Input */
+.pp-input {
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: ltr;
+  text-align: left;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pp-input.rtl-input {
+  direction: rtl;
+  text-align: right;
+}
+
+.pp-input:focus {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.pp-input--disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.pp-input--disabled:focus {
+  border-color: #e2e8f0;
+  box-shadow: none;
+}
+
+/* Password wrap */
+.pp-pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.pp-pw-wrap .pp-input {
+  padding-left: 42px;
+}
+
+.pp-pw-toggle {
+  position: absolute;
+  left: 12px;
+  background: none;
   border: none;
-  border-radius: 4px;
+  color: #94a3b8;
   cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.3s;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.18s;
 }
 
-.save-button {
-  background-color: #2b6cb0; /* Blue background */
+.pp-pw-toggle:hover { color: #475569; }
+
+/* Password strength hint */
+.pp-pw-hint {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 7px;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.pp-pw-hint--ok {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.pp-pw-hint--weak {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Form footer */
+.pp-form-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 2px;
+}
+
+/* ═══════════════════════════════════════
+   Buttons
+═══════════════════════════════════════ */
+.pp-btn-primary {
+  background: #6366f1;
   color: #fff;
+  border: none;
+  padding: 11px 26px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
 }
 
-.save-button:hover {
-  background-color: #2c5282; /* Darker blue on hover */
+.pp-btn-primary:hover  { background: #4f46e5; transform: translateY(-1px); }
+.pp-btn-primary:active { transform: translateY(0); }
+
+.pp-btn-primary:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.logout-button {
-  background-color: #e53e3e; /* Red background */
-  color: #fff;
+.pp-btn-primary--blue {
+  background: #0ea5e9;
 }
 
-.logout-button:hover {
-  background-color: #c53030; /* Darker red on hover */
-}
+.pp-btn-primary--blue:hover { background: #0284c7; }
 
-.error-message {
-  color: #e53e3e;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.success-message {
-  color: #38a169;
-  text-align: center;
-  margin-bottom: 1rem;
-}
+.pp-btn-primary--blue:disabled { background: #7dd3fc; }

@@ -3,84 +3,61 @@ import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/f
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebaseConfig";
 import ManagerLayout from "./ManagerLayout";
-import "../../styles/ManagerNotifications.css";
+import "../../styles/ManagerDashboard.css";
 
 const ManagerNotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Query all pending orders created via RedeemPopup (customer orders)
-    const notificationsQuery = query(
+    const q = query(
       collection(db, "orders"),
       where("source", "==", "redeemPopup"),
       where("status", "==", "pending")
     );
-
-    const unsubscribe = onSnapshot(
-      notificationsQuery,
-      (snapshot) => {
-        const allNotifications = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setNotifications(allNotifications);
-      },
-      (error) => {
-        console.error("Error fetching notifications:", error);
-      }
-    );
-
-    return () => unsubscribe();
+    const unsub = onSnapshot(q, (snap) => {
+      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
   }, []);
 
-  const handleNotificationClick = async (notification) => {
-    // If the notification is unread, mark it as read.
-    if (!notification.read) {
+  const handleClick = async (notif) => {
+    if (!notif.read) {
       try {
-        await updateDoc(doc(db, "orders", notification.id), { read: true });
-      } catch (error) {
-        console.error("Error marking notification as read:", error);
-      }
+        await updateDoc(doc(db, "orders", notif.id), { read: true });
+      } catch (_) {}
     }
-    // Navigate to a detail view page for this notification.
-    // You can change the route to the appropriate component (e.g., /manager/notifications/:orderId).
-    navigate(`/manager/orderforprize`);
+    navigate("/manager/orderforprize");
   };
 
   return (
     <ManagerLayout>
-    <div className="manager-notifications-page">
-      <h1>إشعارات الطلبات</h1>
-      {notifications.length === 0 ? (
-        <p className="no-notifications">لا توجد إشعارات جديدة.</p>
-      ) : (
-        <div className="notifications-list">
-          {notifications.map((notification) => (
+      <div className="mgrn-page">
+        <h1 className="mgrn-title">الإشعارات</h1>
+
+        {notifications.length === 0 ? (
+          <p className="mgrn-empty">لا توجد إشعارات جديدة</p>
+        ) : (
+          notifications.map((n) => (
             <div
-              key={notification.id}
-              className={`notification-card ${notification.read ? "read" : "unread"}`}
-              onClick={() => handleNotificationClick(notification)}
+              key={n.id}
+              className={`mgrn-card ${n.read ? "" : "unread"}`}
+              onClick={() => handleClick(n)}
             >
-              <h3>{notification.prizeName}</h3>
-              <p>
-                <strong>العميل:</strong> {notification.customerName}
-              </p>
-              <p>
-                <strong>الهاتف:</strong> {notification.phone}
-              </p>
-              <p>
+              <div className="mgrn-card-top">
+                <h3 className="mgrn-prize-name">{n.prizeName}</h3>
+                {!n.read && <span className="mgrn-new-badge">جديد</span>}
+              </div>
+              <p className="mgrn-row"><strong>الزبون:</strong> {n.customerName}</p>
+              <p className="mgrn-row"><strong>الهاتف:</strong> {n.phone}</p>
+              <p className="mgrn-row">
                 <strong>الوقت:</strong>{" "}
-                {notification.createdAt?.toDate
-                  ? notification.createdAt.toDate().toLocaleString()
-                  : "غير محدد"}
+                {n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString("ar") : "غير محدد"}
               </p>
-              {!notification.read && <span className="new-label">جديد</span>}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          ))
+        )}
+      </div>
     </ManagerLayout>
   );
 };

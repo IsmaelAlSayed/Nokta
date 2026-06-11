@@ -1,228 +1,175 @@
-/* ManagerLoyaltyPage.css */
+/* ═══════════════════════════════════════
+   Manager Loyalty Page (Customer View)
+═══════════════════════════════════════ */
+.mlp-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-.manager-loyalty-page-container {
-  padding: 2rem;
-  min-height: 100vh;
-  box-sizing: border-box;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+/* ── Back ── */
+.mlp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+  align-self: flex-start;
+}
+
+.mlp-back:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ── Hero ── */
+.mlp-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+}
+
+.mlp-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mlp-biz-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.mlp-biz-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+/* ── Loading ── */
+.mlp-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.mlp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: mlpSpin 0.7s linear infinite;
+}
+
+@keyframes mlpSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Empty ── */
+.mlp-empty {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.mlp-empty-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 6px;
+}
+
+.mlp-empty-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── Config List ── */
+.mlp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mlp-config-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.mlp-config-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+  transform: translateY(-2px);
+}
+
+.mlp-config-info {
+  flex: 1;
+}
+
+.mlp-config-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px;
+}
+
+.mlp-config-rate {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.mlp-config-pts {
+  display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  padding: 0;
-  background: #24252c url('../images/BG.png') no-repeat center center;
-  background-size: cover;
+  background: rgba(249, 115, 22, 0.08);
+  border-radius: 10px;
+  padding: 8px 14px;
+  flex-shrink: 0;
 }
 
-.header {
-  margin: 0 !important;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.75rem;
-  color: #007bff;
-  transition: color 0.3s ease;
-  position: relative !important;
-}
-
-.back-button:hover {
-  color: #0056b3;
-}
-
-.header-text {
-  flex: 1;
-  text-align: center;
-}
-
-.header-text h1 {
-  font-size: 1.75rem;
-  color: #333;
-  margin: 0;
-  font-weight: 600;
-}
-
-.header-text p {
-  font-size: 1.1rem;
-  color: #555;
-  margin: 0.25rem 0 0;
-}
-
-/* Configurations List */
-.configurations-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.config-card {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.config-card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  color: #007bff;
-  font-weight: 600;
-}
-
-.config-card p {
-  font-size: 1rem;
-  color: #555;
-  margin: 0.25rem 0;
-}
-
-.config-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .manager-loyalty-page-container {
-    padding: 1rem;
-  }
-  .page-header {
-    flex-direction: column;
-    text-align: center;
-  }
-  .back-button {
-    align-self: flex-start;
-    margin-bottom: 0.5rem;
-  }
-  .header-text h1 {
-    font-size: 1.5rem;
-  }
-  .header-text p {
-    font-size: 1rem;
-  }
-  .configurations-list {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  .config-card {
-    padding: 1rem;
-  }
-  .config-card h2 {
-    font-size: 1.3rem;
-  }
-  .config-card p {
-    font-size: 0.9rem;
-  }
-}
-
-.back-button {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.75rem;
-  color: #007bff;
-  transition: color 0.3s ease;
-}
-
-.back-button:hover {
-  color: #0056b3;
-}
-
-/* Friendly Page Header */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #e6f7ff;  /* soft, friendly light blue */
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-.page-header h1 {
-  font-size: 1.75rem;
-  color: #333;
-  margin: 0;
-  flex: 1;
-  text-align: center;
-}
-
-/* Back button positioned on the left, overlapping header */
-.back-button {
-  position: absolute;
-  left: 1rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.75rem;
-  color: #007bff;
-  transition: color 0.3s ease;
-}
-
-.back-button:hover {
-  color: #0056b3;
-}
-
-.business-name {
-  font-size: 2rem;
+.mlp-pts-value {
+  font-size: 22px;
   font-weight: 700;
-  color: #007bff;          /* A strong blue color */
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  color: #f97316;
+  line-height: 1;
 }
 
-/* Professional Page Header */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #e8f4ff; /* Soft blue background */
-  padding: 1.2rem 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  position: relative;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.page-header h1 {
-  font-size: 1.8rem;
-  color: #333;
-  margin: 0;
-  text-align: center;
-  font-weight: 600;
-}
-
-/* Back Button Icon */
-.back-button {
-  position: absolute;
-  left: 1.5rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.8rem;  /* Adjust size as needed */
-  color: #007bff;
-  transition: color 0.3s ease;
-}
-
-.back-button:hover {
-  color: #0056b3;
+.mlp-pts-label {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
 }

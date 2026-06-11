@@ -1,226 +1,211 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import ManagerLayout from "./ManagerLayout";
 import "../../styles/ManageCategories.css";
 
 const ManageCategories = () => {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories]       = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  const [newCategory, setNewCategory] = useState("");
+  const [searchQuery, setSearchQuery]     = useState("");
   const [editingCategory, setEditingCategory] = useState(null);
-  const [newSubcategory, setNewSubcategory] = useState("");
+
+  /* ── New category ── */
+  const [newCategory, setNewCategory]     = useState("");
+  /* ── New subcategory ── */
+  const [newSubcategory, setNewSubcategory]   = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch categories and subcategories from Firestore
   useEffect(() => {
-    const fetchData = async () => {
-      const categorySnapshot = await getDocs(collection(db, "categories"));
-      const categoryList = categorySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      const subcategorySnapshot = await getDocs(collection(db, "subcategories"));
-      const subcategoryList = subcategorySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setCategories(categoryList);
-      setSubcategories(subcategoryList);
+    const fetch = async () => {
+      const [catSnap, subSnap] = await Promise.all([
+        getDocs(collection(db, "categories")),
+        getDocs(collection(db, "subcategories")),
+      ]);
+      setCategories(catSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setSubcategories(subSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
     };
-
-    fetchData();
+    fetch();
   }, []);
 
-  // Add a new category
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
-
-    const docRef = await addDoc(collection(db, "categories"), { name: newCategory });
-    setCategories([...categories, { id: docRef.id, name: newCategory }]);
+    const ref = await addDoc(collection(db, "categories"), { name: newCategory });
+    setCategories((prev) => [...prev, { id: ref.id, name: newCategory }]);
     setNewCategory("");
   };
 
-  // Edit a category
   const handleEditCategory = async () => {
-    if (!editingCategory.name.trim()) return;
-
-    await updateDoc(doc(db, "categories", editingCategory.id), {
-      name: editingCategory.name,
-    });
-
-    setCategories(
-      categories.map((cat) =>
-        cat.id === editingCategory.id ? { ...cat, name: editingCategory.name } : cat
-      )
+    if (!editingCategory?.name?.trim()) return;
+    await updateDoc(doc(db, "categories", editingCategory.id), { name: editingCategory.name });
+    setCategories((prev) =>
+      prev.map((c) => (c.id === editingCategory.id ? { ...c, name: editingCategory.name } : c))
     );
     setEditingCategory(null);
   };
 
-  // Delete a category
   const handleDeleteCategory = async (id) => {
     await deleteDoc(doc(db, "categories", id));
-    setCategories(categories.filter((cat) => cat.id !== id));
-    setSubcategories(subcategories.filter((sub) => sub.category !== id));
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    setSubcategories((prev) => prev.filter((s) => s.category !== id));
   };
 
-  // Add a new subcategory
   const handleAddSubcategory = async () => {
     if (!newSubcategory.trim() || !selectedCategory) return;
-
-    const docRef = await addDoc(collection(db, "subcategories"), {
-      name: newSubcategory,
-      category: selectedCategory,
-    });
-
-    setSubcategories([
-      ...subcategories,
-      { id: docRef.id, name: newSubcategory, category: selectedCategory },
-    ]);
+    const ref = await addDoc(collection(db, "subcategories"), { name: newSubcategory, category: selectedCategory });
+    setSubcategories((prev) => [...prev, { id: ref.id, name: newSubcategory, category: selectedCategory }]);
     setNewSubcategory("");
   };
 
-  // Delete a subcategory
   const handleDeleteSubcategory = async (id) => {
     await deleteDoc(doc(db, "subcategories", id));
-    setSubcategories(subcategories.filter((sub) => sub.id !== id));
+    setSubcategories((prev) => prev.filter((s) => s.id !== id));
   };
 
-  // Filter categories based on search query
-  const filteredCategories = categories.filter((cat) =>
-    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <ManagerLayout>
-      <div className="manage-categories-container">
-        <h1 className="header">Manage Categories & Subcategories</h1>
+      <div className="mcat-page">
+        <h1 className="mcat-title">التصنيفات والتصنيفات الفرعية</h1>
 
-        {/* Search Bar */}
-        <div className="search-bar">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search categories..."
-            className="input-field"
-          />
-        </div>
-
-        {/* Category Form */}
-        <div className="category-form">
-          <h2>Add New Category</h2>
-          <input
-            type="text"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="Enter category name"
-            className="input-field"
-          />
-          <button onClick={handleAddCategory} className="add-button">
-            Add Category
-          </button>
-        </div>
-
-        {/* Category List */}
-        <div className="category-list">
-          <h2>Categories</h2>
-          {filteredCategories.map((category) => (
-            <div key={category.id} className="category-item">
-              <span>{category.name}</span>
-              <div>
-                <button
-                  className="edit-button"
-                  onClick={() => setEditingCategory(category)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="delete-button"
-                  onClick={() => handleDeleteCategory(category.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Subcategory Form */}
-        <div className="subcategory-form">
-          <h2>Add New Subcategory</h2>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="input-field"
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={newSubcategory}
-            onChange={(e) => setNewSubcategory(e.target.value)}
-            placeholder="Enter subcategory name"
-            className="input-field"
-          />
-          <button onClick={handleAddSubcategory} className="add-button">
-            Add Subcategory
-          </button>
-        </div>
-
-        {/* Subcategory List */}
-        <div className="subcategory-list">
-          <h2>Subcategories</h2>
-          {subcategories.map((sub) => (
-            <div key={sub.id} className="subcategory-item">
-              <span>
-                {sub.name} -{" "}
-                {categories.find((cat) => cat.id === sub.category)?.name || "Unknown Category"}
-              </span>
-              <button
-                className="delete-button"
-                onClick={() => handleDeleteSubcategory(sub.id)}
-              >
-                Delete
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Edit Category Modal */}
-        {editingCategory && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>Edit Category</h2>
+        {/* ── Add Category ── */}
+        <div className="mcat-card">
+          <p className="mcat-card-title">إضافة تصنيف جديد</p>
+          <div className="mcat-add-row">
+            <div className="mcat-field">
               <input
+                className="mcat-input"
                 type="text"
-                value={editingCategory.name}
-                onChange={(e) =>
-                  setEditingCategory({ ...editingCategory, name: e.target.value })
-                }
-                className="input-field"
+                placeholder="اسم التصنيف"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
               />
-              <button onClick={handleEditCategory} className="save-button">
-                Save
-              </button>
-              <button onClick={() => setEditingCategory(null)} className="cancel-button">
-                Cancel
-              </button>
+            </div>
+            <button className="mcat-btn-add" onClick={handleAddCategory}>إضافة</button>
+          </div>
+        </div>
+
+        {/* ── Search + Category list ── */}
+        <div className="mcat-card">
+          <p className="mcat-card-title">التصنيفات ({filteredCategories.length})</p>
+          <div className="mcat-search-wrap">
+            <FaSearch className="mcat-search-icon" />
+            <input
+              className="mcat-search"
+              type="text"
+              placeholder="بحث..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {filteredCategories.length === 0 ? (
+            <p className="mcat-empty">لا توجد تصنيفات</p>
+          ) : (
+            <div className="mcat-list">
+              {filteredCategories.map((cat) => {
+                const subCount = subcategories.filter((s) => s.category === cat.id).length;
+                return (
+                  <div key={cat.id} className="mcat-item">
+                    <div>
+                      <p className="mcat-item-name">{cat.name}</p>
+                      <p className="mcat-item-count">{subCount} تصنيف فرعي</p>
+                    </div>
+                    <div className="mcat-item-actions">
+                      <button className="mcat-icon-btn mcat-icon-btn-edit" onClick={() => setEditingCategory({ ...cat })}>
+                        <FaEdit />
+                      </button>
+                      <button className="mcat-icon-btn mcat-icon-btn-del" onClick={() => handleDeleteCategory(cat.id)}>
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── Add Subcategory ── */}
+        <div className="mcat-card">
+          <p className="mcat-card-title">إضافة تصنيف فرعي</p>
+          <div className="mcat-field">
+            <label>التصنيف الرئيسي</label>
+            <select className="mcat-select" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+              <option value="">اختر التصنيف</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="mcat-add-row">
+            <div className="mcat-field">
+              <input
+                className="mcat-input"
+                type="text"
+                placeholder="اسم التصنيف الفرعي"
+                value={newSubcategory}
+                onChange={(e) => setNewSubcategory(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddSubcategory()}
+              />
+            </div>
+            <button className="mcat-btn-add" onClick={handleAddSubcategory} disabled={!selectedCategory}>إضافة</button>
+          </div>
+        </div>
+
+        {/* ── Subcategory list ── */}
+        <div className="mcat-card">
+          <p className="mcat-card-title">التصنيفات الفرعية ({subcategories.length})</p>
+          {subcategories.length === 0 ? (
+            <p className="mcat-empty">لا توجد تصنيفات فرعية</p>
+          ) : (
+            <div className="mcat-sub-list">
+              {subcategories.map((sub) => {
+                const parent = categories.find((c) => c.id === sub.category);
+                return (
+                  <div key={sub.id} className="mcat-sub-item">
+                    <div>
+                      <p className="mcat-sub-name">{sub.name}</p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {parent && <span className="mcat-sub-parent">{parent.name}</span>}
+                      <button className="mcat-icon-btn mcat-icon-btn-del" onClick={() => handleDeleteSubcategory(sub.id)}>
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ── Edit modal ── */}
+        {editingCategory && (
+          <div className="mcat-overlay" onClick={() => setEditingCategory(null)}>
+            <div className="mcat-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="mcat-modal-header">
+                <h2>تعديل التصنيف</h2>
+                <button className="mcat-modal-close" onClick={() => setEditingCategory(null)}><FaTimes /></button>
+              </div>
+              <div className="mcat-modal-body">
+                <div className="mcat-field">
+                  <label>اسم التصنيف</label>
+                  <input
+                    className="mcat-input"
+                    type="text"
+                    value={editingCategory.name}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                  />
+                </div>
+                <div className="mcat-modal-footer">
+                  <button className="mcat-btn-cancel" onClick={() => setEditingCategory(null)}>إلغاء</button>
+                  <button className="mcat-btn-save" onClick={handleEditCategory}>حفظ</button>
+                </div>
+              </div>
             </div>
           </div>
         )}

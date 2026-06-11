@@ -2,148 +2,112 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import { FaGift } from "react-icons/fa";
 import "../../styles/CustomerDashboard.css";
 import CustomerLayout from "../Customer/CustomerLayout";
 
 const CustomerDashboard = () => {
-  const [customerName, setCustomerName] = useState("");
-  const [loyaltyOffers, setLoyaltyOffers] = useState([]);
-  const [managers, setManagers] = useState([]);
+  const [customerName, setCustomerName]   = useState("");
   const [groupedOffers, setGroupedOffers] = useState({});
+  const [managers, setManagers]           = useState([]);
+  const [loading, setLoading]             = useState(true);
   const navigate = useNavigate();
   const currentCustomer = auth.currentUser;
 
   useEffect(() => {
-    // If displayName is not set on the auth user, try to fetch it from Firestore
-    const fetchCustomerName = async () => {
-      if (currentCustomer.displayName) {
-        setCustomerName(currentCustomer.displayName);
-      } else {
-        try {
-          const userDoc = await getDoc(doc(db, "users", currentCustomer.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            // Assuming the customer's name is stored under the "name" field in Firestore
-            setCustomerName(data.name || currentCustomer.email);
-          } else {
-            setCustomerName(currentCustomer.email);
-          }
-        } catch (error) {
-          console.error("Error fetching customer name:", error);
-          setCustomerName(currentCustomer.email);
-        }
-      }
-    };
-
-    if (currentCustomer) {
-      fetchCustomerName();
-    }
-  }, [currentCustomer]);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
-        // Fetch all loyalty configurations.
-        const loyaltySnapshot = await getDocs(collection(db, "loyaltyPoints"));
-        const allOffers = loyaltySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        // Filter offers that are assigned to the current customer.
-        const assignedOffers = allOffers.filter(
-          (offer) => offer.customers && offer.customers.includes(currentCustomer.uid)
-        );
-        setLoyaltyOffers(assignedOffers);
+        const userDoc = await getDoc(doc(db, "users", currentCustomer.uid));
+        if (userDoc.exists()) {
+          setCustomerName(userDoc.data().name || currentCustomer.email?.split("@")[0] || "مستخدم");
+        }
 
-        // Group offers by managerId.
-        const grouped = assignedOffers.reduce((acc, offer) => {
-          if (!acc[offer.managerId]) {
-            acc[offer.managerId] = [];
-          }
+        const loySnap = await getDocs(collection(db, "loyaltyPoints"));
+        const assigned = loySnap.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter((o) => o.customers?.includes(currentCustomer.uid));
+
+        const grouped = assigned.reduce((acc, offer) => {
+          if (!acc[offer.managerId]) acc[offer.managerId] = [];
           acc[offer.managerId].push(offer);
           return acc;
         }, {});
         setGroupedOffers(grouped);
 
-        // Extract unique manager IDs.
         const managerIds = Object.keys(grouped);
         if (managerIds.length > 0) {
-          // Fetch manager details from "users" where role is "manager".
           const q = query(collection(db, "users"), where("role", "==", "manager"));
-          const managerSnapshot = await getDocs(q);
-          const allManagers = managerSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          // Filter only managers who are in our grouped list.
-          const filteredManagers = allManagers.filter((manager) =>
-            managerIds.includes(manager.id)
+          const mSnap = await getDocs(q);
+          setManagers(
+            mSnap.docs
+              .map((d) => ({ id: d.id, ...d.data() }))
+              .filter((m) => managerIds.includes(m.id))
           );
-          setManagers(filteredManagers);
-          console.log("Fetched managers:", filteredManagers);
         }
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      }
+      } catch (_) {}
+      setLoading(false);
     };
+    fetchAll();
+  }, [currentCustomer]);
 
-    fetchData();
-  }, [currentCustomer.uid]);
-
-  // Helper to get manager details by ID.
-  const getManagerById = (managerId) => managers.find((m) => m.id === managerId);
+  const getManager = (id) => managers.find((m) => m.id === id);
 
   return (
     <CustomerLayout>
-      <div className="customer-dashboard-container">
-        <header className="dashboard-header">
-          <h1>Welcome, {customerName}</h1>
-        </header>
-        
-        <section className="offers-section">
-          <div className="cards-grid">
-            {Object.keys(groupedOffers).length > 0 ? (
-              Object.keys(groupedOffers).map((managerId) => {
-                const manager = getManagerById(managerId);
-                if (!manager) return null;
+      <div className="cd-page">
+        {/* ── Welcome ── */}
+        <div className="cd-welcome">
+          <div className="cd-welcome-text">
+            <p className="cd-greeting">مرحباً بك</p>
+            <h1 className="cd-name">{customerName}</h1>
+          </div>
+          <div className="cd-welcome-icon"><FaGift /></div>
+        </div>
+
+        {loading ? (
+          <div className="cd-loading"><div className="cd-spinner" /></div>
+        ) : Object.keys(groupedOffers).length === 0 ? (
+          <div className="cd-empty">
+            <div className="cd-empty-icon">🏪</div>
+            <p className="cd-empty-title">لا توجد متاجر مرتبطة بحسابك</p>
+            <p className="cd-empty-sub">تواصل مع مدير المتجر لإضافتك</p>
+          </div>
+        ) : (
+          <>
+            <h2 className="cd-section-title">برامج الولاء الخاصة بك</h2>
+            <div className="cd-grid">
+              {Object.keys(groupedOffers).map((managerId) => {
+                const mgr = getManager(managerId);
+                if (!mgr) return null;
+                const count = groupedOffers[managerId].length;
                 return (
                   <div
                     key={managerId}
-                    className="manager-card"
+                    className="cd-store-card"
                     onClick={() => navigate(`/customer/manager-loyalty/${managerId}`)}
                   >
-                    <div className="manager-logo-container">
-                      {manager.logoUrl ? (
+                    <div className="cd-store-logo">
+                      {mgr.logoUrl ? (
                         <img
-                          src={manager.logoUrl}
-                          alt={`${manager.businessName} logo`}
-                          className="manager-logo"
-                          onError={(e) => {
-                            // Fallback to default logo on image load error
-                            e.target.onerror = null;
-                            e.target.style.display = "none";
-                          }}
+                          src={mgr.logoUrl}
+                          alt={mgr.businessName}
+                          className="cd-logo-img"
+                          onError={(e) => { e.target.style.display = "none"; }}
                         />
                       ) : (
-                        <div className="default-logo">
-                          {manager.businessName
-                            ? manager.businessName.charAt(0).toUpperCase()
-                            : ""}
-                        </div>
+                        <span className="cd-logo-initials">
+                          {mgr.businessName?.charAt(0).toUpperCase() || "م"}
+                        </span>
                       )}
                     </div>
-                    <h3 className="manager-business-name">{manager.businessName}</h3>
-                    <p className="offer-count">{groupedOffers[managerId].length} Offer(s)</p>
+                    <h3 className="cd-store-name">{mgr.businessName || mgr.name}</h3>
+                    <p className="cd-offer-count">{count} عرض</p>
                   </div>
                 );
-              })
-            ) : (
-              <p className="no-offers">
-                No loyalty offers available at the moment.
-              </p>
-            )}
-          </div>
-        </section>
+              })}
+            </div>
+          </>
+        )}
       </div>
     </CustomerLayout>
   );

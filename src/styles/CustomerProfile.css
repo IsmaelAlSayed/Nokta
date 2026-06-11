@@ -1,128 +1,284 @@
-/* CustomerProfile.css */
+/* ═══════════════════════════════════════
+   Customer Profile Page
+═══════════════════════════════════════ */
+.cp-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-/* Container with modern card design */
-.customer-profile-container {
-    max-width: 600px;
-    margin: 2rem auto;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    position: relative;
-  }
-  
-  /* Header container with logout button */
-  .profile-header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-  }
-  
-  .profile-header {
-    font-size: 2rem;
-    color: #333;
-    margin: 0;
-    font-weight: 600;
-  }
-  
-  /* Logout button styled as an icon button */
-  .logout-button {
-    background-color: #dc3545;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  
-  .logout-button:hover {
-    color: #0056b3;
-  }
-  
-  /* Form styling */
-  .profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #555;
-  }
-  
-  .form-group input {
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: border-color 0.3s ease;
-  }
-  
-  .form-group input:focus {
-    outline: none;
-    border-color: #007bff;
-  }
-  
-  .form-group input:disabled {
-    background-color: #e9ecef;
-  }
-  
-  .error-message {
-    color: #d9534f;
-    text-align: center;
-    font-size: 0.95rem;
-  }
-  
-  .success-message {
-    color: #28a745;
-    text-align: center;
-    font-size: 0.95rem;
-  }
-  
-  /* Update button styling */
-  .update-button {
-    padding: 0.75rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 1rem;
-  }
-  
-  .update-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Responsive Styles */
-  @media (max-width: 768px) {
-    .customer-profile-container {
-      padding: 1rem;
-      margin: 1rem;
-    }
-    .profile-header {
-      font-size: 1.75rem;
-    }
-    .form-group input {
-      font-size: 0.9rem;
-      padding: 0.65rem;
-      width: 90%;
-    }
-    .update-button {
-      font-size: 1rem;
-      padding: 0.65rem;
-    }
-    .logout-button {
-      font-size: 1rem;
-    }
-  }
-  
+/* ── Hero ── */
+.cp-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-hero::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.1);
+  pointer-events: none;
+}
+
+.cp-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 2px solid rgba(249, 115, 22, 0.4);
+  color: #f97316;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cp-hero-info {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.cp-hero-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.cp-unnamed {
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.cp-hero-email {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0 0 8px;
+  direction: ltr;
+  text-align: right;
+}
+
+.cp-card-badge {
+  display: inline-block;
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.cp-logout-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  transition: background 0.2s;
+}
+
+.cp-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.28);
+}
+
+/* ── Loading ── */
+.cp-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.cp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: cpSpin 0.7s linear infinite;
+}
+
+@keyframes cpSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Cards ── */
+.cp-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.cp-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cp-card-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.cp-card-icon {
+  font-size: 15px;
+  color: #f97316;
+}
+
+.cp-card-icon--orange {
+  color: #f97316;
+}
+
+/* ── Form ── */
+.cp-form {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cp-input {
+  padding: 10px 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: #1e293b;
+  background: #fafafa;
+  outline: none;
+  direction: rtl;
+  text-align: right;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cp-input:focus {
+  border-color: #f97316;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.cp-input--disabled {
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.cp-input--disabled:focus {
+  border-color: #e2e8f0;
+  box-shadow: none;
+}
+
+/* ── Password wrap ── */
+.cp-pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cp-pw-wrap .cp-input {
+  padding-left: 42px;
+}
+
+.cp-pw-toggle {
+  position: absolute;
+  left: 12px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.18s;
+}
+
+.cp-pw-toggle:hover { color: #475569; }
+
+/* ── Feedback ── */
+.cp-feedback {
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.cp-feedback--ok {
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.cp-feedback--err {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* ── Save Button ── */
+.cp-save-btn {
+  background: #f97316;
+  color: #fff;
+  border: none;
+  padding: 13px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  width: 100%;
+}
+
+.cp-save-btn:hover { background: #ea6c0a; transform: translateY(-1px); }
+.cp-save-btn:active { transform: translateY(0); }
+.cp-save-btn:disabled { background: #fdba74; cursor: not-allowed; transform: none; }

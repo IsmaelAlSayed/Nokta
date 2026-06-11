@@ -1,87 +1,95 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
-import "../../styles/ManagerHomePage.css";
+import { auth, db } from "../../firebaseConfig";
+import { FaStore, FaGift } from "react-icons/fa";
 import CustomerLayout from "./CustomerLayout";
+import "../../styles/ManagerHomePage.css";
 
-const ManagerHomePage = () => {
-  const [businesses, setBusinesses] = useState([]);
-  const [loyaltyConfigs, setLoyaltyConfigs] = useState([]);
-  const [loading, setLoading] = useState(true);
+const HomePage = () => {
+  const [businesses, setBusinesses]           = useState([]);
+  const [loyaltyConfigs, setLoyaltyConfigs]   = useState([]);
+  const [loading, setLoading]                 = useState(true);
+  const navigate = useNavigate();
+  const currentCustomer = auth.currentUser;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all businesses
-        const businessSnapshot = await getDocs(collection(db, "businesses"));
-        const businessesList = businessSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Fetch loyalty configuration documents
-        const loyaltySnapshot = await getDocs(collection(db, "loyaltyPoints"));
-        const loyaltyList = loyaltySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setBusinesses(businessesList);
-        setLoyaltyConfigs(loyaltyList);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+        const [bizSnap, loySnap] = await Promise.all([
+          getDocs(collection(db, "businesses")),
+          getDocs(collection(db, "loyaltyPoints")),
+        ]);
+        setBusinesses(bizSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setLoyaltyConfigs(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (_) {}
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
-  // Filter loyalty configurations to include only those with customers
   const filteredLoyalty = loyaltyConfigs.filter(
-    (config) => config.customers && config.customers.length > 0
+    (c) => c.customers?.includes(currentCustomer?.uid)
   );
 
-  // For each loyalty configuration, find the corresponding business.
-  // Remove duplicates in case multiple configurations refer to the same business.
   const businessMap = new Map();
   filteredLoyalty.forEach((config) => {
-    const matchingBusiness = businesses.find(
-      (business) => business.id === config.businessId
-    );
-    if (matchingBusiness) {
-      businessMap.set(matchingBusiness.id, matchingBusiness);
-    }
+    const biz = businesses.find((b) => b.id === config.businessId);
+    if (biz) businessMap.set(biz.id, biz);
   });
-  const businessCards = Array.from(businessMap.values());
+  const myBusinesses = Array.from(businessMap.values());
 
-  if (loading) {
-    return (
-      <div className="manager-homepage-container">
-        <p className="loading">Loading...</p>
-      </div>
-    );
-  }
+  const offerCount = (bizId) =>
+    filteredLoyalty.filter((c) => c.businessId === bizId).length;
 
   return (
     <CustomerLayout>
-    <div className="manager-homepage-container">
-      <h1 className="homepage-header">Manager Home Page</h1>
-      <div className="business-cards-container">
-        {businessCards.length > 0 ? (
-          businessCards.map((business) => (
-            <div key={business.id} className="business-card">
-              <h2>{business.name}</h2>
-              {/* Add additional business info if needed */}
-            </div>
-          ))
+      <div className="mhp-page">
+        {/* ── Welcome ── */}
+        <div className="mhp-welcome">
+          <div className="mhp-welcome-text">
+            <p className="mhp-welcome-greeting">مرحباً بك</p>
+            <h1 className="mhp-welcome-name">
+              {auth.currentUser?.email?.split("@")[0] || "مستخدم"}
+            </h1>
+          </div>
+          <div className="mhp-welcome-icon"><FaGift /></div>
+        </div>
+
+        {loading ? (
+          <div className="mhp-loading"><div className="mhp-spinner" /></div>
+        ) : myBusinesses.length === 0 ? (
+          <div className="mhp-empty">
+            <div className="mhp-empty-icon">🏪</div>
+            <p className="mhp-empty-title">لا توجد متاجر مرتبطة بحسابك</p>
+            <p className="mhp-empty-sub">تواصل مع مدير المتجر لإضافتك</p>
+          </div>
         ) : (
-          <p>No businesses found with loyalty configurations.</p>
+          <>
+            <h2 className="mhp-section-title">متاجرك</h2>
+            <div className="mhp-grid">
+              {myBusinesses.map((biz) => (
+                <div
+                  key={biz.id}
+                  className="mhp-biz-card"
+                  onClick={() => navigate(`/customer/manager/${biz.managerId || biz.id}`)}
+                >
+                  <div className="mhp-biz-icon"><FaStore /></div>
+                  <div className="mhp-biz-info">
+                    <h3 className="mhp-biz-name">{biz.name}</h3>
+                    <span className="mhp-offers-badge">
+                      {offerCount(biz.id)} عرض
+                    </span>
+                  </div>
+                  <span className="mhp-arrow">←</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
-    </div>
     </CustomerLayout>
   );
 };
 
-export default ManagerHomePage;
+export default HomePage;

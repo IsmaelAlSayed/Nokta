@@ -1,76 +1,182 @@
-.customer-notifications-page {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .customer-notifications-page h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  .notification-header {
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #007bff;
-  }
-  
-  .no-notifications {
-    text-align: center;
-    color: #777;
-    font-size: 1.1rem;
-  }
-  
-  .notifications-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .notification-card {
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    position: relative;
-  }
-  
-  .notification-card:hover {
-    transform: translateY(-3px);
-  }
-  
-  .notification-card h3 {
-    margin: 0 0 0.5rem;
-    color: #007bff;
-    font-size: 1.1rem;
-  }
-  
-  .notification-card p {
-    margin: 0.3rem 0;
-    font-size: 0.95rem;
-    color: #555;
-  }
-  
-  .notification-card.unread {
-    border-left: 5px solid #007bff;
-    background-color: #eef6ff;
-  }
-  
-  .new-label {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: #007bff;
-    color: #fff;
-    padding: 2px 6px;
-    border-radius: 50%;
-    font-size: 0.75rem;
-    font-weight: bold;
-  }
-  
+/* ═══════════════════════════════════════
+   Customer Notifications Page
+═══════════════════════════════════════ */
+.cn-page {
+  padding: 16px;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Hero ── */
+.cn-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+}
+
+.cn-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cn-hero-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.cn-hero-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+/* ── Empty ── */
+.cn-empty {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.cn-empty-icon {
+  font-size: 50px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.cn-empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 6px;
+}
+
+.cn-empty-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── List ── */
+.cn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Card ── */
+.cn-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  border-right: 3px solid transparent;
+}
+
+.cn-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+}
+
+.cn-card--unread {
+  border-right-color: #f97316;
+  background: #fff9f5;
+}
+
+.cn-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.cn-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.cn-prize-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cn-new-label {
+  background: #f97316;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.cn-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cn-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cn-status--green {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.cn-status--red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.cn-status--yellow {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.cn-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.cn-rejection {
+  font-size: 12px;
+  color: #dc2626;
+  margin: 6px 0 0;
+}
+
+.cn-arrow {
+  font-size: 14px;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}

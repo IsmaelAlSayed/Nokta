@@ -1,303 +1,370 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../firebaseConfig";
-import { collection, getDocs, setDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword } from "firebase/auth";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+import {
+  collection, getDocs, setDoc, deleteDoc, doc, updateDoc,
+} from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
+import {
+  FaEye, FaEyeSlash, FaPlus, FaEdit, FaTrash, FaSearch, FaTimes,
+} from "react-icons/fa";
 import AdminLayout from "./AdminLayout";
 import "../../styles/ManageCustomers.css";
 
+const AVATAR_COLORS = ["#0ea5e9", "#10b981", "#f59e0b", "#6366f1", "#ef4444", "#8b5cf6"];
+const avatarColor  = (id) => AVATAR_COLORS[id.charCodeAt(0) % AVATAR_COLORS.length];
+const getInitials  = (c) => (c.name ? c.name : c.email).charAt(0).toUpperCase();
+
+const FIREBASE_ERRORS = {
+  "auth/email-already-in-use": "هذا البريد الإلكتروني مستخدم مسبقاً",
+  "auth/invalid-email":        "البريد الإلكتروني غير صالح",
+  "auth/weak-password":        "كلمة المرور ضعيفة — 6 أحرف على الأقل",
+  "auth/wrong-password":       "كلمة مرور المدير العام غير صحيحة",
+  "auth/invalid-credential":   "بيانات الاعتماد غير صحيحة",
+};
+const toArabicErr = (code) => FIREBASE_ERRORS[code] || "حدث خطأ، يرجى المحاولة مجدداً";
+
+const Modal = ({ title, onClose, children }) => (
+  <div className="mc-overlay" onClick={onClose}>
+    <div className="mc-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="mc-modal-header">
+        <h2>{title}</h2>
+        <button className="mc-modal-close" onClick={onClose}><FaTimes /></button>
+      </div>
+      {children}
+    </div>
+  </div>
+);
+
 const ManageCustomers = () => {
-  const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]); // Filtered customer list for search
-  const [searchQuery, setSearchQuery] = useState(""); // Search query
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [customers,  setCustomers]  = useState([]);
+  const [filtered,   setFiltered]   = useState([]);
+  const [search,     setSearch]     = useState("");
 
-  const [editingCustomer, setEditingCustomer] = useState(null); // Customer being edited
-  const [editForm, setEditForm] = useState({
-    name: "",
-    phoneNumber: "",
-    address: "",
-    password: "",
-  });
+  // Add modal
+  const [showAdd,     setShowAdd]     = useState(false);
+  const [addForm,     setAddForm]     = useState({ email: "", password: "", adminPw: "" });
+  const [showNewPw,   setShowNewPw]   = useState(false);
+  const [showAdminPw, setShowAdminPw] = useState(false);
+  const [addError,    setAddError]    = useState("");
+  const [addLoading,  setAddLoading]  = useState(false);
 
-  // Fetch customers from Firestore
+  // Edit modal
+  const [editing,     setEditing]     = useState(null);
+  const [editForm,    setEditForm]    = useState({ name: "", phoneNumber: "", address: "" });
+  const [editLoading, setEditLoading] = useState(false);
+
+  // Delete confirm
+  const [confirmId, setConfirmId] = useState(null);
+
+  /* ── Fetch ── */
   useEffect(() => {
-    const fetchCustomers = async () => {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const customerList = querySnapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((user) => user.role === "customer");
-      setCustomers(customerList);
-      setFilteredCustomers(customerList); // Initialize filtered customers
+    const fetch = async () => {
+      const snap = await getDocs(collection(db, "users"));
+      const list = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((u) => u.role === "customer");
+      setCustomers(list);
+      setFiltered(list);
     };
-    fetchCustomers();
+    fetch();
   }, []);
 
-  // Handle search
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    if (query === "") {
-      setFilteredCustomers(customers);
-    } else {
-      const lowercasedQuery = query.toLowerCase();
-      const filtered = customers.filter(
-        (customer) =>
-          (customer.name && customer.name.toLowerCase().includes(lowercasedQuery)) ||
-          (customer.phoneNumber && customer.phoneNumber.includes(lowercasedQuery))
-      );
-      setFilteredCustomers(filtered);
-    }
+  /* ── Search ── */
+  const handleSearch = (q) => {
+    setSearch(q);
+    if (!q.trim()) return setFiltered(customers);
+    const lc = q.toLowerCase();
+    setFiltered(
+      customers.filter(
+        (c) =>
+          c.name?.toLowerCase().includes(lc) ||
+          c.email?.toLowerCase().includes(lc) ||
+          c.phoneNumber?.includes(lc),
+      ),
+    );
   };
 
-  // Add a new customer
-  const handleAddCustomer = async () => {
-    if (!email || !password) {
-      setError("Email and password are required.");
-      return;
-    }
-
-    const currentAdmin = auth.currentUser;
-    const currentAdminEmail = currentAdmin.email;
-    const currentAdminPassword = prompt(
-      "Please enter your admin password to confirm this action:"
+  const syncFiltered = (list) =>
+    setFiltered(
+      search
+        ? list.filter(
+            (c) =>
+              c.name?.toLowerCase().includes(search.toLowerCase()) ||
+              c.email?.toLowerCase().includes(search.toLowerCase()),
+          )
+        : list,
     );
 
-    if (!currentAdminPassword) {
-      setError("Admin password is required.");
+  /* ── Add ── */
+  const openAdd = () => {
+    setAddForm({ email: "", password: "", adminPw: "" });
+    setAddError("");
+    setShowAdd(true);
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    const { email, password, adminPw } = addForm;
+    if (!email || !password || !adminPw) {
+      setAddError("يرجى ملء جميع الحقول");
       return;
     }
-
+    setAddLoading(true);
+    setAddError("");
+    const admin = auth.currentUser;
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const credential = EmailAuthProvider.credential(admin.email, adminPw);
+      await reauthenticateWithCredential(admin, credential);
 
-      // Add the new customer to Firestore with the same UID
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        role: "customer",
-        name: "",
-        phoneNumber: "",
-        address: "",
+        email: user.email, role: "customer",
+        name: "", phoneNumber: "", address: "",
       });
 
-      await signInWithEmailAndPassword(auth, currentAdminEmail, currentAdminPassword);
+      await signInWithEmailAndPassword(auth, admin.email, adminPw);
 
-      const newCustomer = { id: user.uid, email: user.email, role: "customer" };
-      setCustomers([...customers, newCustomer]);
-      setFilteredCustomers([...customers, newCustomer]); // Update filtered customers
-      setEmail("");
-      setPassword("");
-      setError("");
+      const newCustomer = { id: user.uid, email: user.email, role: "customer", name: "", phoneNumber: "" };
+      const updated = [...customers, newCustomer];
+      setCustomers(updated);
+      syncFiltered(updated);
+      setShowAdd(false);
     } catch (err) {
-      setError(err.message);
+      setAddError(toArabicErr(err.code));
+    } finally {
+      setAddLoading(false);
     }
   };
 
-  // Delete a customer
-  const handleDeleteCustomer = async (id) => {
-    try {
-      await deleteDoc(doc(db, "users", id));
-      const updatedCustomers = customers.filter((customer) => customer.id !== id);
-      setCustomers(updatedCustomers);
-      setFilteredCustomers(updatedCustomers); // Update filtered customers
-    } catch (error) {
-      console.error("Error deleting customer:", error);
-    }
+  /* ── Edit ── */
+  const openEdit = (c) => {
+    setEditing(c);
+    setEditForm({ name: c.name || "", phoneNumber: c.phoneNumber || "", address: c.address || "" });
   };
 
-  // Handle edit customer
-  const handleEditCustomer = (customer) => {
-    setEditingCustomer(customer);
-    setEditForm({
-      name: customer.name || "",
-      phoneNumber: customer.phoneNumber || "",
-      address: customer.address || "",
-      password: "",
-    });
-  };
-
-  // Save edited customer information
-  const handleSaveEdit = async () => {
-    if (!editingCustomer) return;
-
-    const { id } = editingCustomer;
-
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
     try {
-      // Update Firestore customer document
-      await updateDoc(doc(db, "users", id), {
-        name: editForm.name,
-        phoneNumber: editForm.phoneNumber,
-        address: editForm.address,
-      });
-
-      // Update password in Authentication if provided
-      if (editForm.password) {
-        const user = await auth.getUserByEmail(editingCustomer.email);
-        await updatePassword(user, editForm.password);
-      }
-
-      // Update local state
-      const updatedCustomers = customers.map((customer) =>
-        customer.id === id
-          ? {
-              ...customer,
-              name: editForm.name,
-              phoneNumber: editForm.phoneNumber,
-              address: editForm.address,
-            }
-          : customer
+      await updateDoc(doc(db, "users", editing.id), editForm);
+      const updated = customers.map((c) =>
+        c.id === editing.id ? { ...c, ...editForm } : c,
       );
-
-      setCustomers(updatedCustomers);
-      setFilteredCustomers(updatedCustomers); // Update filtered customers
-      setEditingCustomer(null);
-      setEditForm({ name: "", phoneNumber: "", address: "", password: "" });
-    } catch (error) {
-      console.error("Error updating customer:", error);
+      setCustomers(updated);
+      syncFiltered(updated);
+      setEditing(null);
+    } finally {
+      setEditLoading(false);
     }
   };
 
+  /* ── Delete ── */
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, "users", id));
+    const updated = customers.filter((c) => c.id !== id);
+    setCustomers(updated);
+    syncFiltered(updated);
+    setConfirmId(null);
+  };
+
+  /* ─────────────── Render ─────────────── */
   return (
     <AdminLayout>
-    <div className="container">
-      <h1 className="header">Manage Customers</h1>
+      <div className="mc-page">
 
-      {/* Search Bar */}
-      <div className="search-bar">
-  <span className="search-icon">🔍</span>
-  <input
-    type="text"
-    value={searchQuery}
-    onChange={(e) => handleSearch(e.target.value)}
-    placeholder="Search by name or phone number"
-    className="search-input"
-  />
-</div>
-
-
-      {/* Add Customer Form */}
-      <div className="form-section">
-        <h2 className="text-xl font-semibold mb-2">Add New Customer</h2>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Customer Email"
-          className="p-2 border rounded mr-2"
-        />
-        <div className="password-container">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="p-2 border rounded mr-2"
-          />
-          <span
-            className="toggle-password"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
-        <button
-          onClick={handleAddCustomer}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Add Customer
-        </button>
-      </div>
-
-      {/* Edit Customer Form */}
-      {editingCustomer && (
-        <div className="form-section">
-          <h2 className="text-xl font-semibold mb-2">Edit Customer</h2>
-          <input
-            type="text"
-            value={editForm.name}
-            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-            placeholder="Customer Name"
-            className="p-2 border rounded mb-2 w-full"
-          />
-          <input
-            type="text"
-            value={editForm.phoneNumber}
-            onChange={(e) =>
-              setEditForm({ ...editForm, phoneNumber: e.target.value })
-            }
-            placeholder="Phone Number"
-            className="p-2 border rounded mb-2 w-full"
-          />
-          <input
-            type="text"
-            value={editForm.address}
-            onChange={(e) =>
-              setEditForm({ ...editForm, address: e.target.value })
-            }
-            placeholder="Address"
-            className="p-2 border rounded mb-2 w-full"
-          />
-          <input
-            type="password"
-            value={editForm.password}
-            onChange={(e) =>
-              setEditForm({ ...editForm, password: e.target.value })
-            }
-            placeholder="New Password (optional)"
-            className="p-2 border rounded mb-2 w-full"
-          />
-          <button
-            onClick={handleSaveEdit}
-            className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-          >
-            Save
-          </button>
-          <button
-            onClick={() => setEditingCustomer(null)}
-            className="bg-gray-500 text-white px-4 py-2 rounded"
-          >
-            Cancel
+        {/* Header */}
+        <div className="mc-header">
+          <div>
+            <h1 className="mc-title">إدارة العملاء</h1>
+            <p className="mc-subtitle">{customers.length} عميل مسجّل في النظام</p>
+          </div>
+          <button className="mc-btn-add" onClick={openAdd}>
+            <FaPlus /> إضافة عميل
           </button>
         </div>
-      )}
 
-      {/* Customer List */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Current Customers</h2>
-        <ul className="customer-list">
-          {filteredCustomers.map((customer) => (
-            <li
-              key={customer.id}
-              className="flex justify-between items-center p-2 bg-white shadow mb-2 rounded"
-            >
-              <span>
-                <strong>Name:</strong> {customer.name || "No name provided"} <br />
-                <strong>Email:</strong> {customer.email} <br />
-                <strong>Phone:</strong> {customer.phoneNumber || "No phone number"}
-              </span>
-              <div>
-                <button
-                  onClick={() => handleEditCustomer(customer)}
-                  className="text-blue-500 mr-2"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteCustomer(customer.id)}
-                  className="text-red-500"
-                >
-                  Delete
+        {/* Search */}
+        <div className="mc-search-wrap">
+          <FaSearch className="mc-search-icon" />
+          <input
+            type="text"
+            className="mc-search"
+            placeholder="البحث بالاسم أو البريد أو رقم الهاتف..."
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+          {search && (
+            <button className="mc-search-clear" onClick={() => handleSearch("")}>
+              <FaTimes />
+            </button>
+          )}
+        </div>
+
+        {/* List */}
+        {filtered.length === 0 ? (
+          <div className="mc-empty">
+            <div className="mc-empty-icon">🙍</div>
+            <p className="mc-empty-title">
+              {search ? "لا توجد نتائج للبحث" : "لا يوجد عملاء بعد"}
+            </p>
+            <p className="mc-empty-sub">
+              {search ? "جرّب كلمة بحث مختلفة" : 'اضغط "إضافة عميل" لبدء الإضافة'}
+            </p>
+          </div>
+        ) : (
+          <ul className="mc-list">
+            {filtered.map((c) => (
+              <li key={c.id} className="mc-card">
+                <div className="mc-avatar" style={{ background: avatarColor(c.id) }}>
+                  {getInitials(c)}
+                </div>
+
+                <div className="mc-info">
+                  <p className="mc-name">
+                    {c.name || <span className="mc-no-name">بدون اسم</span>}
+                  </p>
+                  <p className="mc-detail">{c.email}</p>
+                  {c.phoneNumber && <p className="mc-detail">{c.phoneNumber}</p>}
+                </div>
+
+                {confirmId === c.id ? (
+                  <div className="mc-confirm">
+                    <span>تأكيد الحذف؟</span>
+                    <button className="mc-btn-danger-sm" onClick={() => handleDelete(c.id)}>
+                      حذف
+                    </button>
+                    <button className="mc-btn-ghost-sm" onClick={() => setConfirmId(null)}>
+                      إلغاء
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mc-actions">
+                    <button
+                      className="mc-icon-btn mc-icon-btn--edit"
+                      onClick={() => openEdit(c)}
+                      title="تعديل"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="mc-icon-btn mc-icon-btn--delete"
+                      onClick={() => setConfirmId(c.id)}
+                      title="حذف"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* ── Add Modal ── */}
+        {showAdd && (
+          <Modal title="إضافة عميل جديد" onClose={() => setShowAdd(false)}>
+            <form onSubmit={handleAdd} className="mc-form">
+              {addError && <p className="mc-form-error">{addError}</p>}
+
+              <div className="mc-field">
+                <label>البريد الإلكتروني للعميل</label>
+                <input
+                  type="email"
+                  placeholder="customer@example.com"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="mc-field">
+                <label>كلمة المرور</label>
+                <div className="mc-pw-wrap">
+                  <input
+                    type={showNewPw ? "text" : "password"}
+                    placeholder="6 أحرف على الأقل"
+                    value={addForm.password}
+                    onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                    required
+                  />
+                  <button type="button" className="mc-pw-toggle"
+                    onClick={() => setShowNewPw(!showNewPw)}>
+                    {showNewPw ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mc-divider"><span>تأكيد هويتك كمدير عام</span></div>
+
+              <div className="mc-field">
+                <label>كلمة مرورك الحالية (Admin)</label>
+                <div className="mc-pw-wrap">
+                  <input
+                    type={showAdminPw ? "text" : "password"}
+                    placeholder="كلمة مرورك الحالية"
+                    value={addForm.adminPw}
+                    onChange={(e) => setAddForm({ ...addForm, adminPw: e.target.value })}
+                    required
+                  />
+                  <button type="button" className="mc-pw-toggle"
+                    onClick={() => setShowAdminPw(!showAdminPw)}>
+                    {showAdminPw ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mc-modal-footer">
+                <button type="button" className="mc-btn-ghost"
+                  onClick={() => setShowAdd(false)}>إلغاء</button>
+                <button type="submit" className="mc-btn-primary" disabled={addLoading}>
+                  {addLoading ? "جاري الإضافة..." : "إضافة العميل"}
                 </button>
               </div>
-            </li>
-          ))}
-        </ul>
+            </form>
+          </Modal>
+        )}
+
+        {/* ── Edit Modal ── */}
+        {editing && (
+          <Modal title="تعديل بيانات العميل" onClose={() => setEditing(null)}>
+            <form onSubmit={handleSaveEdit} className="mc-form">
+              <div className="mc-field">
+                <label>الاسم</label>
+                <input type="text" placeholder="اسم العميل"
+                  className="rtl-input"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} />
+              </div>
+              <div className="mc-field">
+                <label>رقم الهاتف</label>
+                <input type="text" placeholder="+966 5X XXX XXXX"
+                  value={editForm.phoneNumber}
+                  onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })} />
+              </div>
+              <div className="mc-field">
+                <label>العنوان</label>
+                <input type="text" placeholder="المدينة / المنطقة"
+                  className="rtl-input"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} />
+              </div>
+              <div className="mc-modal-footer">
+                <button type="button" className="mc-btn-ghost"
+                  onClick={() => setEditing(null)}>إلغاء</button>
+                <button type="submit" className="mc-btn-primary" disabled={editLoading}>
+                  {editLoading ? "جاري الحفظ..." : "حفظ التغييرات"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
+
       </div>
-    </div>
     </AdminLayout>
   );
 };
