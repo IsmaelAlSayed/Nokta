@@ -151,8 +151,43 @@ const LoyaltyPoints = () => {
           </div>
 
           <div className="lp-field">
-            <label className="lp-label">نقطة لكل شيكل</label>
-            <input className="lp-input" type="number" step="0.1" min="0" value={pointsPerDollar} onChange={(e) => setPointsPerDollar(e.target.value)} disabled={isLoading} required />
+            <label className="lp-label">كم نقطة يعطي الشيكل الواحد؟</label>
+            <div className="lp-rate-presets">
+              {[
+                { label: "نقطتان", sub: "2 نقطة / ₪", val: 2 },
+                { label: "نقطة",   sub: "1 نقطة / ₪",  val: 1 },
+                { label: "نصف",    sub: "½ نقطة / ₪", val: 0.5 },
+                { label: "ربع",    sub: "¼ نقطة / ₪", val: 0.25 },
+              ].map((p) => (
+                <button
+                  key={p.val}
+                  type="button"
+                  className={`lp-rate-preset${Number(pointsPerDollar) === p.val ? " active" : ""}`}
+                  onClick={() => setPointsPerDollar(p.val)}
+                  disabled={isLoading}
+                >
+                  {p.label}<br /><small>{p.sub}</small>
+                </button>
+              ))}
+            </div>
+            <input
+              className="lp-input"
+              type="number"
+              step="0.01"
+              min="0.01"
+              placeholder="أو أدخل قيمة مخصصة..."
+              value={pointsPerDollar}
+              onChange={(e) => setPointsPerDollar(e.target.value)}
+              disabled={isLoading}
+              required
+              style={{ marginTop: 8 }}
+            />
+            {pointsPerDollar > 0 && (
+              <div className="lp-rate-preview">
+                شراء بـ 100 ₪ يمنح الزبون
+                <span>{Math.round(100 * Number(pointsPerDollar))} نقطة</span>
+              </div>
+            )}
           </div>
 
           {/* Prizes */}
