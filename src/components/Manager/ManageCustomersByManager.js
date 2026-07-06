@@ -2,10 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where,
 } from "firebase/firestore";
-import {
-  createUserWithEmailAndPassword, signInWithEmailAndPassword, updatePassword,
-} from "firebase/auth";
-import { auth, db } from "../../firebaseConfig";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { db, secondaryAuth } from "../../firebaseConfig";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaSearch, FaEye, FaEyeSlash } from "react-icons/fa";
 import MangerLayout from "./ManagerLayout";
 import CustomerOrdersModal from "./CustomerOrdersModal";
@@ -25,7 +23,6 @@ const ManageCustomersByManager = () => {
   const [showAddModal, setShowAddModal]   = useState(false);
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
-  const [confirmPwd, setConfirmPwd]       = useState("");
   const [showPwd, setShowPwd]             = useState(false);
   const [addError, setAddError]           = useState("");
 
@@ -69,20 +66,17 @@ const ManageCustomersByManager = () => {
 
   const handleAddCustomer = async () => {
     if (!email || !password) { setAddError("البريد وكلمة المرور مطلوبان"); return; }
-    const currentManager = auth.currentUser;
-    const managerEmail = currentManager.email;
-    if (!confirmPwd) { setAddError("أدخل كلمة مرور المدير للتأكيد"); return; }
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
       const user = cred.user;
       await setDoc(doc(db, "users", user.uid), {
         email: user.email, role: "customer", name: "", phoneNumber: "", address: "",
       });
-      await signInWithEmailAndPassword(auth, managerEmail, confirmPwd);
+      await signOut(secondaryAuth);
       const newCustomer = { id: user.uid, email: user.email, role: "customer" };
       setCustomers((prev) => [...prev, newCustomer]);
       setFilteredCustomers((prev) => [...prev, newCustomer]);
-      setEmail(""); setPassword(""); setConfirmPwd(""); setAddError("");
+      setEmail(""); setPassword(""); setAddError("");
       setShowAddModal(false);
     } catch (err) {
       setAddError(err.message);
@@ -243,15 +237,6 @@ const ManageCustomersByManager = () => {
                       {showPwd ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
-                </div>
-                <div className="mc-field">
-                  <label>كلمة مرورك (للتأكيد)</label>
-                  <input
-                    type="password"
-                    value={confirmPwd}
-                    onChange={(e) => setConfirmPwd(e.target.value)}
-                    placeholder="أدخل كلمة مرورك الحالية"
-                  />
                 </div>
                 <div className="mc-modal-footer">
                   <button className="mc-btn-ghost" onClick={() => setShowAddModal(false)}>إلغاء</button>

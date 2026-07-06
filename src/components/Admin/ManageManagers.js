@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { auth, db } from "../../firebaseConfig";
+import { db, secondaryAuth } from "../../firebaseConfig";
 import {
   collection, getDocs, setDoc, deleteDoc, doc, updateDoc,
 } from "firebase/firestore";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { FaEye, FaEyeSlash, FaPlus, FaEdit, FaTrash, FaSearch, FaTimes } from "react-icons/fa";
 import AdminLayout from "./AdminLayout";
 import "../../styles/ManageManagers.css";
@@ -47,9 +42,8 @@ const ManageManagers = () => {
 
   // Add modal
   const [showAdd,         setShowAdd]         = useState(false);
-  const [addForm,         setAddForm]         = useState({ email: "", password: "", adminPw: "" });
+  const [addForm,         setAddForm]         = useState({ email: "", password: "" });
   const [showNewPw,       setShowNewPw]       = useState(false);
-  const [showAdminPw,     setShowAdminPw]     = useState(false);
   const [addError,        setAddError]        = useState("");
   const [addLoading,      setAddLoading]      = useState(false);
 
@@ -97,34 +91,27 @@ const ManageManagers = () => {
 
   /* ── Add ── */
   const openAdd = () => {
-    setAddForm({ email: "", password: "", adminPw: "" });
+    setAddForm({ email: "", password: "" });
     setAddError("");
     setShowAdd(true);
   };
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    const { email, password, adminPw } = addForm;
-    if (!email || !password || !adminPw) {
+    const { email, password } = addForm;
+    if (!email || !password) {
       setAddError("يرجى ملء جميع الحقول");
       return;
     }
     setAddLoading(true);
     setAddError("");
-    const admin = auth.currentUser;
     try {
-      // Re-authenticate admin before creating user (to keep session after Firebase switches)
-      const credential = EmailAuthProvider.credential(admin.email, adminPw);
-      await reauthenticateWithCredential(admin, credential);
-
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      const { user } = await createUserWithEmailAndPassword(secondaryAuth, email, password);
       await setDoc(doc(db, "users", user.uid), {
         email: user.email, role: "manager",
         name: "", phoneNumber: "", address: "",
       });
-
-      // Restore admin session
-      await signInWithEmailAndPassword(auth, admin.email, adminPw);
+      await signOut(secondaryAuth);
 
       const newMgr = { id: user.uid, email: user.email, role: "manager", name: "", phoneNumber: "" };
       const updated = [...managers, newMgr];
@@ -290,25 +277,6 @@ const ManageManagers = () => {
                   <button type="button" className="mm-pw-toggle"
                     onClick={() => setShowNewPw(!showNewPw)}>
                     {showNewPw ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-              </div>
-
-              <div className="mm-divider"><span>تأكيد هويتك كمدير عام</span></div>
-
-              <div className="mm-field">
-                <label>كلمة مرورك الحالية (Admin)</label>
-                <div className="mm-pw-wrap">
-                  <input
-                    type={showAdminPw ? "text" : "password"}
-                    placeholder="كلمة مرورك الحالية"
-                    value={addForm.adminPw}
-                    onChange={(e) => setAddForm({ ...addForm, adminPw: e.target.value })}
-                    required
-                  />
-                  <button type="button" className="mm-pw-toggle"
-                    onClick={() => setShowAdminPw(!showAdminPw)}>
-                    {showAdminPw ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
               </div>
