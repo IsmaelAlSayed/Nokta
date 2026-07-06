@@ -21,7 +21,10 @@ const ManageCustomersByManager = () => {
 
   /* ── Add modal ── */
   const [showAddModal, setShowAddModal]   = useState(false);
+  const [loginMethod, setLoginMethod]     = useState("email"); // "email" | "phone"
+  const [customerName, setCustomerName]   = useState("");
   const [email, setEmail]                 = useState("");
+  const [phone, setPhone]                 = useState("");
   const [password, setPassword]           = useState("");
   const [showPwd, setShowPwd]             = useState(false);
   const [addError, setAddError]           = useState("");
@@ -64,22 +67,42 @@ const ManageCustomersByManager = () => {
     ));
   };
 
+  const phoneToEmail = (p) => `p${p.replace(/\D/g, "")}@phone.nokta`;
+
   const handleAddCustomer = async () => {
-    if (!email || !password) { setAddError("البريد وكلمة المرور مطلوبان"); return; }
+    if (!customerName.trim()) { setAddError("اسم الزبون مطلوب"); return; }
+    if (!password) { setAddError("كلمة المرور مطلوبة"); return; }
+
+    let authEmail;
+    let firestoreData;
+
+    if (loginMethod === "email") {
+      if (!email.trim()) { setAddError("البريد الإلكتروني مطلوب"); return; }
+      authEmail = email.trim();
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "email", phoneNumber: "", address: "" };
+    } else {
+      const digits = phone.replace(/\D/g, "");
+      if (digits.length < 7) { setAddError("رقم الهاتف غير صالح"); return; }
+      authEmail = phoneToEmail(phone);
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "phone", phoneNumber: phone.trim(), address: "" };
+    }
+
     try {
-      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-      const user = cred.user;
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email, role: "customer", name: "", phoneNumber: "", address: "",
-      });
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, authEmail, password);
+      await setDoc(doc(db, "users", cred.user.uid), firestoreData);
       await signOut(secondaryAuth);
-      const newCustomer = { id: user.uid, email: user.email, role: "customer" };
+      const newCustomer = { id: cred.user.uid, ...firestoreData };
       setCustomers((prev) => [...prev, newCustomer]);
       setFilteredCustomers((prev) => [...prev, newCustomer]);
-      setEmail(""); setPassword(""); setAddError("");
+      setCustomerName(""); setEmail(""); setPhone(""); setPassword(""); setAddError("");
       setShowAddModal(false);
     } catch (err) {
-      setAddError(err.message);
+      const MAP = {
+        "auth/email-already-in-use": "هذا البريد مستخدم مسبقاً",
+        "auth/invalid-email": "البريد الإلكتروني غير صالح",
+        "auth/weak-password": "كلمة المرور ضعيفة — 6 أحرف على الأقل",
+      };
+      setAddError(MAP[err.code] || err.message);
     }
   };
 
@@ -135,7 +158,7 @@ const ManageCustomersByManager = () => {
             <h1 className="mc-title">إدارة الزبائن</h1>
             <p className="mc-subtitle">{customers.length} زبون مسجل</p>
           </div>
-          <button className="mc-btn-add" onClick={() => { setShowAddModal(true); setAddError(""); }}>
+          <button className="mc-btn-add" onClick={() => { setShowAddModal(true); setAddError(""); setCustomerName(""); setEmail(""); setPhone(""); setPassword(""); setLoginMethod("email"); }}>
             <FaPlus /> إضافة زبون
           </button>
         </div>
@@ -212,34 +235,61 @@ const ManageCustomersByManager = () => {
 
         {/* ── Add Modal ── */}
         {showAddModal && (
-          <div className="mc-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="mc-overlay" onClick={() => { setShowAddModal(false); setAddError(""); }}>
             <div className="mc-modal" onClick={(e) => e.stopPropagation()}>
               <div className="mc-modal-header">
                 <h2>إضافة زبون جديد</h2>
-                <button className="mc-modal-close" onClick={() => setShowAddModal(false)}><FaTimes /></button>
+                <button className="mc-modal-close" onClick={() => { setShowAddModal(false); setAddError(""); }}><FaTimes /></button>
               </div>
               <div className="mc-form">
                 {addError && <p className="mc-form-error">{addError}</p>}
+
                 <div className="mc-field">
-                  <label>البريد الإلكتروني</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+                  <label>اسم الزبون *</label>
+                  <input className="rtl-input" type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="الاسم الكامل" />
                 </div>
+
                 <div className="mc-field">
-                  <label>كلمة مرور الزبون</label>
+                  <label>طريقة تسجيل الدخول</label>
+                  <div className="mc-method-toggle">
+                    <button type="button" className={`mc-method-btn${loginMethod === "email" ? " active" : ""}`} onClick={() => setLoginMethod("email")}>
+                      بريد إلكتروني
+                    </button>
+                    <button type="button" className={`mc-method-btn${loginMethod === "phone" ? " active" : ""}`} onClick={() => setLoginMethod("phone")}>
+                      رقم هاتف
+                    </button>
+                  </div>
+                </div>
+
+                {loginMethod === "email" ? (
+                  <div className="mc-field">
+                    <label>البريد الإلكتروني *</label>
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+                  </div>
+                ) : (
+                  <div className="mc-field">
+                    <label>رقم الهاتف *</label>
+                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="05X XXX XXXX" />
+                  </div>
+                )}
+
+                <div className="mc-field">
+                  <label>كلمة المرور *</label>
                   <div className="mc-pw-wrap">
                     <input
                       type={showPwd ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder="6 أحرف على الأقل"
                     />
                     <button type="button" className="mc-pw-toggle" onClick={() => setShowPwd((v) => !v)}>
                       {showPwd ? <FaEyeSlash /> : <FaEye />}
                     </button>
                   </div>
                 </div>
+
                 <div className="mc-modal-footer">
-                  <button className="mc-btn-ghost" onClick={() => setShowAddModal(false)}>إلغاء</button>
+                  <button className="mc-btn-ghost" onClick={() => { setShowAddModal(false); setAddError(""); }}>إلغاء</button>
                   <button className="mc-btn-primary" onClick={handleAddCustomer}>إضافة</button>
                 </div>
               </div>

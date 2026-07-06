@@ -18,8 +18,12 @@ const firebaseErrors = {
 const getFriendlyError = (code) =>
   firebaseErrors[code] || "حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مجدداً";
 
+const phoneToEmail = (p) => `p${p.replace(/\D/g, "")}@phone.nokta`;
+
 const Login = () => {
+  const [loginMethod, setLoginMethod] = useState("email"); // "email" | "phone"
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,8 +39,9 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const authEmail = loginMethod === "phone" ? phoneToEmail(phone) : email.trim();
     try {
-      const { user } = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const { user } = await signInWithEmailAndPassword(auth, authEmail, password);
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
         setError("لا توجد بيانات للمستخدم");
@@ -136,17 +141,50 @@ const Login = () => {
       </div>
       <form className="login-form" onSubmit={handleLogin}>
         <p className="login-description">قم بتسجيل الدخول لحسابك في منصة ولاء</p>
-        {error && <p className="login-error">{error}</p>}
-        <div className="login-input-group">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="البريد الإلكتروني"
-            className="login-input"
-            required
-          />
+
+        <div className="login-method-toggle">
+          <button
+            type="button"
+            className={`login-method-btn${loginMethod === "email" ? " active" : ""}`}
+            onClick={() => { setLoginMethod("email"); setError(""); }}
+          >
+            بريد إلكتروني
+          </button>
+          <button
+            type="button"
+            className={`login-method-btn${loginMethod === "phone" ? " active" : ""}`}
+            onClick={() => { setLoginMethod("phone"); setError(""); }}
+          >
+            رقم هاتف
+          </button>
         </div>
+
+        {error && <p className="login-error">{error}</p>}
+
+        {loginMethod === "email" ? (
+          <div className="login-input-group">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="البريد الإلكتروني"
+              className="login-input"
+              required
+            />
+          </div>
+        ) : (
+          <div className="login-input-group">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="05X XXX XXXX"
+              className="login-input"
+              required
+            />
+          </div>
+        )}
+
         <div className="login-input-group">
           <input
             type="password"
@@ -156,16 +194,18 @@ const Login = () => {
             className="login-input"
             required
           />
-          <button
-            type="button"
-            className="forgot-password"
-            onClick={() => {
-              setResetEmail(email);
-              setShowReset(true);
-            }}
-          >
-            نسيت كلمة المرور؟
-          </button>
+          {loginMethod === "email" && (
+            <button
+              type="button"
+              className="forgot-password"
+              onClick={() => {
+                setResetEmail(email);
+                setShowReset(true);
+              }}
+            >
+              نسيت كلمة المرور؟
+            </button>
+          )}
         </div>
         <button className="login-button" disabled={loading}>
           {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
