@@ -892,6 +892,23 @@
   gap: 10px;
 }
 
+.mgro-prize-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mgro-prize-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+}
+
 .mgro-prize-name {
   font-size: 15px;
   font-weight: 700;

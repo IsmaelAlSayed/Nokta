@@ -177,9 +177,14 @@ const ManagerOrdersPage = () => {
           filtered.map((order) => (
             <div key={order.id} className="mgro-card">
               <div className="mgro-card-top">
-                <div>
-                  <p className="mgro-prize-name">{order.prizeName}</p>
-                  <p className="mgro-serial">رقم الطلب: {order.serialNumber || "—"}</p>
+                <div className="mgro-prize-info">
+                  {order.prizeImageUrl && (
+                    <img src={order.prizeImageUrl} alt={order.prizeName} className="mgro-prize-img" />
+                  )}
+                  <div>
+                    <p className="mgro-prize-name">{order.prizeName}</p>
+                    <p className="mgro-serial">رقم الطلب: {order.serialNumber || "—"}</p>
+                  </div>
                 </div>
                 <span className={`mgro-status ${order.status}`}>
                   {STATUS_LABELS[order.status] || order.status}
