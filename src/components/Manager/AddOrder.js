@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import {
   collection, getDocs, addDoc, updateDoc, doc, runTransaction, query, where,
 } from "firebase/firestore";
@@ -11,6 +11,7 @@ import "../../styles/AddOrder.css";
 
 const AddOrder = () => {
   const { showToast } = useToast();
+  const currentManager = auth.currentUser;
 
   const [customers, setCustomers]               = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
@@ -36,19 +37,19 @@ const AddOrder = () => {
     const fetchData = async () => {
       try {
         const [custSnap, prodSnap, catSnap, subSnap] = await Promise.all([
-          getDocs(collection(db, "users")),
-          getDocs(collection(db, "products")),
-          getDocs(collection(db, "categories")),
-          getDocs(collection(db, "subcategories")),
+          getDocs(query(collection(db, "users"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "products"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "categories"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "subcategories"), where("managerId", "==", currentManager.uid))),
         ]);
-        setCustomers(custSnap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((u) => u.role === "customer"));
+        setCustomers(custSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setProducts(prodSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setCategories(catSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setSubcategories(subSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (_) {}
     };
     fetchData();
-  }, []);
+  }, [currentManager.uid]);
 
   useEffect(() => {
     let total = orderItems.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -125,6 +126,7 @@ const AddOrder = () => {
         earnedLoyaltyPoints: earnedPoints,
         serialNumber,
         createdAt: new Date(),
+        managerId: currentManager.uid,
       });
 
       if (earnedPoints > 0 && loyaltyConfig) {

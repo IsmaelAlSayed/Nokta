@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebaseConfig";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { auth, db } from "../../firebaseConfig";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { FaSearch, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import ManagerLayout from "./ManagerLayout";
 import "../../styles/ManageCategories.css";
 
 const ManageCategories = () => {
+  const currentManager = auth.currentUser;
+
   const [categories, setCategories]       = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [searchQuery, setSearchQuery]     = useState("");
@@ -20,19 +22,19 @@ const ManageCategories = () => {
   useEffect(() => {
     const fetch = async () => {
       const [catSnap, subSnap] = await Promise.all([
-        getDocs(collection(db, "categories")),
-        getDocs(collection(db, "subcategories")),
+        getDocs(query(collection(db, "categories"), where("managerId", "==", currentManager.uid))),
+        getDocs(query(collection(db, "subcategories"), where("managerId", "==", currentManager.uid))),
       ]);
       setCategories(catSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
       setSubcategories(subSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
     };
     fetch();
-  }, []);
+  }, [currentManager.uid]);
 
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
-    const ref = await addDoc(collection(db, "categories"), { name: newCategory });
-    setCategories((prev) => [...prev, { id: ref.id, name: newCategory }]);
+    const ref = await addDoc(collection(db, "categories"), { name: newCategory, managerId: currentManager.uid });
+    setCategories((prev) => [...prev, { id: ref.id, name: newCategory, managerId: currentManager.uid }]);
     setNewCategory("");
   };
 
@@ -53,8 +55,8 @@ const ManageCategories = () => {
 
   const handleAddSubcategory = async () => {
     if (!newSubcategory.trim() || !selectedCategory) return;
-    const ref = await addDoc(collection(db, "subcategories"), { name: newSubcategory, category: selectedCategory });
-    setSubcategories((prev) => [...prev, { id: ref.id, name: newSubcategory, category: selectedCategory }]);
+    const ref = await addDoc(collection(db, "subcategories"), { name: newSubcategory, category: selectedCategory, managerId: currentManager.uid });
+    setSubcategories((prev) => [...prev, { id: ref.id, name: newSubcategory, category: selectedCategory, managerId: currentManager.uid }]);
     setNewSubcategory("");
   };
 

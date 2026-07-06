@@ -2,20 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import { FaHome, FaBell, FaUser, FaClipboardList } from "react-icons/fa";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import "../../styles/ManagerDashboard.css";
 
 const ManagerLayout = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
+    const currentManager = auth.currentUser;
+    if (!currentManager) return;
     const q = query(
       collection(db, "orders"),
-      where("source", "==", "redeemPopup"),
+      where("managerId", "==", currentManager.uid),
       where("status", "==", "pending"),
       where("read", "==", false)
     );
-    const unsub = onSnapshot(q, (snap) => setUnreadCount(snap.docs.length));
+    const unsub = onSnapshot(q, (snap) => {
+      const count = snap.docs.filter((d) => d.data().source === "redeemPopup").length;
+      setUnreadCount(count);
+    });
     return () => unsub();
   }, []);
 

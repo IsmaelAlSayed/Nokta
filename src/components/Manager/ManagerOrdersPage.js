@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { collection, doc, updateDoc, query, where, onSnapshot, increment } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import ManagerLayout from "./ManagerLayout";
 import "../../styles/ManagerDashboard.css";
 
@@ -22,9 +22,10 @@ const ManagerOrdersPage = () => {
   useEffect(() => { localStorage.setItem("searchTerm",     searchTerm);     }, [searchTerm]);
 
   useEffect(() => {
-    const q = query(collection(db, "orders"), where("source", "==", "redeemPopup"));
+    const currentManager = auth.currentUser;
+    const q = query(collection(db, "orders"), where("managerId", "==", currentManager.uid));
     const unsub = onSnapshot(q, (snap) => {
-      setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setOrders(snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((o) => o.source === "redeemPopup"));
     });
     return () => unsub();
   }, []);

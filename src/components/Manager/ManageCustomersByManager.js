@@ -3,7 +3,7 @@ import {
   collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where,
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { db, secondaryAuth } from "../../firebaseConfig";
+import { auth, db, secondaryAuth } from "../../firebaseConfig";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaSearch, FaEye, FaEyeSlash } from "react-icons/fa";
 import MangerLayout from "./ManagerLayout";
 import CustomerOrdersModal from "./CustomerOrdersModal";
@@ -41,22 +41,23 @@ const ManageCustomersByManager = () => {
   const [loyaltyModalVisible, setLoyaltyModalVisible]     = useState(false);
   const [selectedCustomerForLoyalty, setSelectedCustomerForLoyalty] = useState(null);
 
+  const currentManager = auth.currentUser;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const customerSnap = await getDocs(collection(db, "users"));
-        const list = customerSnap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter((u) => u.role === "customer");
+        const [customerSnap, loySnap] = await Promise.all([
+          getDocs(query(collection(db, "users"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid))),
+        ]);
+        const list = customerSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setCustomers(list);
         setFilteredCustomers(list);
-
-        const loySnap = await getDocs(collection(db, "loyaltyPoints"));
         setLoyaltyConfigs(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (_) {}
     };
     fetchData();
-  }, []);
+  }, [currentManager.uid]);
 
   const handleSearch = (q) => {
     setSearchQuery(q);
@@ -79,12 +80,12 @@ const ManageCustomersByManager = () => {
     if (loginMethod === "email") {
       if (!email.trim()) { setAddError("البريد الإلكتروني مطلوب"); return; }
       authEmail = email.trim();
-      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "email", phoneNumber: "", address: "" };
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "email", phoneNumber: "", address: "", managerId: currentManager.uid };
     } else {
       const digits = phone.replace(/\D/g, "");
       if (digits.length < 7) { setAddError("رقم الهاتف غير صالح"); return; }
       authEmail = phoneToEmail(phone);
-      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "phone", phoneNumber: phone.trim(), address: "" };
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "phone", phoneNumber: phone.trim(), address: "", managerId: currentManager.uid };
     }
 
     try {

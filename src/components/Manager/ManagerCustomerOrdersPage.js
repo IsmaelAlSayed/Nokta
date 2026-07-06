@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, orderBy, query } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { collection, getDocs, addDoc, orderBy, query, where } from "firebase/firestore";
+import { auth, db } from "../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { FaFileInvoiceDollar } from "react-icons/fa";
 import ManagerLayout from "./ManagerLayout";
@@ -13,9 +13,14 @@ const ManagerCustomerOrdersPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const currentManager = auth.currentUser;
     const fetch = async () => {
       try {
-        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        const q = query(
+          collection(db, "orders"),
+          where("managerId", "==", currentManager.uid),
+          orderBy("createdAt", "desc")
+        );
         const snap = await getDocs(q);
         setOrders(snap.docs
           .map((d) => ({ id: d.id, ...d.data() }))

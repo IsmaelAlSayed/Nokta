@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebaseConfig";
+import { auth, db } from "../../firebaseConfig";
 import ManagerLayout from "./ManagerLayout";
 import "../../styles/ManagerDashboard.css";
 
@@ -10,13 +10,16 @@ const ManagerNotificationsPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const currentManager = auth.currentUser;
     const q = query(
       collection(db, "orders"),
-      where("source", "==", "redeemPopup"),
+      where("managerId", "==", currentManager.uid),
       where("status", "==", "pending")
     );
     const unsub = onSnapshot(q, (snap) => {
-      setNotifications(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      setNotifications(
+        snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((o) => o.source === "redeemPopup")
+      );
     });
     return () => unsub();
   }, []);

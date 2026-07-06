@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
+import { auth, db } from "../../firebaseConfig";
 import ManagerLayout from "../Manager/ManagerLayout";
 import "../../styles/ManagerDashboard.css";
 
@@ -9,9 +9,14 @@ const ManagerSupportRequests = () => {
   const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
+    const currentManager = auth.currentUser;
     const fetch = async () => {
       try {
-        const q = query(collection(db, "supportRequests"), orderBy("createdAt", "desc"));
+        const q = query(
+          collection(db, "supportRequests"),
+          where("managerId", "==", currentManager.uid),
+          orderBy("createdAt", "desc")
+        );
         const snap = await getDocs(q);
         setRequests(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (_) {}

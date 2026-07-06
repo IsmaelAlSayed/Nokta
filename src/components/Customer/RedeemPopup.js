@@ -32,7 +32,7 @@ const RedeemPopup = ({ prize, customerData, configId, config, configName, onClos
 
       await addDoc(collection(db, "orders"), {
         prizeName: prize.prizeName,
-        prizeImageUrl: prize.prizeImageUrl, // Store the prize image URL
+        prizeImageUrl: prize.prizeImageUrl,
         customerId: currentCustomer.uid,
         customerName: info.name,
         phone: info.phone,
@@ -46,7 +46,8 @@ const RedeemPopup = ({ prize, customerData, configId, config, configName, onClos
         configId,
         serialNumber,
         read: false,
-        customerRead: false
+        customerRead: false,
+        managerId: config?.managerId || "",
       });
       alert("تم إنشاء الطلب بنجاح!");
       onConfirm(prize);

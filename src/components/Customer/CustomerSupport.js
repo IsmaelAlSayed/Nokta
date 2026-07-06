@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  collection, addDoc, getDocs, query, where, orderBy, serverTimestamp,
+  collection, addDoc, getDocs, getDoc, doc, query, where, orderBy, serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
 import { FaHeadset, FaChevronDown } from "react-icons/fa";
@@ -36,11 +36,14 @@ const CustomerSupport = () => {
     e.preventDefault();
     setSending(true);
     try {
+      const userDoc = await getDoc(doc(db, "users", currentCustomer.uid));
+      const managerId = userDoc.exists() ? (userDoc.data().managerId || "") : "";
       await addDoc(collection(db, "supportRequests"), {
         subject,
         message,
         phone,
         customerEmail: currentCustomer.email,
+        managerId,
         createdAt: serverTimestamp(),
       });
       setSent(true);

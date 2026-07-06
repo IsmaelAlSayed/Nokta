@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { db, storage } from "../../firebaseConfig";
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { auth, db, storage } from "../../firebaseConfig";
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaSearch, FaCamera } from "react-icons/fa";
 import MangerLayout from "./ManagerLayout";
@@ -10,6 +10,8 @@ import "../../styles/ManageProducts.css";
 const EMPTY_FORM = { name: "", price: "", description: "", category: "", subcategory: "", image: null };
 
 const ManageProducts = () => {
+  const currentManager = auth.currentUser;
+
   const [products, setProducts]           = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchQuery, setSearchQuery]     = useState("");
@@ -31,9 +33,9 @@ const ManageProducts = () => {
     const fetch = async () => {
       try {
         const [prodSnap, catSnap, subSnap] = await Promise.all([
-          getDocs(collection(db, "products")),
-          getDocs(collection(db, "categories")),
-          getDocs(collection(db, "subcategories")),
+          getDocs(query(collection(db, "products"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "categories"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "subcategories"), where("managerId", "==", currentManager.uid))),
         ]);
         const prods = prodSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setProducts(prods); setFilteredProducts(prods);
@@ -42,7 +44,7 @@ const ManageProducts = () => {
       } catch (_) {}
     };
     fetch();
-  }, []);
+  }, [currentManager.uid]);
 
   useEffect(() => {
     setFilteredProducts(
@@ -112,6 +114,7 @@ const ManageProducts = () => {
         category: form.category,
         subcategory: form.subcategory || null,
         imageUrl,
+        managerId: currentManager.uid,
       };
 
       if (editingProduct) {
