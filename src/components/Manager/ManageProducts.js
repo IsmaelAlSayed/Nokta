@@ -87,8 +87,7 @@ const ManageProducts = () => {
     const uniqueName = `${image.name}_${Date.now()}`;
     const imgRef = ref(storage, `products/${uniqueName}`);
     await uploadBytes(imgRef, image);
-    await new Promise((r) => setTimeout(r, 5000));
-    return await getDownloadURL(ref(storage, `products/${uniqueName}_200x200`));
+    return await getDownloadURL(imgRef);
   };
 
   const handleSave = async (e) => {
