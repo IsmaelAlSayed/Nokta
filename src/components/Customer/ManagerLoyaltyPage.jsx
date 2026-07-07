@@ -35,20 +35,27 @@ const ManagerLoyaltyPage = () => {
     fetchData();
   }, [managerId, currentCustomer.uid]);
 
-  const businessName =
-    manager?.businessName || manager?.name || "المتجر";
+  const businessName = manager?.businessName || manager?.name || "المتجر";
+  const logoUrl      = manager?.logoUrl || "";
 
   return (
     <CustomerLayout>
       <div className="mlp-page">
-        {/* ── Back + Title ── */}
+
+        {/* ── Back ── */}
         <button className="mlp-back" onClick={() => navigate(-1)}>
           <FaArrowRight />
           <span>رجوع</span>
         </button>
 
+        {/* ── Hero ── */}
         <div className="mlp-hero">
-          <div className="mlp-hero-icon"><FaStar /></div>
+          <div className="mlp-hero-logo">
+            {logoUrl
+              ? <img src={logoUrl} alt={businessName} className="mlp-hero-logo-img" />
+              : <FaStar />
+            }
+          </div>
           <div>
             <h1 className="mlp-biz-name">{businessName}</h1>
             <p className="mlp-biz-sub">{configurations.length} برنامج ولاء</p>
@@ -66,27 +73,63 @@ const ManagerLoyaltyPage = () => {
           <div className="mlp-list">
             {configurations.map((config) => {
               const pts = config.pointsByCustomer?.[currentCustomer.uid] ?? 0;
+              const sorted = config.prizes
+                ? [...config.prizes].sort((a, b) => a.exchangingValue - b.exchangingValue)
+                : [];
+              const redeemed = config.redeemedPrizesByCustomer?.[currentCustomer.uid] || [];
+              const nextIdx  = sorted.findIndex((_, i) => !redeemed.includes(i));
+              const nextPrize = nextIdx !== -1 ? sorted[nextIdx] : null;
+
+              let progress = 100;
+              let progressLabel = "";
+              if (nextPrize) {
+                progress = Math.min(100, Math.round((pts / nextPrize.exchangingValue) * 100));
+                const remaining = nextPrize.exchangingValue - pts;
+                progressLabel = remaining > 0
+                  ? `${remaining} نقطة للجائزة التالية`
+                  : "جاهز للاستبدال! 🎁";
+              } else if (sorted.length > 0) {
+                progressLabel = "جمعت كل الجوائز 🎉";
+              }
+
               return (
                 <div
                   key={config.id}
                   className="mlp-config-card"
                   onClick={() => navigate(`/manager/royal-pass/${config.id}`)}
                 >
-                  <div className="mlp-config-info">
-                    <h2 className="mlp-config-name">{config.name}</h2>
-                    <p className="mlp-config-rate">
-                      {config.pointsPerDollar} نقطة لكل وحدة شراء
-                    </p>
+                  <div className="mlp-card-top">
+                    <div className="mlp-config-info">
+                      <h2 className="mlp-config-name">{config.name}</h2>
+                      <p className="mlp-config-rate">
+                        {config.pointsPerDollar} نقطة / شيكل
+                      </p>
+                    </div>
+                    <div className="mlp-config-pts">
+                      <span className="mlp-pts-value">{pts}</span>
+                      <span className="mlp-pts-label">نقطة</span>
+                    </div>
                   </div>
-                  <div className="mlp-config-pts">
-                    <span className="mlp-pts-value">{pts}</span>
-                    <span className="mlp-pts-label">نقطة</span>
-                  </div>
+
+                  {sorted.length > 0 && (
+                    <div className="mlp-progress-section">
+                      <div className="mlp-progress-bar">
+                        <div
+                          className="mlp-progress-fill"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      {progressLabel && (
+                        <p className="mlp-progress-label">{progressLabel}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         )}
+
       </div>
     </CustomerLayout>
   );

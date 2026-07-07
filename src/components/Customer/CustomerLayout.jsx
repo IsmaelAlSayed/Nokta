@@ -45,14 +45,17 @@ const CustomerLayout = ({ children }) => {
         </NavLink>
 
         <div className="cust-header-info">
+          <span className="cust-header-greeting">مرحباً،</span>
           <span className="cust-header-name">{displayName}</span>
           <span className="cust-header-card">
-            رقم البطاقة: {customerData?.loyalCardNo || "0000"}
+            بطاقة: {customerData?.loyalCardNo || "—"}
           </span>
         </div>
 
         <div className="cust-avatar">
-          <FaUser />
+          {customerData?.name
+            ? customerData.name.charAt(0).toUpperCase()
+            : <FaUser />}
         </div>
       </header>
 

@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   Customer Notifications Page
+   Customer Notifications  (cn-*)
 ═══════════════════════════════════════ */
 .cn-page {
   padding: 16px;
@@ -13,62 +13,86 @@
 /* ── Hero ── */
 .cn-hero {
   background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
-  border-radius: 18px;
-  padding: 20px 18px;
+  border-radius: 22px;
+  padding: 22px 20px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.cn-hero::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.1);
+  pointer-events: none;
 }
 
 .cn-hero-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   background: rgba(249, 115, 22, 0.2);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.35);
   color: #f97316;
-  font-size: 22px;
+  font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .cn-hero-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   margin: 0 0 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .cn-hero-sub {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.5);
   margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Empty ── */
 .cn-empty {
   text-align: center;
-  padding: 50px 20px;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .cn-empty-icon {
-  font-size: 50px;
-  margin-bottom: 12px;
+  font-size: 60px;
   line-height: 1;
+  margin-bottom: 4px;
 }
 
 .cn-empty-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #374151;
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 .cn-empty-sub {
-  font-size: 13px;
-  color: #94a3b8;
+  font-size: 14px;
+  color: #9ca3af;
   margin: 0;
 }
 
@@ -82,24 +106,26 @@
 /* ── Card ── */
 .cn-card {
   background: #fff;
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.055);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.055);
   display: flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: box-shadow 0.2s;
-  border-right: 3px solid transparent;
+  transition: box-shadow 0.2s, transform 0.15s;
+  border-right: 4px solid transparent;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.cn-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+.cn-card:active {
+  transform: scale(0.98);
 }
 
 .cn-card--unread {
   border-right-color: #f97316;
-  background: #fff9f5;
+  background: #fffaf7;
+  box-shadow: 0 2px 14px rgba(249, 115, 22, 0.1);
 }
 
 .cn-card-body {
@@ -111,11 +137,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .cn-prize-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
@@ -130,8 +156,8 @@
   color: #fff;
   font-size: 10px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 2px 9px;
+  border-radius: 20px;
   flex-shrink: 0;
 }
 
@@ -139,14 +165,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .cn-status {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cn-status--green {
@@ -166,17 +193,20 @@
 
 .cn-date {
   font-size: 12px;
-  color: #94a3b8;
+  color: #9ca3af;
 }
 
 .cn-rejection {
   font-size: 12px;
-  color: #dc2626;
-  margin: 6px 0 0;
+  color: #ef4444;
+  margin: 8px 0 0;
+  background: rgba(239, 68, 68, 0.06);
+  padding: 6px 10px;
+  border-radius: 8px;
 }
 
 .cn-arrow {
   font-size: 14px;
-  color: #cbd5e1;
+  color: #d1d5db;
   flex-shrink: 0;
 }
