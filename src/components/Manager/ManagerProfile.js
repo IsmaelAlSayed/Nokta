@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { auth, db } from "../../firebaseConfig";
+import React, { useEffect, useRef, useState } from "react";
+import { auth, db, storage } from "../../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import {
   updatePassword,
@@ -7,9 +7,9 @@ import {
   EmailAuthProvider,
   signOut,
 } from "firebase/auth";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaCamera } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCamera, FaSpinner } from "react-icons/fa";
 import ManagerLayout from "./ManagerLayout";
 import "../../styles/ManagerDashboard.css";
 
@@ -21,11 +21,13 @@ const ManagerProfile = () => {
   const [newPassword, setNewPassword]         = useState("");
   const [showCurrent, setShowCurrent]         = useState(false);
   const [showNew, setShowNew]                 = useState(false);
-  const [logoFile, setLogoFile]               = useState(null);
   const [logoPreview, setLogoPreview]         = useState("");
+  const [logoUploading, setLogoUploading]     = useState(false);
   const [loading, setLoading]                 = useState(true);
+  const [saving, setSaving]                   = useState(false);
   const [msg, setMsg]                         = useState("");
   const [msgType, setMsgType]                 = useState("success");
+  const logoInputRef                          = useRef(null);
 
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
@@ -43,41 +45,50 @@ const ManagerProfile = () => {
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogoChange = (e) => {
+  const handleLogoChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
+    if (!file) return;
+    setLogoPreview(URL.createObjectURL(file));
+    setLogoUploading(true);
+    setMsg("");
+    try {
+      const logoRef = ref(storage, `logos/${currentUser.uid}/${Date.now()}_${file.name}`);
+      await uploadBytes(logoRef, file);
+      const url = await getDownloadURL(logoRef);
+      await updateDoc(doc(db, "users", currentUser.uid), { logoUrl: url });
+      setProfile((prev) => ({ ...prev, logoUrl: url }));
+      setLogoPreview("");
+      setMsg("تم رفع الشعار بنجاح");
+      setMsgType("success");
+    } catch (err) {
+      setLogoPreview("");
+      const ERRORS = {
+        "storage/quota-exceeded": "مساحة التخزين ممتلئة — يرجى ترقية باقة Firebase",
+        "storage/unauthorized": "ليس لديك صلاحية رفع الملفات",
+      };
+      setMsg(ERRORS[err.code] || "فشل رفع الشعار: " + err.message);
+      setMsgType("error");
     }
+    setLogoUploading(false);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     setMsg("");
+    setSaving(true);
     try {
-      const userRef = doc(db, "users", currentUser.uid);
-      await updateDoc(userRef, {
+      await updateDoc(doc(db, "users", currentUser.uid), {
         name: profile.name,
         phoneNumber: profile.phoneNumber,
         address: profile.address,
         businessName: profile.businessName,
       });
 
-      if (logoFile) {
-        const storage = getStorage();
-        const logoRef = ref(storage, `logos/${currentUser.uid}/${logoFile.name}`);
-        await uploadBytes(logoRef, logoFile);
-        const url = await getDownloadURL(logoRef);
-        await updateDoc(userRef, { logoUrl: url });
-        setProfile((prev) => ({ ...prev, logoUrl: url }));
-        setLogoFile(null);
-        setLogoPreview("");
-      }
-
       if (newPassword) {
         if (!currentPassword) {
           setMsg("أدخل كلمة المرور الحالية لتحديث كلمة المرور");
           setMsgType("error");
+          setSaving(false);
           return;
         }
         const cred = EmailAuthProvider.credential(currentUser.email, currentPassword);
@@ -87,12 +98,18 @@ const ManagerProfile = () => {
         setNewPassword("");
       }
 
-      setMsg("تم تحديث الملف الشخصي بنجاح");
+      setMsg("تم حفظ التغييرات بنجاح");
       setMsgType("success");
     } catch (err) {
-      setMsg("حدث خطأ: " + err.message);
+      const ERRORS = {
+        "auth/wrong-password":     "كلمة المرور الحالية غير صحيحة",
+        "auth/weak-password":      "كلمة المرور الجديدة ضعيفة — 6 أحرف على الأقل",
+        "auth/requires-recent-login": "يرجى تسجيل الخروج والدخول مجدداً ثم المحاولة",
+      };
+      setMsg(ERRORS[err.code] || "حدث خطأ: " + err.message);
       setMsgType("error");
     }
+    setSaving(false);
   };
 
   const handleLogout = async () => {
@@ -101,6 +118,7 @@ const ManagerProfile = () => {
   };
 
   const displayLogo = logoPreview || profile.logoUrl;
+  const displayEmail = profile.loginMethod === "phone" ? profile.phoneNumber : profile.email;
 
   if (loading) return (
     <ManagerLayout>
@@ -113,29 +131,40 @@ const ManagerProfile = () => {
       <div className="mgrp-page">
         {/* ── Hero ── */}
         <div className="mgrp-hero">
-          <div className="mgrp-avatar">
-            {displayLogo
-              ? <img src={displayLogo} alt="logo" className="mgrp-avatar-img" />
-              : (profile.businessName?.charAt(0).toUpperCase() || "م")}
+          <div
+            className={`mgrp-avatar mgrp-avatar-clickable${logoUploading ? " uploading" : ""}`}
+            onClick={() => !logoUploading && logoInputRef.current?.click()}
+            title="انقر لتغيير الشعار"
+          >
+            {logoUploading ? (
+              <FaSpinner className="mgrp-avatar-spinner" />
+            ) : displayLogo ? (
+              <img src={displayLogo} alt="logo" className="mgrp-avatar-img" />
+            ) : (
+              profile.businessName?.charAt(0).toUpperCase() || "م"
+            )}
+            {!logoUploading && (
+              <div className="mgrp-avatar-overlay"><FaCamera /></div>
+            )}
           </div>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/*"
+            className="mgrp-file-input"
+            onChange={handleLogoChange}
+          />
+          <p className="mgrp-avatar-hint">
+            {logoUploading ? "جاري رفع الشعار..." : "انقر على الصورة لتغيير الشعار"}
+          </p>
           <h2 className="mgrp-hero-name">{profile.businessName || profile.name}</h2>
-          <p className="mgrp-hero-email">{profile.email}</p>
+          <p className="mgrp-hero-email">{displayEmail}</p>
           <button className="mgrp-logout-btn" onClick={handleLogout}>تسجيل الخروج</button>
         </div>
 
         {/* ── Info Form ── */}
         <form className="mgrp-card" onSubmit={handleSave}>
           <p className="mgrp-card-title">المعلومات الشخصية</p>
-
-          {/* Logo upload */}
-          <div className="mgrp-field">
-            <label className="mgrp-label">شعار المتجر</label>
-            <label className="mgrp-file-label">
-              <FaCamera />
-              <span>{logoFile ? logoFile.name : "اختر صورة الشعار"}</span>
-              <input type="file" accept="image/*" className="mgrp-file-input" onChange={handleLogoChange} />
-            </label>
-          </div>
 
           <div className="mgrp-field">
             <label className="mgrp-label">الاسم</label>
@@ -194,7 +223,9 @@ const ManagerProfile = () => {
             </div>
           </div>
 
-          <button type="submit" className="mgrp-save-btn">حفظ التغييرات</button>
+          <button type="submit" className="mgrp-save-btn" disabled={saving || logoUploading}>
+            {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+          </button>
 
           {msg && (
             <p className={`mgrp-msg${msgType === "error" ? " mgrp-msg-error" : ""}`}>{msg}</p>
