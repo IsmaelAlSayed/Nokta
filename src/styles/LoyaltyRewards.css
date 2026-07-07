@@ -290,6 +290,39 @@ body {
   height: 50px;
 }
 
+/* Redeemed Prize Card */
+.prize-card.redeemed::before {
+  background: linear-gradient(to top, rgba(16, 185, 129, 0.85), transparent);
+}
+
+.prize-card.redeemed {
+  filter: brightness(0.8);
+}
+
+/* Check Icon (redeemed) */
+.prize-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #10b981;
+  border-radius: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 26px;
+  width: 60px;
+  height: 60px;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
+}
+
+/* Next Prize (current target) */
+.prize-card.next-prize {
+  box-shadow: 0 0 0 3px #ff5722, 0 12px 24px rgba(0, 0, 0, 0.8);
+}
+
 .header-right {
   display: flex;
   align-items: center;
