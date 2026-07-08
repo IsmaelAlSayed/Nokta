@@ -49,7 +49,6 @@ const RedeemPopup = ({ prize, customerData, configId, config, configName, onClos
         customerRead: false,
         managerId: config?.managerId || "",
       });
-      alert("تم إنشاء الطلب بنجاح!");
       onConfirm(prize);
     } catch (error) {
       console.error("Error creating order:", error);

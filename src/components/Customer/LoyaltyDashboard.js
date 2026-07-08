@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { doc, getDoc, updateDoc, query, collection, where, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
-import { FaLock, FaCheck } from "react-icons/fa";
+import { FaLock, FaCheck, FaShareAlt } from "react-icons/fa";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "../../styles/LoyaltyRewards.css";
@@ -18,12 +18,14 @@ const getResizedImageUrl = (originalUrl) => {
 
 const LoyaltyRewardsPage = () => {
   const { configId } = useParams();
-  const [config, setConfig]           = useState(null);
+  const [config, setConfig]             = useState(null);
   const [customerData, setCustomerData] = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [viewMode, setViewMode]       = useState("points");
-  const [selectedPrize, setSelectedPrize]   = useState(null);
+  const [loading, setLoading]           = useState(true);
+  const [viewMode, setViewMode]         = useState("points");
+  const [selectedPrize, setSelectedPrize]             = useState(null);
   const [showInsufficientPointsModal, setShowInsufficientPointsModal] = useState(false);
+  const [redeemSuccess, setRedeemSuccess]             = useState(null);
+  const [shareBonusAwarded, setShareBonusAwarded]     = useState(false);
 
   const currentCustomer = auth.currentUser;
 
@@ -59,12 +61,12 @@ const LoyaltyRewardsPage = () => {
     </CustomerLayout>
   );
 
-  const customerPoints    = config.pointsByCustomer?.[currentCustomer?.uid] || 0;
-  const sortedPrizes      = config.prizes ? [...config.prizes].sort((a, b) => a.exchangingValue - b.exchangingValue) : [];
-  const redeemedPrizes    = config.redeemedPrizesByCustomer?.[currentCustomer?.uid] || [];
-  const nextPrizeIndex    = sortedPrizes.findIndex((_, idx) => !redeemedPrizes.includes(idx));
-  const nextPrize         = nextPrizeIndex !== -1 ? sortedPrizes[nextPrizeIndex] : null;
-  const canRedeem         = nextPrize && customerPoints >= nextPrize.exchangingValue;
+  const customerPoints = config.pointsByCustomer?.[currentCustomer?.uid] || 0;
+  const sortedPrizes   = config.prizes ? [...config.prizes].sort((a, b) => a.exchangingValue - b.exchangingValue) : [];
+  const redeemedPrizes = config.redeemedPrizesByCustomer?.[currentCustomer?.uid] || [];
+  const nextPrizeIndex = sortedPrizes.findIndex((_, idx) => !redeemedPrizes.includes(idx));
+  const nextPrize      = nextPrizeIndex !== -1 ? sortedPrizes[nextPrizeIndex] : null;
+  const canRedeem      = nextPrize && customerPoints >= nextPrize.exchangingValue;
 
   const handleRedeem = () => {
     if (!nextPrize || !canRedeem) {
@@ -85,8 +87,49 @@ const LoyaltyRewardsPage = () => {
         [`redeemedPrizesByCustomer.${currentCustomer.uid}`]: [...currentRedeemed, prizeIdx],
       });
       setSelectedPrize(null);
-      window.location.reload();
+      setShareBonusAwarded(false);
+      setRedeemSuccess({
+        prize,
+        shareBonus:
+          config.shareBonus?.enabled && Number(config.shareBonus?.pointsPerShare) > 0
+            ? config.shareBonus
+            : null,
+      });
     } catch (_) {}
+  };
+
+  const awardShareBonus = async (shareBonus) => {
+    try {
+      await updateDoc(doc(db, "loyaltyPoints", configId), {
+        [`pointsByCustomer.${currentCustomer.uid}`]: increment(Number(shareBonus.pointsPerShare)),
+        [`shareBonusCountByCustomer.${currentCustomer.uid}`]: increment(1),
+      });
+      setShareBonusAwarded(true);
+    } catch (_) {}
+  };
+
+  const handleShare = async () => {
+    const { prize, shareBonus } = redeemSuccess;
+    const shareText = `🎉 حصلت على "${prize.prizeName}" من برنامج "${config.name}"! انضم أنت الآخر واجمع نقاطك 🎁`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `جائزتي: ${prize.prizeName} 🎁`,
+          text: shareText,
+          url: window.location.href,
+        });
+      } else {
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(shareText + "\n" + window.location.href)}`,
+          "_blank"
+        );
+      }
+      if (shareBonus && !shareBonusAwarded) {
+        await awardShareBonus(shareBonus);
+      }
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+    }
   };
 
   return (
@@ -152,6 +195,7 @@ const LoyaltyRewardsPage = () => {
             prize={selectedPrize}
             customerData={customerData}
             configId={configId}
+            config={config}
             configName={config.name}
             onClose={() => setSelectedPrize(null)}
             onConfirm={handleConfirm}
@@ -160,6 +204,53 @@ const LoyaltyRewardsPage = () => {
 
         {showInsufficientPointsModal && (
           <InsufficientPointsModal onClose={() => setShowInsufficientPointsModal(false)} />
+        )}
+
+        {/* ── Redemption Success + Share ── */}
+        {redeemSuccess && (
+          <div className="share-overlay">
+            <div className="share-card">
+              <div className="share-confetti">🎉</div>
+              <h2 className="share-title">مبروك!</h2>
+              <p className="share-subtitle">حصلت على جائزتك</p>
+
+              {redeemSuccess.prize.prizeImageUrl ? (
+                <img
+                  src={redeemSuccess.prize.prizeImageUrl}
+                  alt={redeemSuccess.prize.prizeName}
+                  className="share-prize-img"
+                />
+              ) : (
+                <div className="share-prize-placeholder">🎁</div>
+              )}
+
+              <p className="share-prize-name">{redeemSuccess.prize.prizeName}</p>
+
+              {redeemSuccess.shareBonus && !shareBonusAwarded && (
+                <div className="share-bonus-section">
+                  <p className="share-bonus-hint">
+                    شارك فرحتك مع أصدقائك واحصل على
+                    <span className="share-bonus-pts"> +{redeemSuccess.shareBonus.pointsPerShare} نقطة </span>
+                    مكافأة!
+                  </p>
+                  <button className="share-social-btn" onClick={handleShare}>
+                    <FaShareAlt />
+                    <span>شارك جائزتك</span>
+                  </button>
+                </div>
+              )}
+
+              {shareBonusAwarded && (
+                <div className="share-awarded">
+                  ✅ تمت إضافة {redeemSuccess.shareBonus.pointsPerShare} نقطة مكافأة!
+                </div>
+              )}
+
+              <button className="share-close-btn" onClick={() => window.location.reload()}>
+                متابعة
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </CustomerLayout>

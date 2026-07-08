@@ -290,6 +290,171 @@ body {
   height: 50px;
 }
 
+/* ── Redemption Success + Share Overlay ── */
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.share-card {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 28px 28px 0 0;
+  padding: 20px 24px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: shareSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.share-card::before {
+  content: '';
+  width: 40px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+@keyframes shareSlideUp {
+  from { transform: translateY(100px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.share-confetti { font-size: 52px; line-height: 1; }
+
+.share-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.share-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.share-prize-img {
+  width: 110px;
+  height: 110px;
+  border-radius: 22px;
+  object-fit: cover;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  margin: 2px 0;
+}
+
+.share-prize-placeholder {
+  font-size: 72px;
+  line-height: 1;
+  margin: 2px 0;
+}
+
+.share-prize-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.share-bonus-section {
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  border-radius: 18px;
+  padding: 14px 18px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.share-bonus-hint {
+  font-size: 14px;
+  color: #92400e;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.share-bonus-pts {
+  color: #f97316;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.share-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #f97316;
+  color: #fff;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.share-social-btn:hover  { background: #ea6c0a; }
+.share-social-btn:active { transform: scale(0.97); }
+
+.share-awarded {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.share-close-btn {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  padding: 13px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 4px;
+  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.share-close-btn:hover  { background: #e2e8f0; }
+.share-close-btn:active { transform: scale(0.98); }
+
 /* Redeemed Prize Card */
 .prize-card.redeemed::before {
   background: linear-gradient(to top, rgba(16, 185, 129, 0.85), transparent);

@@ -25,6 +25,9 @@ const LoyaltyPoints = () => {
   const [prizes, setPrizes]                 = useState([]);
   const [currentPrize, setCurrentPrize]     = useState(EMPTY_PRIZE);
 
+  /* ── Share Bonus ── */
+  const [shareBonus, setShareBonus] = useState({ enabled: false, pointsPerShare: 0 });
+
   /* ── Customers ── */
   const [customers, setCustomers]           = useState([]);
   const [searchTerm, setSearchTerm]         = useState("");
@@ -87,7 +90,11 @@ const LoyaltyPoints = () => {
     }
     setIsLoading(true);
     try {
-      const configData = { name, pointsPerDollar: Number(pointsPerDollar), customers: selectedCustomers, managerId: currentManager.uid, prizes };
+      const configData = {
+        name, pointsPerDollar: Number(pointsPerDollar),
+        customers: selectedCustomers, managerId: currentManager.uid, prizes,
+        shareBonus: { enabled: shareBonus.enabled, pointsPerShare: Number(shareBonus.pointsPerShare) || 0 },
+      };
       if (editingId) {
         await setDoc(doc(db, "loyaltyPoints", editingId), configData);
         setMsg("تم التحديث بنجاح"); setMsgType("ok");
@@ -122,12 +129,14 @@ const LoyaltyPoints = () => {
     setPointsPerDollar(config.pointsPerDollar);
     setSelectedCustomers(config.customers || []);
     setPrizes(config.prizes || []);
+    setShareBonus(config.shareBonus || { enabled: false, pointsPerShare: 0 });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const resetForm = () => {
     setEditingId(null); setName(""); setPointsPerDollar("");
     setSelectedCustomers([]); setPrizes([]); setCurrentPrize(EMPTY_PRIZE);
+    setShareBonus({ enabled: false, pointsPerShare: 0 });
   };
 
   const filteredCustomers = customers.filter(
@@ -257,6 +266,36 @@ const LoyaltyPoints = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ── Share Bonus ── */}
+          <div className="lp-card" style={{ boxShadow: "none", background: "#f8fafc", padding: 12 }}>
+            <p className="lp-card-title" style={{ paddingBottom: 8, marginBottom: 0 }}>مكافأة المشاركة الاجتماعية</p>
+            <p className="lp-share-desc">امنح زبائنك نقاطاً إضافية عند مشاركة جائزتهم مع أصدقائهم على وسائل التواصل</p>
+            <div className="lp-share-row">
+              <span className="lp-share-label">تفعيل مكافأة المشاركة</span>
+              <button
+                type="button"
+                className={`lp-share-toggle${shareBonus.enabled ? " active" : ""}`}
+                onClick={() => setShareBonus((p) => ({ ...p, enabled: !p.enabled }))}
+              >
+                <span className="lp-share-knob" />
+              </button>
+            </div>
+            {shareBonus.enabled && (
+              <div className="lp-field" style={{ marginTop: 10 }}>
+                <label className="lp-label">نقاط مكافأة لكل مشاركة</label>
+                <input
+                  className="lp-input"
+                  type="number"
+                  min="1"
+                  placeholder="مثال: 50"
+                  value={shareBonus.pointsPerShare}
+                  onChange={(e) => setShareBonus((p) => ({ ...p, pointsPerShare: e.target.value }))}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
           </div>
 
           <button type="submit" className="lp-save-btn" disabled={isLoading}>
