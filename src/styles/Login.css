@@ -203,6 +203,25 @@
 .lg-btn:active   { transform: scale(0.98); }
 .lg-btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
+/* Browse stores link */
+.lg-browse-stores {
+  display: block;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1.5px dashed #e2e8f0;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.lg-browse-stores:hover {
+  border-color: #f97316;
+  color: #f97316;
+}
+
 /* ── Footer ── */
 .lg-footer {
   font-size: 12px;

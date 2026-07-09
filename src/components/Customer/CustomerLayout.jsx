@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { FaBell, FaHome, FaUser, FaHeadset } from "react-icons/fa";
+import { FaBell, FaHome, FaUser, FaHeadset, FaStore } from "react-icons/fa";
 import { auth, db } from "../../firebaseConfig";
 import { doc, getDoc, collection, query, onSnapshot, where } from "firebase/firestore";
 import "../../styles/CustomerLayout.css";
@@ -72,6 +72,16 @@ const CustomerLayout = ({ children }) => {
         >
           <FaHome className="cust-nav-icon" />
           <span>الرئيسية</span>
+        </NavLink>
+
+        <NavLink
+          to="/stores"
+          className={({ isActive }) =>
+            `cust-nav-item${isActive ? " active" : ""}`
+          }
+        >
+          <FaStore className="cust-nav-icon" />
+          <span>المتاجر</span>
         </NavLink>
 
         <NavLink

@@ -31,6 +31,7 @@ import './App.css'
 import ManagerNotificationsPage from "./components/Manager/ManagerNotificationsPage";
 import CustomerNotificationsPage from "./components/Customer/CustomerNotificationsPage";
 import CustomerOrderDetailPage from "./components/Customer/CustomerOrderDetailPage";
+import StoresPage from "./components/Stores/StoresPage";
 
 function App() {
   return (
@@ -241,6 +242,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/stores" element={<StoresPage />} />
         </Routes>
       </Router>
       </ToastProvider>

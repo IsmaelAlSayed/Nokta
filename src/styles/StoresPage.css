@@ -1,0 +1,291 @@
+/* ═══════════════════════════════════════
+   Stores Discovery Page  (sp-*)
+═══════════════════════════════════════ */
+.sp-page {
+  min-height: 100vh;
+  background: #faf8f5;
+  direction: rtl;
+  font-family: 'Tajawal', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Hero ── */
+.sp-hero {
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  padding: 52px 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+  position: relative;
+}
+
+.sp-back {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-hero-text { flex: 1; }
+
+.sp-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.sp-hero-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.sp-hero-icon {
+  font-size: 40px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ── Search ── */
+.sp-search-wrap {
+  position: relative;
+  margin: 0 16px;
+}
+
+.sp-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.sp-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 42px 12px 40px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  background: #fff;
+  color: #1e293b;
+  outline: none;
+  direction: rtl;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sp-search:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.sp-search-clear {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* ── Count label ── */
+.sp-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 16px;
+}
+
+/* ── Grid ── */
+.sp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 16px;
+}
+
+/* ── Card ── */
+.sp-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 22px 14px 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: box-shadow 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Logo */
+.sp-card-logo {
+  width: 66px;
+  height: 66px;
+  border-radius: 18px;
+  background: rgba(249, 115, 22, 0.08);
+  border: 1.5px solid rgba(249, 115, 22, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sp-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sp-logo-initial {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.sp-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.sp-card-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(249, 115, 22, 0.08);
+  border-radius: 10px;
+  padding: 4px 14px;
+}
+
+.sp-badge-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f97316;
+  line-height: 1.1;
+}
+
+.sp-badge-lbl {
+  font-size: 11px;
+  color: #fb923c;
+  font-weight: 600;
+}
+
+/* ── Loading ── */
+.sp-loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px;
+}
+
+.sp-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top-color: #f97316;
+  border-radius: 50%;
+  animation: spSpin 0.7s linear infinite;
+}
+
+@keyframes spSpin { to { transform: rotate(360deg); } }
+
+/* ── Empty ── */
+.sp-empty {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-empty-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.sp-empty-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0;
+}
+
+.sp-empty-sub {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ── Guest Banner ── */
+.sp-guest-banner {
+  margin: 8px 16px 0;
+  background: linear-gradient(135deg, #1a1d2e 0%, #2d3060 100%);
+  border-radius: 18px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.sp-guest-text {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sp-guest-btn {
+  background: #f97316;
+  color: #fff;
+  border: none;
+  padding: 11px 32px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sp-guest-btn:hover { background: #ea6c0a; }
+.sp-guest-btn:active { transform: scale(0.97); }

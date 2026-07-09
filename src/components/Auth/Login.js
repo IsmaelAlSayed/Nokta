@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebaseConfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "../../styles/Login.css";
 
 const firebaseErrors = {
@@ -189,6 +189,10 @@ const Login = () => {
           <button className="lg-btn" disabled={loading}>
             {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
           </button>
+
+          <Link to="/stores" className="lg-browse-stores">
+            🏪 تصفح المتاجر بدون تسجيل
+          </Link>
 
           <p className="lg-footer">كافة الحقوق محفوظة لشركة <br /> GROW UP TECH</p>
         </form>
