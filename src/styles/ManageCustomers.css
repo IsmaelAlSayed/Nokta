@@ -520,3 +520,30 @@
   color: #0ea5e9;
   box-shadow: 0 1px 4px rgba(0,0,0,0.10);
 }
+
+/* ── Existing-user notice ── */
+.mc-exists-notice {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #059669;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-exists-checking {
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+}
+
+/* dark override for the notice */
+.mgr-layout .mc-exists-notice {
+  background: rgba(6, 182, 212, 0.08) !important;
+  border-color: rgba(6, 182, 212, 0.2) !important;
+  color: #67e8f9 !important;
+}

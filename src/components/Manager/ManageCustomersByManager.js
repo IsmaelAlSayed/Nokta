@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where,
+  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where, arrayUnion,
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db, secondaryAuth } from "../../firebaseConfig";
@@ -28,6 +28,8 @@ const ManageCustomersByManager = () => {
   const [password, setPassword]           = useState("");
   const [showPwd, setShowPwd]             = useState(false);
   const [addError, setAddError]           = useState("");
+  const [existingUser, setExistingUser]   = useState(null); // customer already in system
+  const [checkingEmail, setCheckingEmail] = useState(false);
 
   /* ── Edit modal ── */
   const [editingCustomer, setEditingCustomer] = useState(null);
@@ -46,11 +48,15 @@ const ManageCustomersByManager = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [customerSnap, loySnap] = await Promise.all([
-          getDocs(query(collection(db, "users"), where("managerId", "==", currentManager.uid))),
+        const [snap1, snap2, loySnap] = await Promise.all([
+          getDocs(query(collection(db, "users"), where("managerId",   "==",            currentManager.uid))),
+          getDocs(query(collection(db, "users"), where("managerIds",  "array-contains", currentManager.uid))),
           getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid))),
         ]);
-        const list = customerSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const seen = new Set();
+        const list = [...snap1.docs, ...snap2.docs]
+          .filter((d) => { if (seen.has(d.id)) return false; seen.add(d.id); return true; })
+          .map((d) => ({ id: d.id, ...d.data() }));
         setCustomers(list);
         setFilteredCustomers(list);
         setLoyaltyConfigs(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
@@ -70,8 +76,53 @@ const ManageCustomersByManager = () => {
 
   const phoneToEmail = (p) => `p${p.replace(/\D/g, "")}@phone.nokta`;
 
+  const resetAddModal = () => {
+    setCustomerName(""); setEmail(""); setPhone(""); setPassword("");
+    setAddError(""); setExistingUser(null); setCheckingEmail(false);
+    setShowAddModal(false);
+  };
+
+  /* Check if the typed email/phone already exists in Firestore */
+  const checkExists = async (method, value) => {
+    const trimmed = value.trim();
+    if (!trimmed) { setExistingUser(null); return; }
+    setCheckingEmail(true);
+    try {
+      const field = method === "email" ? "email" : "phoneNumber";
+      const snap  = await getDocs(
+        query(collection(db, "users"), where(field, "==", trimmed), where("role", "==", "customer"))
+      );
+      setExistingUser(snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() });
+    } catch (_) { setExistingUser(null); }
+    setCheckingEmail(false);
+  };
+
   const handleAddCustomer = async () => {
     if (!customerName.trim()) { setAddError("اسم الزبون مطلوب"); return; }
+
+    /* ── Case A: customer already exists in the system ── */
+    if (existingUser) {
+      // Make sure they aren't already linked to this manager
+      const alreadyLinked =
+        existingUser.managerId === currentManager.uid ||
+        existingUser.managerIds?.includes(currentManager.uid);
+      if (alreadyLinked) {
+        setAddError("هذا الزبون مضاف مسبقاً إلى متجرك");
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "users", existingUser.id), {
+          managerIds: arrayUnion(currentManager.uid),
+        });
+        const linked = { ...existingUser, name: customerName.trim() || existingUser.name };
+        setCustomers((prev) => [...prev, linked]);
+        setFilteredCustomers((prev) => [...prev, linked]);
+        resetAddModal();
+      } catch (err) { setAddError(err.message); }
+      return;
+    }
+
+    /* ── Case B: new customer ── */
     if (!password) { setAddError("كلمة المرور مطلوبة"); return; }
 
     let authEmail;
@@ -80,12 +131,12 @@ const ManageCustomersByManager = () => {
     if (loginMethod === "email") {
       if (!email.trim()) { setAddError("البريد الإلكتروني مطلوب"); return; }
       authEmail = email.trim();
-      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "email", phoneNumber: "", address: "", managerId: currentManager.uid };
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "email", phoneNumber: "", address: "", managerId: currentManager.uid, managerIds: [currentManager.uid] };
     } else {
       const digits = phone.replace(/\D/g, "");
       if (digits.length < 7) { setAddError("رقم الهاتف غير صالح"); return; }
       authEmail = phoneToEmail(phone);
-      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "phone", phoneNumber: phone.trim(), address: "", managerId: currentManager.uid };
+      firestoreData = { email: authEmail, name: customerName.trim(), role: "customer", loginMethod: "phone", phoneNumber: phone.trim(), address: "", managerId: currentManager.uid, managerIds: [currentManager.uid] };
     }
 
     try {
@@ -95,8 +146,7 @@ const ManageCustomersByManager = () => {
       const newCustomer = { id: cred.user.uid, ...firestoreData };
       setCustomers((prev) => [...prev, newCustomer]);
       setFilteredCustomers((prev) => [...prev, newCustomer]);
-      setCustomerName(""); setEmail(""); setPhone(""); setPassword(""); setAddError("");
-      setShowAddModal(false);
+      resetAddModal();
     } catch (err) {
       const MAP = {
         "auth/email-already-in-use": "هذا البريد مستخدم مسبقاً",
@@ -159,7 +209,7 @@ const ManageCustomersByManager = () => {
             <h1 className="mc-title">إدارة الزبائن</h1>
             <p className="mc-subtitle">{customers.length} زبون مسجل</p>
           </div>
-          <button className="mc-btn-add" onClick={() => { setShowAddModal(true); setAddError(""); setCustomerName(""); setEmail(""); setPhone(""); setPassword(""); setLoginMethod("email"); }}>
+          <button className="mc-btn-add" onClick={() => { setShowAddModal(true); setAddError(""); setCustomerName(""); setEmail(""); setPhone(""); setPassword(""); setLoginMethod("email"); setExistingUser(null); }}>
             <FaPlus /> إضافة زبون
           </button>
         </div>
@@ -236,11 +286,11 @@ const ManageCustomersByManager = () => {
 
         {/* ── Add Modal ── */}
         {showAddModal && (
-          <div className="mc-overlay" onClick={() => { setShowAddModal(false); setAddError(""); }}>
+          <div className="mc-overlay" onClick={resetAddModal}>
             <div className="mc-modal" onClick={(e) => e.stopPropagation()}>
               <div className="mc-modal-header">
                 <h2>إضافة زبون جديد</h2>
-                <button className="mc-modal-close" onClick={() => { setShowAddModal(false); setAddError(""); }}><FaTimes /></button>
+                <button className="mc-modal-close" onClick={resetAddModal}><FaTimes /></button>
               </div>
               <div className="mc-form">
                 {addError && <p className="mc-form-error">{addError}</p>}
@@ -253,10 +303,10 @@ const ManageCustomersByManager = () => {
                 <div className="mc-field">
                   <label>طريقة تسجيل الدخول</label>
                   <div className="mc-method-toggle">
-                    <button type="button" className={`mc-method-btn${loginMethod === "email" ? " active" : ""}`} onClick={() => setLoginMethod("email")}>
+                    <button type="button" className={`mc-method-btn${loginMethod === "email" ? " active" : ""}`} onClick={() => { setLoginMethod("email"); setExistingUser(null); setPhone(""); }}>
                       بريد إلكتروني
                     </button>
-                    <button type="button" className={`mc-method-btn${loginMethod === "phone" ? " active" : ""}`} onClick={() => setLoginMethod("phone")}>
+                    <button type="button" className={`mc-method-btn${loginMethod === "phone" ? " active" : ""}`} onClick={() => { setLoginMethod("phone"); setExistingUser(null); setEmail(""); }}>
                       رقم هاتف
                     </button>
                   </div>
@@ -265,33 +315,60 @@ const ManageCustomersByManager = () => {
                 {loginMethod === "email" ? (
                   <div className="mc-field">
                     <label>البريد الإلكتروني *</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setExistingUser(null); }}
+                      onBlur={(e) => checkExists("email", e.target.value)}
+                      placeholder="email@example.com"
+                    />
                   </div>
                 ) : (
                   <div className="mc-field">
                     <label>رقم الهاتف *</label>
-                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="05X XXX XXXX" />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => { setPhone(e.target.value); setExistingUser(null); }}
+                      onBlur={(e) => checkExists("phone", e.target.value)}
+                      placeholder="05X XXX XXXX"
+                    />
                   </div>
                 )}
 
-                <div className="mc-field">
-                  <label>كلمة المرور *</label>
-                  <div className="mc-pw-wrap">
-                    <input
-                      type={showPwd ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="6 أحرف على الأقل"
-                    />
-                    <button type="button" className="mc-pw-toggle" onClick={() => setShowPwd((v) => !v)}>
-                      {showPwd ? <FaEyeSlash /> : <FaEye />}
-                    </button>
+                {/* Existing-user notice */}
+                {checkingEmail && (
+                  <p className="mc-exists-checking">جاري التحقق...</p>
+                )}
+                {existingUser && !checkingEmail && (
+                  <div className="mc-exists-notice">
+                    <span>✓</span> هذا الزبون مسجّل مسبقاً — سيُربط بمتجرك دون الحاجة لكلمة مرور
                   </div>
-                </div>
+                )}
+
+                {/* Password field — hidden when linking existing user */}
+                {!existingUser && (
+                  <div className="mc-field">
+                    <label>كلمة المرور *</label>
+                    <div className="mc-pw-wrap">
+                      <input
+                        type={showPwd ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="6 أحرف على الأقل"
+                      />
+                      <button type="button" className="mc-pw-toggle" onClick={() => setShowPwd((v) => !v)}>
+                        {showPwd ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 <div className="mc-modal-footer">
-                  <button className="mc-btn-ghost" onClick={() => { setShowAddModal(false); setAddError(""); }}>إلغاء</button>
-                  <button className="mc-btn-primary" onClick={handleAddCustomer}>إضافة</button>
+                  <button className="mc-btn-ghost" onClick={resetAddModal}>إلغاء</button>
+                  <button className="mc-btn-primary" onClick={handleAddCustomer} disabled={checkingEmail}>
+                    {existingUser ? "ربط الزبون" : "إضافة"}
+                  </button>
                 </div>
               </div>
             </div>

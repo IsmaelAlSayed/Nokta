@@ -42,12 +42,17 @@ const LoyaltyPoints = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [loySnap, custSnap] = await Promise.all([
+        const [loySnap, custSnap1, custSnap2] = await Promise.all([
           getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid))),
-          getDocs(query(collection(db, "users"), where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "users"), where("managerId",  "==",             currentManager.uid))),
+          getDocs(query(collection(db, "users"), where("managerIds", "array-contains", currentManager.uid))),
         ]);
         setLoyaltyPointsList(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
-        setCustomers(custSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        const seen = new Set();
+        const allCustomers = [...custSnap1.docs, ...custSnap2.docs]
+          .filter((d) => { if (seen.has(d.id)) return false; seen.add(d.id); return true; })
+          .map((d) => ({ id: d.id, ...d.data() }));
+        setCustomers(allCustomers);
       } catch (_) {}
       setIsLoading(false);
     };
