@@ -1,193 +1,147 @@
 /* ═══════════════════════════════════════
-   Login  (lg-*)
+   Login  (lg-*)  — Dark Premium Theme
 ═══════════════════════════════════════ */
-* { margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
 
+/* ── Page ── */
 .lg-page {
-  background: #000;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lg-container {
-  width: 100%;
-  max-width: 430px;
-  min-height: 100vh;
-  background: #fff;
+  background: #080c14;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px 40px;
   direction: rtl;
-}
-
-/* ── Hero ── */
-.lg-hero {
-  background-color: #24252c;
-  background-image: url('../images/BG.png');
-  background-size: cover;
-  background-position: center;
-  padding: 50px 22px 36px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
   position: relative;
-  min-height: 220px;
+  overflow: hidden;
+  gap: 0;
 }
 
-.lg-back-btn {
+/* subtle radial glow behind logo */
+.lg-page::before {
+  content: "";
   position: absolute;
-  top: 20px;
-  right: 18px;
-  background: rgba(255,255,255,0.15);
-  border: none;
-  color: #fff;
-  font-size: 20px;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+  pointer-events: none;
 }
 
-.lg-back-icon { display: none; }
+/* ── Logo ── */
+.lg-logo-wrap {
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 1;
+}
 
-.lg-title {
-  font-size: 30px;
+/* ── Brand text ── */
+.lg-brand {
+  font-size: 26px;
   font-weight: 700;
   color: #fff;
-  line-height: 1.2;
+  text-align: center;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
 }
 
-.lg-subtitle {
+.lg-tagline {
   font-size: 14px;
-  color: rgba(255,255,255,0.55);
-  margin: 0;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Glass Card ── */
+.lg-card {
+  width: 100%;
+  max-width: 390px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 24px 20px 20px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Form ── */
 .lg-form {
-  flex: 1;
-  padding: 28px 22px 32px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
 }
 
-.lg-field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.lg-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.lg-detect-badge {
-  font-size: 11px;
-  font-weight: 600;
-  color: #059669;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 20px;
-  padding: 2px 10px;
+/* ── Input wrapper ── */
+.lg-input-wrap {
+  position: relative;
 }
 
 .lg-input {
   width: 100%;
-  box-sizing: border-box;
-  padding: 13px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
   font-size: 15px;
   font-family: 'Tajawal', sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  color: #fff;
   outline: none;
   direction: rtl;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
+
+.lg-input::placeholder { color: rgba(255, 255, 255, 0.35); }
 
 .lg-input:focus {
-  border-color: #1e293b;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(30,41,59,0.08);
+  border-color: #06b6d4;
+  background: rgba(6, 182, 212, 0.07);
 }
 
-/* Password row */
-.lg-pass-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+.lg-input--icon-r { padding-right: 44px; }
+.lg-input--icon-l { padding-left: 44px; }
 
-.lg-pass-wrap {
-  position: relative;
-}
-
-.lg-input--pass {
-  padding-left: 44px;
-}
-
-.lg-pass-eye {
+/* icons inside inputs */
+.lg-input-icon {
   position: absolute;
-  left: 12px;
   top: 50%;
   transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.lg-input-icon--r { right: 14px; }
+.lg-input-icon--l { left: 14px; }
+
+.lg-eye {
+  pointer-events: all;
   background: none;
   border: none;
-  font-size: 16px;
   cursor: pointer;
   padding: 0;
-  line-height: 1;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.35);
+  transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Forgot */
-.lg-forgot {
-  background: none;
-  border: none;
-  font-size: 12px;
-  font-family: 'Tajawal', sans-serif;
-  font-weight: 600;
-  color: #ef4444;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Messages */
-.lg-msg {
-  border-radius: 10px;
-  padding: 11px 14px;
-  font-size: 13px;
-  text-align: center;
-}
-
-.lg-msg--ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
-.lg-msg--err { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
-
-/* Desc (reset page) */
-.lg-desc {
-  font-size: 14px;
-  color: #64748b;
-  text-align: center;
-  line-height: 1.6;
-}
+.lg-eye:hover { color: rgba(255, 255, 255, 0.7); }
 
 /* ── Button ── */
 .lg-btn {
   width: 100%;
-  padding: 14px;
-  background: #1e293b;
+  padding: 15px;
+  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);
   color: #fff;
   border: none;
   border-radius: 14px;
@@ -195,38 +149,79 @@
   font-weight: 700;
   font-family: 'Tajawal', sans-serif;
   cursor: pointer;
-  transition: background 0.2s, transform 0.15s;
   margin-top: 4px;
+  transition: opacity 0.2s, transform 0.15s;
+  letter-spacing: 0.3px;
 }
 
-.lg-btn:hover    { background: #0f172a; }
-.lg-btn:active   { transform: scale(0.98); }
-.lg-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+.lg-btn:hover   { opacity: 0.92; }
+.lg-btn:active  { transform: scale(0.98); }
+.lg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Browse stores link */
-.lg-browse-stores {
+/* ── Forgot link (inside card) ── */
+.lg-forgot {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  text-align: center;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+
+.lg-forgot:hover { color: #06b6d4; }
+
+/* ── Messages ── */
+.lg-msg {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.lg-msg--ok  { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #34d399; }
+.lg-msg--err { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
+
+/* ── Back link (reset page) ── */
+.lg-back-link {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-family: 'Tajawal', sans-serif;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  margin-top: 20px;
+  transition: color 0.2s;
+}
+
+.lg-back-link:hover { color: #06b6d4; }
+
+/* ── Browse stores ── */
+.lg-browse {
   display: block;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1.5px dashed #e2e8f0;
-  transition: border-color 0.2s, color 0.2s;
+  margin-top: 20px;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 1;
 }
 
-.lg-browse-stores:hover {
-  border-color: #f97316;
-  color: #f97316;
-}
+.lg-browse:hover { color: #06b6d4; }
 
 /* ── Footer ── */
 .lg-footer {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
   text-align: center;
+  margin-top: 16px;
   line-height: 1.6;
-  margin-top: auto;
+  position: relative;
+  z-index: 1;
 }
