@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════
-   Customer Order Detail Page
+   Customer Order Detail — Dark Premium (cod-*)
 ═══════════════════════════════════════ */
 .cod-page {
   padding: 16px;
@@ -7,98 +7,121 @@
   font-family: 'Tajawal', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-/* ── Back ── */
-.cod-back {
-  display: inline-flex;
+/* ── Top bar ── */
+.cod-topbar {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-family: 'Tajawal', sans-serif;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  transition: background 0.18s;
-  align-self: flex-start;
+  gap: 14px;
 }
 
-.cod-back:hover { background: #f1f5f9; }
+.cod-back {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.65);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.18s, color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
 
-/* ── Title ── */
+.cod-back:hover { background: rgba(6,182,212,0.12); color: #06b6d4; }
+
 .cod-title {
   font-size: 20px;
   font-weight: 700;
-  color: #1e293b;
+  color: #f1f5f9;
   margin: 0;
 }
 
-/* ── Prize Image ── */
+/* ── Serial number ── */
+.cod-serial {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── Status badge (prominent) ── */
+.cod-status-wrap { text-align: center; }
+
+.cod-status {
+  display: inline-block;
+  padding: 7px 24px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cod-status--green {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+
+.cod-status--red {
+  background: rgba(239,68,68,0.12);
+  color: #f87171;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.cod-status--yellow {
+  background: rgba(245,158,11,0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245,158,11,0.25);
+}
+
+/* ── Prize image ── */
 .cod-img-wrap {
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(6,182,212,0.2);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
 .cod-prize-img {
   width: 100%;
   display: block;
   object-fit: cover;
-  max-height: 220px;
+  max-height: 240px;
 }
 
 .cod-no-img {
-  background: #f1f5f9;
-  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 20px;
   height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
-  color: #cbd5e1;
+  font-size: 44px;
+  color: rgba(255,255,255,0.15);
 }
 
-/* ── Status ── */
-.cod-status-wrap {
+/* ── Prize name ── */
+.cod-prize-name {
+  font-size: 19px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
   text-align: center;
 }
 
-.cod-status {
-  display: inline-block;
-  padding: 6px 20px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.cod-status--green {
-  background: rgba(16, 185, 129, 0.1);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.cod-status--red {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.cod-status--yellow {
-  background: rgba(245, 158, 11, 0.1);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-/* ── Details Card ── */
+/* ── Details card ── */
 .cod-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
   overflow: hidden;
 }
 
@@ -107,38 +130,160 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.cod-row:last-child {
-  border-bottom: none;
-}
+.cod-row:last-child { border-bottom: none; }
 
 .cod-row--rejection {
-  background: #fef2f2;
+  background: rgba(239,68,68,0.06);
+  border-color: rgba(239,68,68,0.1);
 }
 
 .cod-label {
   font-size: 13px;
-  color: #94a3b8;
+  color: rgba(255,255,255,0.4);
   font-weight: 600;
   white-space: nowrap;
-  min-width: 100px;
+  min-width: 110px;
 }
 
 .cod-value {
   font-size: 14px;
-  color: #1e293b;
+  color: #e2e8f0;
   font-weight: 500;
   flex: 1;
   text-align: right;
 }
 
-.cod-row--rejection .cod-value {
-  color: #dc2626;
+.cod-value--red { color: #f87171; }
+
+/* ── Items card ── */
+.cod-items-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 18px;
+  overflow: hidden;
 }
 
-/* ── Loading / Error ── */
+.cod-items-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  letter-spacing: 0.5px;
+}
+
+.cod-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cod-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.cod-item:last-child { border-bottom: none; }
+
+/* Item image */
+.cod-item-img-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+}
+
+.cod-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cod-item-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: rgba(255,255,255,0.18);
+}
+
+/* Item text */
+.cod-item-info { flex: 1; min-width: 0; }
+
+.cod-item-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cod-item-unit {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+.cod-item-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: #06b6d4;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Totals section */
+.cod-totals {
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cod-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cod-total-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+}
+
+.cod-total-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.cod-total-row--points .cod-total-label {
+  color: rgba(6,182,212,0.7);
+}
+
+.cod-pts-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #06b6d4;
+}
+
+/* ── Loading ── */
 .cod-loading {
   display: flex;
   justify-content: center;
@@ -149,19 +294,27 @@
 .cod-spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(249, 115, 22, 0.2);
-  border-top-color: #f97316;
+  border: 3px solid rgba(6,182,212,0.15);
+  border-top-color: #06b6d4;
   border-radius: 50%;
   animation: codSpin 0.7s linear infinite;
 }
 
-@keyframes codSpin {
-  to { transform: rotate(360deg); }
+@keyframes codSpin { to { transform: rotate(360deg); } }
+
+/* ── Error ── */
+.cod-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255,255,255,0.4);
+  font-size: 15px;
 }
 
-.cod-error {
-  text-align: center;
-  padding: 40px 20px;
-  color: #dc2626;
-  font-size: 14px;
+.cod-error-icon {
+  font-size: 48px;
+  color: rgba(255,255,255,0.15);
 }
