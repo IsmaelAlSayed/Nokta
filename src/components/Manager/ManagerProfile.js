@@ -35,7 +35,7 @@ const ManagerProfile = () => {
   useEffect(() => {
     if (!currentUser) return;
     getDoc(doc(db, "users", currentUser.uid)).then((snap) => {
-      if (snap.exists()) setProfile(snap.data());
+      if (snap.exists()) setProfile((prev) => ({ ...prev, ...snap.data() }));
       setLoading(false);
     });
   }, [currentUser]);
@@ -78,10 +78,10 @@ const ManagerProfile = () => {
     setSaving(true);
     try {
       await updateDoc(doc(db, "users", currentUser.uid), {
-        name: profile.name,
-        phoneNumber: profile.phoneNumber,
-        address: profile.address,
-        businessName: profile.businessName,
+        name: profile.name ?? "",
+        phoneNumber: profile.phoneNumber ?? "",
+        address: profile.address ?? "",
+        businessName: profile.businessName ?? "",
       });
 
       if (newPassword) {
