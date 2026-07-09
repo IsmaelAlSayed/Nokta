@@ -157,7 +157,7 @@ const LoyaltyRewardsPage = () => {
 
         {/* Prizes Slider */}
         <div className="prizes-slider">
-          <Swiper spaceBetween={20} slidesPerView={1.3} centeredSlides grabCursor loop={false}>
+          <Swiper spaceBetween={16} slidesPerView={1.6} centeredSlides grabCursor loop={false}>
             {sortedPrizes.map((prize, index) => {
               const isRedeemed = redeemedPrizes.includes(index);
               const isNext     = index === nextPrizeIndex;
