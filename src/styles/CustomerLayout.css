@@ -206,119 +206,75 @@
 
 /* ═══════════════════════════════════════
    Dark overrides — sub-pages inside .cust-layout
-   Covers: mlp-* | cn-* | cp-* | cs-* | popup-*
+   Covers: mlp-* | cp-* | cs-* | popup-*
+   (cn-* handled natively in CustomerNotifications.css)
 ═══════════════════════════════════════ */
 
-/* Common page containers */
-.cust-layout .mlp-page,
-.cust-layout .cn-page,
-.cust-layout .cp-page,
-.cust-layout .cs-page {
-  background: transparent;
-}
-
-/* Hero banners → teal-to-blue */
-.cust-layout .mlp-hero,
-.cust-layout .cn-hero,
-.cust-layout .cp-hero,
-.cust-layout .cs-hero {
+/* ── Manager Loyalty Page (mlp-*) ── */
+.cust-layout .mlp-hero {
   background: linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%) !important;
+  box-shadow: 0 4px 20px rgba(6,182,212,0.2) !important;
 }
 
-.cust-layout .mlp-hero::before,
-.cust-layout .cn-hero::before,
-.cust-layout .cp-hero::before,
-.cust-layout .cs-hero::before {
-  background: rgba(255, 255, 255, 0.07) !important;
-}
+.cust-layout .mlp-hero::before { background: rgba(255,255,255,0.07) !important; }
 
-/* Text on heroes */
-.cust-layout .mlp-biz-name,
-.cust-layout .cn-hero-title,
-.cust-layout .cp-hero-name,
-.cust-layout .cs-hero-title { color: #fff !important; }
-
-.cust-layout .mlp-biz-sub,
-.cust-layout .cn-hero-sub,
-.cust-layout .cp-hero-role,
-.cust-layout .cs-hero-sub { color: rgba(255,255,255,0.55) !important; }
-
-/* Hero logo */
 .cust-layout .mlp-hero-logo {
-  background: rgba(255,255,255,0.12) !important;
-  border-color: rgba(255,255,255,0.2) !important;
+  background: rgba(255,255,255,0.15) !important;
+  border-color: rgba(255,255,255,0.25) !important;
   color: #fff !important;
 }
 
-/* Cards → dark glass */
-.cust-layout .mlp-config-card,
-.cust-layout .cn-card,
-.cust-layout .cs-ticket-card {
+.cust-layout .mlp-biz-name { color: #fff !important; }
+.cust-layout .mlp-biz-sub  { color: rgba(255,255,255,0.55) !important; }
+
+.cust-layout .mlp-config-card {
   background: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(6,182,212,0.12) !important;
+  border: 1.5px solid rgba(6,182,212,0.12) !important;
   box-shadow: none !important;
 }
 
-.cust-layout .mlp-config-card:active,
-.cust-layout .cn-card:active,
-.cust-layout .cs-ticket-card:active {
-  background: rgba(255,255,255,0.06) !important;
-  border-color: rgba(6,182,212,0.3) !important;
+.cust-layout .mlp-config-card:active {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(6,182,212,0.35) !important;
 }
 
-/* Card text */
-.cust-layout .mlp-config-name,
-.cust-layout .cn-card-title,
-.cust-layout .cs-ticket-subject { color: #f1f5f9 !important; }
+.cust-layout .mlp-config-name { color: #f1f5f9 !important; }
+.cust-layout .mlp-config-rate { color: rgba(255,255,255,0.4) !important; }
 
-.cust-layout .mlp-config-rate,
-.cust-layout .cn-card-sub,
-.cust-layout .cs-ticket-date { color: rgba(255,255,255,0.4) !important; }
-
-/* Points badge → teal */
 .cust-layout .mlp-config-pts {
   background: rgba(6,182,212,0.08) !important;
   border-color: rgba(6,182,212,0.2) !important;
 }
 
 .cust-layout .mlp-pts-value { color: #06b6d4 !important; }
-.cust-layout .mlp-pts-label { color: rgba(6,182,212,0.8) !important; }
+.cust-layout .mlp-pts-label { color: rgba(6,182,212,0.75) !important; }
 
-/* Progress bar → teal */
-.cust-layout .mlp-progress-bar { background: rgba(255,255,255,0.06) !important; }
-.cust-layout .mlp-progress-fill {
-  background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%) !important;
-}
+.cust-layout .mlp-progress-bar  { background: rgba(255,255,255,0.07) !important; }
+.cust-layout .mlp-progress-fill { background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%) !important; }
+.cust-layout .mlp-progress-label { color: rgba(255,255,255,0.4) !important; }
 
-.cust-layout .mlp-progress-label,
-.cust-layout .mlp-empty-title { color: rgba(255,255,255,0.5) !important; }
-.cust-layout .mlp-empty-sub { color: rgba(255,255,255,0.3) !important; }
+.cust-layout .mlp-empty-title { color: rgba(255,255,255,0.55) !important; }
+.cust-layout .mlp-empty-sub   { color: rgba(255,255,255,0.3) !important; }
 
-/* Spinners → teal */
-.cust-layout .mlp-spinner,
-.cust-layout .cn-spinner,
-.cust-layout .cp-spinner,
-.cust-layout .cs-spinner {
+.cust-layout .mlp-spinner {
   border-color: rgba(6,182,212,0.15) !important;
   border-top-color: #06b6d4 !important;
 }
 
-/* Back buttons */
 .cust-layout .mlp-back {
   background: rgba(255,255,255,0.05) !important;
   border-color: rgba(255,255,255,0.1) !important;
   color: rgba(255,255,255,0.6) !important;
 }
 
-/* Notifications page */
-.cust-layout .cn-empty-title { color: rgba(255,255,255,0.6) !important; }
-.cust-layout .cn-empty-sub   { color: rgba(255,255,255,0.3) !important; }
-.cust-layout .cn-card-badge-unread {
-  background: rgba(6,182,212,0.15) !important;
-  color: #06b6d4 !important;
+/* ── Customer Profile (cp-*) ── */
+.cust-layout .cp-hero {
+  background: linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%) !important;
 }
 
-/* Profile page */
+.cust-layout .cp-hero-name  { color: #fff !important; }
+.cust-layout .cp-hero-role  { color: rgba(255,255,255,0.55) !important; }
+
 .cust-layout .cp-card {
   background: rgba(255,255,255,0.04) !important;
   border: 1px solid rgba(255,255,255,0.07) !important;
@@ -327,13 +283,16 @@
 
 .cust-layout .cp-label { color: rgba(255,255,255,0.4) !important; }
 .cust-layout .cp-value { color: #f1f5f9 !important; }
-.cust-layout .cp-input {
+
+.cust-layout .cp-input,
+.cust-layout .cp-textarea {
   background: rgba(255,255,255,0.06) !important;
   border-color: rgba(255,255,255,0.1) !important;
   color: #f1f5f9 !important;
 }
 
-.cust-layout .cp-input:focus {
+.cust-layout .cp-input:focus,
+.cust-layout .cp-textarea:focus {
   border-color: #06b6d4 !important;
   background: rgba(6,182,212,0.06) !important;
 }
@@ -349,11 +308,21 @@
   color: #f87171 !important;
 }
 
-.cust-layout .cp-logout-btn:hover {
-  background: rgba(239,68,68,0.18) !important;
+.cust-layout .cp-spinner {
+  border-color: rgba(6,182,212,0.15) !important;
+  border-top-color: #06b6d4 !important;
 }
 
-/* Support page */
+/* ── Customer Support (cs-*) ── */
+.cust-layout .cs-hero {
+  background: linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%) !important;
+}
+
+.cust-layout .cs-hero-title { color: #fff !important; }
+.cust-layout .cs-hero-sub   { color: rgba(255,255,255,0.55) !important; }
+
+.cust-layout .cs-label { color: rgba(255,255,255,0.5) !important; }
+
 .cust-layout .cs-input,
 .cust-layout .cs-textarea {
   background: rgba(255,255,255,0.06) !important;
@@ -367,26 +336,35 @@
   background: rgba(6,182,212,0.06) !important;
 }
 
-.cust-layout .cs-label { color: rgba(255,255,255,0.5) !important; }
-
 .cust-layout .cs-submit-btn {
   background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%) !important;
   box-shadow: 0 4px 18px rgba(6,182,212,0.35) !important;
 }
 
-/* Status badges */
-.cust-layout .cs-status-open   { background: rgba(6,182,212,0.12) !important; color: #06b6d4 !important; }
-.cust-layout .cs-status-closed { background: rgba(16,185,129,0.12) !important; color: #34d399 !important; }
+.cust-layout .cs-ticket-card {
+  background: rgba(255,255,255,0.04) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  box-shadow: none !important;
+}
 
-/* RedeemPopup dark */
+.cust-layout .cs-ticket-subject { color: #f1f5f9 !important; }
+.cust-layout .cs-ticket-date    { color: rgba(255,255,255,0.4) !important; }
+.cust-layout .cs-status-open    { background: rgba(6,182,212,0.12) !important; color: #06b6d4 !important; }
+.cust-layout .cs-status-closed  { background: rgba(16,185,129,0.12) !important; color: #34d399 !important; }
+
+.cust-layout .cs-spinner {
+  border-color: rgba(6,182,212,0.15) !important;
+  border-top-color: #06b6d4 !important;
+}
+
+/* ── RedeemPopup (popup-*) ── */
 .cust-layout .popup-content {
   background: #111827 !important;
   border-top: 1px solid rgba(255,255,255,0.07) !important;
 }
 
 .cust-layout .popup-title,
-.cust-layout .popup-name { color: #f1f5f9 !important; }
-
+.cust-layout .popup-name  { color: #f1f5f9 !important; }
 .cust-layout .popup-sub,
 .cust-layout .popup-label { color: rgba(255,255,255,0.45) !important; }
 

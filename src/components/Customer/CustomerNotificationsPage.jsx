@@ -18,6 +18,16 @@ const STATUS_COLORS = {
   pending:  "cn-status--yellow",
 };
 
+const getNotifTitle = (n) => {
+  if (n.prizeName) return n.prizeName;
+  if (n.items?.length) {
+    return n.items.length === 1
+      ? n.items[0].name
+      : `${n.items.length} منتجات`;
+  }
+  return "طلب";
+};
+
 const CustomerNotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
@@ -82,7 +92,7 @@ const CustomerNotificationsPage = () => {
               >
                 <div className="cn-card-body">
                   <div className="cn-card-top">
-                    <h3 className="cn-prize-name">{n.prizeName || "جائزة"}</h3>
+                    <h3 className="cn-prize-name">{getNotifTitle(n)}</h3>
                     {!n.customerRead && <span className="cn-new-label">جديد</span>}
                   </div>
                   <div className="cn-card-meta">
