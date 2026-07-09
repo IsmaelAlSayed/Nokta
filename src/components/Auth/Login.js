@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/Login.css";
 
 const firebaseErrors = {
-  "auth/user-not-found": "لا يوجد حساب مرتبط بهذا البريد الإلكتروني",
+  "auth/user-not-found": "لا يوجد حساب مرتبط بهذا الإيميل أو الرقم",
   "auth/wrong-password": "كلمة المرور غير صحيحة",
   "auth/invalid-email": "البريد الإلكتروني غير صالح",
   "auth/user-disabled": "تم تعطيل هذا الحساب، يرجى التواصل مع الدعم",
@@ -20,13 +20,14 @@ const getFriendlyError = (code) =>
 
 const phoneToEmail = (p) => `p${p.replace(/\D/g, "")}@phone.nokta`;
 
+const detectMethod = (value) => (value.includes("@") ? "email" : "phone");
+
 const Login = () => {
-  const [loginMethod, setLoginMethod] = useState("email"); // "email" | "phone"
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -35,18 +36,18 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const method = detectMethod(identifier);
+  const isEmail = method === "email";
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const authEmail = loginMethod === "phone" ? phoneToEmail(phone) : email.trim();
+    const authEmail = isEmail ? identifier.trim() : phoneToEmail(identifier);
     try {
       const { user } = await signInWithEmailAndPassword(auth, authEmail, password);
       const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (!userDoc.exists()) {
-        setError("لا توجد بيانات للمستخدم");
-        return;
-      }
+      if (!userDoc.exists()) { setError("لا توجد بيانات للمستخدم"); return; }
       const role = userDoc.data().role;
       if (role === "admin") navigate("/admin-dashboard");
       else if (role === "manager") navigate("/manager-dashboard");
@@ -69,10 +70,7 @@ const Login = () => {
     setResetLoading(true);
     try {
       await sendPasswordResetEmail(auth, resetEmail.trim());
-      setResetMsg({
-        text: "تم إرسال رابط الاستعادة إلى بريدك الإلكتروني",
-        ok: true,
-      });
+      setResetMsg({ text: "تم إرسال رابط الاستعادة إلى بريدك الإلكتروني", ok: true });
     } catch (err) {
       setResetMsg({ text: getFriendlyError(err.code), ok: false });
     } finally {
@@ -82,139 +80,119 @@ const Login = () => {
 
   if (showReset) {
     return (
-      <div className="login-page">
-      <div className="login-container">
-        <div className="login-header-section">
-          <div className="login-header-content">
+      <div className="lg-page">
+        <div className="lg-container">
+          <div className="lg-hero">
             <button
               type="button"
-              className="login-back-btn"
-              onClick={() => {
-                setShowReset(false);
-                setResetMsg({ text: "", ok: false });
-              }}
+              className="lg-back-btn"
+              onClick={() => { setShowReset(false); setResetMsg({ text: "", ok: false }); }}
             >
               &#x2190;
             </button>
-            <h1 className="login-title">استعادة كلمة المرور</h1>
+            <h1 className="lg-title">استعادة كلمة المرور</h1>
           </div>
+          <form className="lg-form" onSubmit={handleResetPassword}>
+            <p className="lg-desc">أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين</p>
+            {resetMsg.text && (
+              <p className={`lg-msg ${resetMsg.ok ? "lg-msg--ok" : "lg-msg--err"}`}>
+                {resetMsg.text}
+              </p>
+            )}
+            <div className="lg-field">
+              <label className="lg-label">البريد الإلكتروني</label>
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                placeholder="example@email.com"
+                className="lg-input"
+                required
+              />
+            </div>
+            <button className="lg-btn" disabled={resetLoading}>
+              {resetLoading ? "جاري الإرسال..." : "إرسال رابط الاستعادة"}
+            </button>
+            <p className="lg-footer">كافة الحقوق محفوظة لشركة <br /> GROW UP TECH</p>
+          </form>
         </div>
-        <form className="login-form" onSubmit={handleResetPassword}>
-          <p className="login-description">
-            أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين
-          </p>
-          {resetMsg.text && (
-            <p className={`login-message ${resetMsg.ok ? "login-message--ok" : "login-error"}`}>
-              {resetMsg.text}
-            </p>
-          )}
-          <div className="login-input-group">
-            <input
-              type="email"
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              placeholder="البريد الإلكتروني"
-              className="login-input"
-              required
-            />
-          </div>
-          <button className="login-button" disabled={resetLoading}>
-            {resetLoading ? "جاري الإرسال..." : "إرسال رابط الاستعادة"}
-          </button>
-          <p className="login-footer">
-            كافة الحقوق محفوظة لشركة <br /> GROW UP TECH
-          </p>
-        </form>
-      </div>
       </div>
     );
   }
 
   return (
-    <div className="login-page">
-    <div className="login-container">
-      <div className="login-header-section">
-        <div className="login-header-content">
-          <span className="login-back-icon">&#x2190;</span>
-          <h1 className="login-title">سجل دخول في حسابك</h1>
+    <div className="lg-page">
+      <div className="lg-container">
+        <div className="lg-hero">
+          <span className="lg-back-icon" />
+          <h1 className="lg-title">سجّل دخولك</h1>
+          <p className="lg-subtitle">أهلاً بك في منصة ولاء</p>
         </div>
+
+        <form className="lg-form" onSubmit={handleLogin}>
+          {error && <p className="lg-msg lg-msg--err">{error}</p>}
+
+          <div className="lg-field">
+            <label className="lg-label">
+              {identifier && !isEmail ? "رقم الهاتف" : "البريد الإلكتروني أو رقم الهاتف"}
+              {identifier && (
+                <span className="lg-detect-badge">
+                  {isEmail ? "📧 إيميل" : "📱 هاتف"}
+                </span>
+              )}
+            </label>
+            <input
+              type={isEmail ? "email" : "tel"}
+              value={identifier}
+              onChange={(e) => { setIdentifier(e.target.value); setError(""); }}
+              placeholder="example@email.com أو 05XXXXXXXX"
+              className="lg-input"
+              autoComplete="username"
+              required
+            />
+          </div>
+
+          <div className="lg-field">
+            <div className="lg-pass-header">
+              <label className="lg-label">كلمة المرور</label>
+              {isEmail && identifier && (
+                <button
+                  type="button"
+                  className="lg-forgot"
+                  onClick={() => { setResetEmail(identifier); setShowReset(true); }}
+                >
+                  نسيت كلمة المرور؟
+                </button>
+              )}
+            </div>
+            <div className="lg-pass-wrap">
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="كلمة المرور"
+                className="lg-input lg-input--pass"
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="lg-pass-eye"
+                onClick={() => setShowPass((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPass ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
+
+          <button className="lg-btn" disabled={loading}>
+            {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+          </button>
+
+          <p className="lg-footer">كافة الحقوق محفوظة لشركة <br /> GROW UP TECH</p>
+        </form>
       </div>
-      <form className="login-form" onSubmit={handleLogin}>
-        <p className="login-description">قم بتسجيل الدخول لحسابك في منصة ولاء</p>
-
-        <div className="login-method-toggle">
-          <button
-            type="button"
-            className={`login-method-btn${loginMethod === "email" ? " active" : ""}`}
-            onClick={() => { setLoginMethod("email"); setError(""); }}
-          >
-            بريد إلكتروني
-          </button>
-          <button
-            type="button"
-            className={`login-method-btn${loginMethod === "phone" ? " active" : ""}`}
-            onClick={() => { setLoginMethod("phone"); setError(""); }}
-          >
-            رقم هاتف
-          </button>
-        </div>
-
-        {error && <p className="login-error">{error}</p>}
-
-        {loginMethod === "email" ? (
-          <div className="login-input-group">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="البريد الإلكتروني"
-              className="login-input"
-              required
-            />
-          </div>
-        ) : (
-          <div className="login-input-group">
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="05X XXX XXXX"
-              className="login-input"
-              required
-            />
-          </div>
-        )}
-
-        <div className="login-input-group">
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="كلمة المرور"
-            className="login-input"
-            required
-          />
-          {loginMethod === "email" && (
-            <button
-              type="button"
-              className="forgot-password"
-              onClick={() => {
-                setResetEmail(email);
-                setShowReset(true);
-              }}
-            >
-              نسيت كلمة المرور؟
-            </button>
-          )}
-        </div>
-        <button className="login-button" disabled={loading}>
-          {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
-        </button>
-        <p className="login-footer">
-          كافة الحقوق محفوظة لشركة <br /> GROW UP TECH
-        </p>
-      </form>
-    </div>
     </div>
   );
 };
