@@ -20,10 +20,8 @@ import ManagerCustomerOrdersPage from "./components/Manager/ManagerCustomerOrder
 import InvoiceView from "./components/Manager/InvoiceView";
 import ManageCategories from "./components/Manager/ManageCategories";
 import ManagerProfile from "./components/Manager/ManagerProfile";
-import ManagerHomePage from "./components/Customer/HomePage";
-import ManagerLoyaltyPage from "./components/Customer/ManagerLoyaltyPage"; // Import the new page
+import ManagerLoyaltyPage from "./components/Customer/ManagerLoyaltyPage";
 import ManageAwards from "./components/Manager/ManageAwards";
-import RoyalPassPage from "./components/Customer/RoyalPassPage";
 import CustomerProfile from "./components/Customer/CustomerProfile";
 import LoyaltyDashboard from "./components/Customer/LoyaltyDashboard";
 import ManagerOrdersPage from "./components/Manager/ManagerOrdersPage";
@@ -211,14 +209,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="/manager/royal-pass/:configId"
-            element={
-              <ProtectedRoute role="customer">
-                <RoyalPassPage />
-              </ProtectedRoute>
-            }
-          /> */}
           <Route
             path="/manager/royal-pass/:configId"
             element={
