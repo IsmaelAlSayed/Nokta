@@ -4,7 +4,7 @@ import {
   collection, getDocs, setDoc, deleteDoc, doc, updateDoc,
 } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
-import { FaEye, FaEyeSlash, FaPlus, FaEdit, FaTrash, FaSearch, FaTimes } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaPlus, FaEdit, FaTrash, FaSearch, FaTimes, FaStore } from "react-icons/fa";
 import AdminLayout from "./AdminLayout";
 import "../../styles/ManageManagers.css";
 
@@ -145,6 +145,15 @@ const ManageManagers = () => {
     }
   };
 
+  /* ── Toggle visibility ── */
+  const handleToggleHide = async (m) => {
+    const newVal = !m.hiddenFromGuests;
+    await updateDoc(doc(db, "users", m.id), { hiddenFromGuests: newVal });
+    const updated = managers.map((x) => x.id === m.id ? { ...x, hiddenFromGuests: newVal } : x);
+    setManagers(updated);
+    syncFiltered(updated);
+  };
+
   /* ── Delete ── */
   const handleDelete = async (id) => {
     await deleteDoc(doc(db, "users", id));
@@ -209,6 +218,9 @@ const ManageManagers = () => {
                 <div className="mm-info">
                   <p className="mm-name">
                     {m.name || <span className="mm-no-name">بدون اسم</span>}
+                    {m.hiddenFromGuests && (
+                      <span className="mm-hidden-badge">مخفي</span>
+                    )}
                   </p>
                   <p className="mm-detail">{m.email}</p>
                   {m.phoneNumber && <p className="mm-detail">{m.phoneNumber}</p>}
@@ -226,6 +238,13 @@ const ManageManagers = () => {
                   </div>
                 ) : (
                   <div className="mm-actions">
+                    <button
+                      className={`mm-icon-btn ${m.hiddenFromGuests ? "mm-icon-btn--hidden" : "mm-icon-btn--visible"}`}
+                      onClick={() => handleToggleHide(m)}
+                      title={m.hiddenFromGuests ? "إظهار في تصفح المتاجر" : "إخفاء من تصفح المتاجر"}
+                    >
+                      {m.hiddenFromGuests ? <FaEyeSlash /> : <FaStore />}
+                    </button>
                     <button
                       className="mm-icon-btn mm-icon-btn--edit"
                       onClick={() => openEdit(m)}

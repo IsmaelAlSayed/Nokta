@@ -216,6 +216,33 @@
 
 .mm-icon-btn--delete:hover { background: rgba(239, 68, 68, 0.16); }
 
+.mm-icon-btn--visible {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+}
+
+.mm-icon-btn--visible:hover { background: rgba(16, 185, 129, 0.18); }
+
+.mm-icon-btn--hidden {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+}
+
+.mm-icon-btn--hidden:hover { background: rgba(148, 163, 184, 0.2); }
+
+.mm-hidden-badge {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 6px;
+  padding: 1px 8px;
+  vertical-align: middle;
+}
+
 /* Delete confirm inline */
 .mm-confirm {
   display: flex;

@@ -75,9 +75,11 @@ const StoresPage = () => {
   const filterFn = (s) =>
     (s.businessName || s.name || "").toLowerCase().includes(search.toLowerCase());
 
+  const visibleToGuests = (m) => !m.hiddenFromGuests;
+
   const myStores    = allManagers.filter((m) => myManagerIds.has(m.id)).filter(filterFn);
   const otherStores = allManagers.filter((m) => !myManagerIds.has(m.id)).filter(filterFn);
-  const allFiltered = allManagers.filter(filterFn);
+  const allFiltered = allManagers.filter(visibleToGuests).filter(filterFn);
 
   const handleStoreClick = (managerId) => {
     if (isCustomer) navigate(`/customer/manager-loyalty/${managerId}`);
