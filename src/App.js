@@ -32,6 +32,7 @@ import ManagerNotificationsPage from "./components/Manager/ManagerNotificationsP
 import CustomerNotificationsPage from "./components/Customer/CustomerNotificationsPage";
 import CustomerOrderDetailPage from "./components/Customer/CustomerOrderDetailPage";
 import StoresPage from "./components/Stores/StoresPage";
+import LandingPage from "./components/Landing/LandingPage";
 
 function App() {
   return (
@@ -243,6 +244,7 @@ function App() {
             }
           />
           <Route path="/stores" element={<StoresPage />} />
+          <Route path="/landing" element={<LandingPage />} />
         </Routes>
       </Router>
       </ToastProvider>
