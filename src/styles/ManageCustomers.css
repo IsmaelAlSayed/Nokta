@@ -255,6 +255,25 @@
 
 .mc-btn-ghost-sm:hover { background: rgba(255, 255, 255, 0.1); }
 
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .mc-page { max-width: 100%; }
+
+  .mc-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .mc-btn-add { align-self: flex-end; }
+
+  .mc-card { padding: 12px 14px; gap: 10px; }
+  .mc-avatar { width: 38px; height: 38px; font-size: 15px; }
+  .mc-name { font-size: 14px; }
+  .mc-icon-btn { width: 32px; height: 32px; font-size: 13px; }
+
+  .mc-confirm { flex-wrap: wrap; }
+  .mc-confirm span { width: 100%; }
+
+  .mc-modal { max-width: 100%; margin: 0; border-radius: 18px 18px 0 0; }
+  .mc-overlay { align-items: flex-end; padding: 0; }
+}
+
 /* ── Empty state ── */
 .mc-empty {
   text-align: center;

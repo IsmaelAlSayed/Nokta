@@ -263,6 +263,20 @@
   padding-top: 2px;
 }
 
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .pp-page { max-width: 100%; gap: 14px; }
+
+  .pp-hero { padding: 20px 18px; gap: 14px; }
+  .pp-avatar { width: 54px; height: 54px; font-size: 20px; }
+  .pp-hero-name { font-size: 17px; }
+
+  .pp-card-header { padding: 14px 16px 12px; }
+  .pp-form { padding: 14px 16px 18px; gap: 12px; }
+
+  .pp-row { grid-template-columns: 1fr; }
+}
+
 /* ── Buttons ── */
 .pp-btn-primary {
   background: linear-gradient(90deg, #06b6d4 0%, #3b82f6 100%);

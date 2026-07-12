@@ -7,6 +7,19 @@
   background: #080c14;
 }
 
+/* Content column wrapper */
+.admin-content-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+/* Desktop/mobile show-hide helpers */
+.desktop-only { display: flex; }
+.mobile-only  { display: none; }
+
 /* ═══════════════════════════════════════
    Sidebar
 ═══════════════════════════════════════ */
@@ -226,9 +239,146 @@
   padding: 2rem;
   background: #080c14;
   overflow-y: auto;
-  min-height: 100vh;
   font-family: 'Tajawal', sans-serif;
 }
+
+/* ── Mobile top bar (hidden on desktop) ── */
+.admin-topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background: #0f1623;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 12px 18px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.admin-topbar-hamburger {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-topbar-hamburger:hover {
+  background: rgba(6, 182, 212, 0.12);
+  color: #06b6d4;
+}
+
+.admin-topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-topbar-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f1f5f9;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.admin-topbar-logout {
+  width: 40px;
+  height: 40px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 10px;
+  color: #f87171;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.admin-topbar-logout:hover { background: rgba(239, 68, 68, 0.18); }
+
+/* ── Mobile overlay backdrop ── */
+.admin-mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 299;
+  backdrop-filter: blur(2px);
+}
+
+/* ── Mobile bottom nav (hidden on desktop) ── */
+.admin-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f1623;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 200;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.4);
+}
+
+.admin-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 6px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'Tajawal', sans-serif;
+  transition: color 0.2s;
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-nav-item.active { color: #06b6d4; }
+
+.admin-nav-icon {
+  font-size: 20px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-nav-item.active .admin-nav-icon { transform: scale(1.15); }
+
+/* Teal top indicator */
+.admin-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 28px;
+  height: 2.5px;
+  background: #06b6d4;
+  border-radius: 0 0 6px 6px;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-nav-item.active::before { transform: translateX(-50%) scaleX(1); }
+
+.admin-nav-label { font-size: 10px; }
 
 /* ═══════════════════════════════════════
    Dashboard — Welcome Banner
@@ -479,4 +629,99 @@
   align-items: center;
   justify-content: center;
   font-weight: 700;
+}
+
+/* ═══════════════════════════════════════
+   Responsive — Mobile (≤ 768px)
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Show/hide helpers */
+  .desktop-only { display: none !important; }
+  .mobile-only  { display: flex !important; }
+
+  /* Sidebar: fixed overlay sliding from right (RTL) */
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 260px !important;
+    z-index: 300;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .admin-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Sidebar inside overlay: always show full labels */
+  .admin-sidebar .admin-sidebar-link {
+    justify-content: flex-start;
+    padding: 13px 16px;
+    gap: 12px;
+  }
+
+  .admin-sidebar .admin-sidebar-label { display: block !important; }
+  .admin-sidebar .admin-sidebar-icon  { min-width: 20px; font-size: 17px; }
+
+  /* Hide desktop tooltip */
+  .admin-sidebar .admin-sidebar-link::after { display: none; }
+
+  /* Show mobile backdrop */
+  .admin-mobile-overlay { display: block; }
+
+  /* Show mobile top bar */
+  .admin-topbar { display: flex; }
+
+  /* Main content: full width + padding for bottom nav */
+  .admin-main-content {
+    padding: 16px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    min-height: auto;
+  }
+
+  /* Show bottom nav */
+  .admin-bottom-nav { display: flex; }
+
+  /* Dashboard: welcome banner */
+  .dash-welcome {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 18px;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .dash-welcome-badge {
+    width: 48px;
+    height: 48px;
+    font-size: 22px;
+  }
+
+  .dash-welcome-title { font-size: 18px; }
+
+  /* Stats: 2 columns on mobile */
+  .dash-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card { padding: 14px 14px; gap: 10px; }
+  .stat-value { font-size: 24px; }
+  .stat-icon  { width: 38px; height: 38px; font-size: 15px; }
+
+  /* Action cards */
+  .action-card-link { padding: 14px 16px; gap: 12px; }
+  .action-icon-wrap { width: 40px; height: 40px; font-size: 16px; }
+  .action-title     { font-size: 14px; }
+  .action-desc      { font-size: 12px; }
+
+  /* Section title */
+  .dash-section-title { font-size: 14px; }
 }
