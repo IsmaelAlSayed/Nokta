@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, getDoc, query, where, doc } from "firebase/firestore";
+import { getDocs, getDoc, query, where, collection, doc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -47,19 +47,16 @@ const StoresPage = () => {
       try {
         const fetches = [
           getDocs(query(collection(db, "users"), where("role", "==", "manager"))),
-          getDocs(collection(db, "loyaltyPoints")),
         ];
         if (isCustomer) fetches.push(getDoc(doc(db, "users", currentUser.uid)));
 
-        const [managersSnap, loyaltySnap, custDoc] = await Promise.all(fetches);
+        const [managersSnap, custDoc] = await Promise.all(fetches);
 
+        const managers = managersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
         const counts = {};
-        loyaltySnap.docs.forEach((d) => {
-          const { managerId } = d.data();
-          if (managerId) counts[managerId] = (counts[managerId] || 0) + 1;
-        });
+        managers.forEach((m) => { counts[m.id] = m.loyaltyProgramCount || 0; });
 
-        setAllManagers(managersSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setAllManagers(managers);
         setProgramCounts(counts);
 
         if (custDoc?.exists()) {

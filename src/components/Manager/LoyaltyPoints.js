@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db, storage, auth } from "../../firebaseConfig";
 import {
-  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where, arrayUnion, arrayRemove,
+  collection, getDocs, setDoc, deleteDoc, doc, updateDoc, query, where, arrayUnion, arrayRemove, increment,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FaPlus, FaTimes, FaEdit, FaTrash, FaUsers, FaCamera } from "react-icons/fa";
@@ -48,6 +48,7 @@ const LoyaltyPoints = () => {
           getDocs(query(collection(db, "users"), where("managerIds", "array-contains", currentManager.uid))),
         ]);
         setLoyaltyPointsList(loySnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        updateDoc(doc(db, "users", currentManager.uid), { loyaltyProgramCount: loySnap.docs.length }).catch(() => {});
         const seen = new Set();
         const allCustomers = [...custSnap1.docs, ...custSnap2.docs]
           .filter((d) => { if (seen.has(d.id)) return false; seen.add(d.id); return true; })
@@ -110,6 +111,7 @@ const LoyaltyPoints = () => {
       }
       const snap = await getDocs(query(collection(db, "loyaltyPoints"), where("managerId", "==", currentManager.uid)));
       setLoyaltyPointsList(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      updateDoc(doc(db, "users", currentManager.uid), { loyaltyProgramCount: snap.docs.length }).catch(() => {});
       resetForm();
     } catch (_) {
       setMsg("فشل الحفظ"); setMsgType("err");
@@ -123,6 +125,7 @@ const LoyaltyPoints = () => {
     try {
       await deleteDoc(doc(db, "loyaltyPoints", loyaltyId));
       setLoyaltyPointsList((prev) => prev.filter((i) => i.id !== loyaltyId));
+      updateDoc(doc(db, "users", currentManager.uid), { loyaltyProgramCount: increment(-1) }).catch(() => {});
       setMsg("تم الحذف"); setMsgType("ok");
     } catch (_) {}
     setIsLoading(false);

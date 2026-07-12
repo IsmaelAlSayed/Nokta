@@ -36,13 +36,18 @@ const AddOrder = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [custSnap, prodSnap, catSnap, subSnap] = await Promise.all([
-          getDocs(query(collection(db, "users"), where("managerId", "==", currentManager.uid))),
-          getDocs(query(collection(db, "products"), where("managerId", "==", currentManager.uid))),
-          getDocs(query(collection(db, "categories"), where("managerId", "==", currentManager.uid))),
+        const [custSnap1, custSnap2, prodSnap, catSnap, subSnap] = await Promise.all([
+          getDocs(query(collection(db, "users"), where("managerId",  "==",             currentManager.uid))),
+          getDocs(query(collection(db, "users"), where("managerIds", "array-contains", currentManager.uid))),
+          getDocs(query(collection(db, "products"),      where("managerId", "==", currentManager.uid))),
+          getDocs(query(collection(db, "categories"),    where("managerId", "==", currentManager.uid))),
           getDocs(query(collection(db, "subcategories"), where("managerId", "==", currentManager.uid))),
         ]);
-        setCustomers(custSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        const seen = new Set();
+        const allCustomers = [...custSnap1.docs, ...custSnap2.docs]
+          .filter((d) => { if (seen.has(d.id)) return false; seen.add(d.id); return true; })
+          .map((d) => ({ id: d.id, ...d.data() }));
+        setCustomers(allCustomers);
         setProducts(prodSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setCategories(catSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setSubcategories(subSnap.docs.map((d) => ({ id: d.id, ...d.data() })));

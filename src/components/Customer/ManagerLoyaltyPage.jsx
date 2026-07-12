@@ -22,13 +22,11 @@ const ManagerLoyaltyPage = () => {
 
         const loyaltyQuery = query(
           collection(db, "loyaltyPoints"),
-          where("managerId", "==", managerId)
+          where("managerId", "==", managerId),
+          where("customers", "array-contains", currentCustomer.uid)
         );
         const snap = await getDocs(loyaltyQuery);
-        const all = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        setConfigurations(
-          all.filter((c) => c.customers?.includes(currentCustomer.uid))
-        );
+        setConfigurations(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (_) {}
       setLoading(false);
     };

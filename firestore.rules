@@ -134,14 +134,20 @@ service cloud.firestore {
       // Admin: full access
       allow read, write: if isAdmin();
 
-      // Public read — needed for guest store browsing (program count)
-      allow read: if true;
-
       // Manager CRUD only their own configs
-      allow write: if isManager()
+      allow read, write: if isManager()
         && (resource == null
           ? request.resource.data.managerId == uid()
           : resource.data.managerId == uid());
+
+      // Customer reads only programs they are enrolled in
+      allow read: if isCustomer() && resource.data.customers.hasAny([uid()]);
+
+      // Customer updates their own points/redemption fields only
+      allow update: if isCustomer()
+        && resource.data.customers.hasAny([uid()])
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['managerId', 'name', 'pointsPerDollar', 'prizes', 'customers', 'shareBonus']);
     }
 
     // ── Awards / Prizes ───────────────────────────
