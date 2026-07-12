@@ -183,7 +183,8 @@ const Login = () => {
               )}
             </span>
             <input
-              type={isEmail ? "email" : "tel"}
+              type="text"
+              inputMode={isEmail ? "email" : "tel"}
               value={identifier}
               onChange={(e) => { setIdentifier(e.target.value); setError(""); }}
               placeholder="البريد الإلكتروني أو رقم الهاتف"
