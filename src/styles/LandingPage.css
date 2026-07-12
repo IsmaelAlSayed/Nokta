@@ -37,7 +37,15 @@
 .lp-root *, .lp-root *::before, .lp-root *::after {
   box-sizing: border-box;
 }
-.lp-root h1,.lp-root h2,.lp-root p { margin: 0; }
+/* Override any global h1/h2/h3/p rules from other CSS files */
+.lp-root h1,
+.lp-root h2,
+.lp-root h3 {
+  margin: 0;
+  color: var(--lp-text);
+  text-align: start;
+}
+.lp-root p { margin: 0; color: inherit; }
 .lp-root a { text-decoration: none; }
 
 /* ── NAVIGATION ──────────────────────────────────────────── */
@@ -123,6 +131,7 @@
 .lp-s-title {
   font-size: clamp(1.85rem,3.5vw,2.75rem); font-weight: 800;
   line-height: 1.2; text-wrap: balance; margin-bottom: .65rem;
+  color: var(--lp-text); text-align: start;
 }
 .lp-s-sub {
   font-size: 1rem; color: var(--lp-text2); line-height: 1.78;
@@ -172,7 +181,8 @@
 .lp-h1 {
   font-size: clamp(2.5rem,5.5vw,4.4rem); font-weight: 800;
   line-height: 1.17; letter-spacing: -.02em;
-  text-wrap: balance; margin-bottom: 1.2rem; color: var(--lp-text);
+  text-wrap: balance; margin-bottom: 1.2rem;
+  color: var(--lp-text); text-align: start;
 }
 .lp-h1-grad {
   background: linear-gradient(130deg, var(--lp-accent) 0%, #818cf8 55%, #c084fc 100%);
@@ -396,7 +406,7 @@
 .lp-footer {
   background: var(--lp-surf); border-top: 1px solid var(--lp-border);
   padding: 1.75rem 2rem; text-align: center;
-  color: var(--lp-text3); font-size: .83rem; line-height: 1.9;
+  color: var(--lp-text2); font-size: .83rem; line-height: 1.9;
 }
 .lp-footer a { color: var(--lp-accent); }
 .lp-footer-accent { color: var(--lp-accent); }
