@@ -161,13 +161,13 @@ const LandingPage = () => {
                 <div className="lp-prog-fill" ref={progFill} />
               </div>
               <div className="lp-prizes-row">
-                <div className="lp-prize-chip" ref={p1}>
+                <div className="lp-prize-chip" ref={p1Ref}>
                   <span className="lp-prize-icon">☕</span>250 نقطة
                 </div>
-                <div className="lp-prize-chip" ref={p2}>
+                <div className="lp-prize-chip" ref={p2Ref}>
                   <span className="lp-prize-icon">🎁</span>500 نقطة
                 </div>
-                <div className="lp-prize-chip" ref={p3}>
+                <div className="lp-prize-chip" ref={p3Ref}>
                   <span className="lp-prize-icon">⭐</span>750 نقطة
                 </div>
               </div>
