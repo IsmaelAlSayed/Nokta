@@ -184,7 +184,7 @@ const Login = () => {
             </span>
             <input
               type="text"
-              inputMode={isEmail ? "email" : "tel"}
+              inputMode="email"
               value={identifier}
               onChange={(e) => { setIdentifier(e.target.value); setError(""); }}
               placeholder="البريد الإلكتروني أو رقم الهاتف"
