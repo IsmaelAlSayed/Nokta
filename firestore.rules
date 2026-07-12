@@ -1,0 +1,201 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && userDoc().role == 'admin';
+    }
+
+    function isManager() {
+      return isSignedIn() && userDoc().role == 'manager';
+    }
+
+    function isCustomer() {
+      return isSignedIn() && userDoc().role == 'customer';
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && uid() == userId;
+    }
+
+    // ── Users ──────────────────────────────────────
+    match /users/{userId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // User reads their own document
+      allow read: if isOwner(userId);
+
+      // Anyone (including guests) can read manager profiles — for store browsing
+      allow read: if resource.data.role == 'manager';
+
+      // Manager reads their own customers
+      allow read: if isManager() && (
+        resource.data.managerId == uid() ||
+        uid() in resource.data.get('managerIds', [])
+      );
+
+      // User updates their own profile — CANNOT change role, managerId, managerIds
+      allow update: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['role', 'managerId', 'managerIds']);
+
+      // Manager can link a customer to themselves (update managerIds only)
+      allow update: if isManager()
+        && resource.data.role == 'customer'
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['managerIds']);
+    }
+
+    // ── Orders ────────────────────────────────────
+    match /orders/{orderId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Customer reads ONLY their own orders
+      allow read: if isCustomer() && resource.data.customerId == uid();
+
+      // Customer creates prize redemption order for themselves only
+      allow create: if isCustomer()
+        && request.resource.data.customerId == uid()
+        && request.resource.data.get('source', '') == 'redeemPopup';
+
+      // Customer marks their own order as read (customerRead field only)
+      allow update: if isCustomer()
+        && resource.data.customerId == uid()
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['customerRead']);
+
+      // Manager reads orders belonging to them
+      allow read: if isManager() && resource.data.managerId == uid();
+
+      // Manager creates orders and assigns them to themselves
+      allow create: if isManager() && request.resource.data.managerId == uid();
+
+      // Manager updates status/notification on their own orders only
+      // Cannot change core financial or ownership fields
+      allow update: if isManager()
+        && resource.data.managerId == uid()
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['customerId', 'managerId', 'items', 'totalPrice',
+                     'earnedLoyaltyPoints', 'serialNumber']);
+    }
+
+    // ── Products ──────────────────────────────────
+    match /products/{productId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Manager CRUD only their own products
+      allow read, write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+
+      // Signed-in users can read products (for order placement)
+      allow read: if isSignedIn();
+    }
+
+    // ── Categories ────────────────────────────────
+    match /categories/{catId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+      allow read: if isSignedIn();
+    }
+
+    // ── Subcategories ─────────────────────────────
+    match /subcategories/{subId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+      allow read: if isSignedIn();
+    }
+
+    // ── Loyalty Points ────────────────────────────
+    match /loyaltyPoints/{configId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Public read — needed for guest store browsing (program count)
+      allow read: if true;
+
+      // Manager CRUD only their own configs
+      allow write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+    }
+
+    // ── Awards / Prizes ───────────────────────────
+    match /awards/{awardId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Manager CRUD only their own awards
+      allow read, write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+
+      // Signed-in customers can read awards (for redemption page)
+      allow read: if isCustomer();
+    }
+
+    // ── Support Requests ──────────────────────────
+    match /supportRequests/{ticketId} {
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Customer creates tickets for themselves
+      allow create: if isCustomer()
+        && request.resource.data.customerId == uid();
+
+      // Customer reads their own tickets
+      allow read: if isCustomer() && resource.data.customerId == uid();
+
+      // Manager reads and responds to tickets for their customers
+      allow read: if isManager() && resource.data.managerId == uid();
+      allow update: if isManager()
+        && resource.data.managerId == uid()
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['customerId', 'managerId']);
+    }
+
+    // ── Invoices ──────────────────────────────────
+    match /invoices/{invoiceId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isManager()
+        && (resource == null
+          ? request.resource.data.managerId == uid()
+          : resource.data.managerId == uid());
+    }
+
+    // ── Counters (order serial numbers) ───────────
+    match /counters/{counterId} {
+      allow read, write: if isManager() || isAdmin();
+    }
+
+    // ── Default: deny everything ──────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

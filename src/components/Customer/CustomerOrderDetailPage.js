@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebaseConfig";
+import { db, auth } from "../../firebaseConfig";
 import { FaArrowRight, FaBoxOpen, FaGift } from "react-icons/fa";
 import CustomerLayout from "./CustomerLayout";
 import "../../styles/CustomerOrderDetailPage.css";
@@ -31,10 +31,16 @@ const CustomerOrderDetailPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const currentUser = auth.currentUser;
     getDoc(doc(db, "orders", orderId))
       .then((snap) => {
-        if (snap.exists()) setOrder(snap.data());
-        else setError("الطلب غير موجود");
+        if (!snap.exists()) { setError("الطلب غير موجود"); return; }
+        const data = snap.data();
+        if (data.customerId !== currentUser?.uid) {
+          setError("ليس لديك صلاحية لعرض هذا الطلب");
+          return;
+        }
+        setOrder(data);
       })
       .catch(() => setError("حدث خطأ أثناء تحميل الطلب"))
       .finally(() => setLoading(false));

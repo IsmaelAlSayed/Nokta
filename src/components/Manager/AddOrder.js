@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "../../firebaseConfig";
 import {
-  collection, getDocs, addDoc, updateDoc, doc, runTransaction, query, where,
+  collection, getDocs, addDoc, updateDoc, doc, runTransaction, query, where, increment,
 } from "firebase/firestore";
 import { FaSearch, FaTimes, FaTag, FaShoppingBag } from "react-icons/fa";
 import DiscountModal from "./DiscountModal";
@@ -130,9 +130,8 @@ const AddOrder = () => {
       });
 
       if (earnedPoints > 0 && loyaltyConfig) {
-        const current = loyaltyConfig.pointsByCustomer?.[selectedCustomer] || 0;
         await updateDoc(doc(db, "loyaltyPoints", loyaltyConfig.id), {
-          pointsByCustomer: { ...loyaltyConfig.pointsByCustomer, [selectedCustomer]: current + earnedPoints },
+          [`pointsByCustomer.${selectedCustomer}`]: increment(earnedPoints),
         });
       }
 
