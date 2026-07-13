@@ -411,6 +411,62 @@
 .lp-footer a { color: var(--lp-accent); }
 .lp-footer-accent { color: var(--lp-accent); }
 
+/* ── WHATSAPP FLOATING BUTTON ───────────────────────────── */
+.lp-wa-float {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 1.75rem;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  background: #25d366;
+  color: #fff;
+  padding: .75rem 1.2rem;
+  border-radius: 50px;
+  font-family: var(--lp-ff);
+  font-size: .92rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 28px rgba(37,211,102,.45);
+  transition: transform .22s, box-shadow .22s, padding .22s;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.lp-wa-float:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 36px rgba(37,211,102,.6);
+}
+.lp-wa-icon { font-size: 1.35rem; flex-shrink: 0; }
+.lp-wa-label { transition: max-width .3s ease, opacity .3s ease; }
+
+@media (max-width: 480px) {
+  .lp-wa-float { padding: .75rem; border-radius: 50%; bottom: 1.25rem; left: 1.25rem; }
+  .lp-wa-label { display: none; }
+  .lp-wa-icon  { font-size: 1.5rem; }
+}
+
+/* ── WHATSAPP CTA BUTTON ─────────────────────────────────── */
+.lp-btn-wa-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: #25d366;
+  color: #fff;
+  padding: .78rem 1.8rem;
+  border-radius: 10px;
+  font-size: .96rem;
+  font-weight: 700;
+  font-family: var(--lp-ff);
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(37,211,102,.35);
+  transition: transform .2s, box-shadow .2s;
+}
+.lp-btn-wa-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(37,211,102,.5);
+}
+
 /* ── SCROLL REVEAL ───────────────────────────────────────── */
 .lp-reveal {
   opacity: 0; transform: translateY(22px);

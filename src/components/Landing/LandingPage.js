@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { FaWhatsapp } from "react-icons/fa";
 import "../../styles/LandingPage.css";
+
+const WA_NUMBER = "972594601456";
+const WA_MSG    = encodeURIComponent("مرحباً، أود الاشتراك في منصة نقطة للولاء 🎯");
+const WA_LINK   = `https://wa.me/${WA_NUMBER}?text=${WA_MSG}`;
 
 const purchases = [
   { pts: 18, lbl: "قهوة" }, { pts: 45, lbl: "وجبة" },
@@ -305,7 +310,10 @@ const LandingPage = () => {
               <h2 className="lp-cta-title">هل أنت مستعد لبدء برنامج<br />ولاء متجرك؟</h2>
               <p className="lp-cta-sub">انضم إلى نقطة الآن وابنِ علاقة أقوى وأطول مع زبائنك.</p>
               <div className="lp-cta-btns">
-                <Link to="/login" className="lp-btn-primary">ابدأ كتاجر مجاناً ←</Link>
+                <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="lp-btn-wa-cta">
+                  <FaWhatsapp />
+                  تواصل معنا على واتساب
+                </a>
                 <Link to="/stores" className="lp-btn-ghost">استكشف المتاجر</Link>
               </div>
             </div>
@@ -320,11 +328,25 @@ const LandingPage = () => {
           {" "}— برنامج الولاء الذكي &nbsp;·&nbsp; جميع الحقوق محفوظة © 2025
         </p>
         <p style={{ marginTop: ".4rem" }}>
+          <a href={WA_LINK} target="_blank" rel="noopener noreferrer">واتساب</a>
+          &nbsp;·&nbsp;
           <Link to="/login">تسجيل الدخول</Link>
           &nbsp;·&nbsp;
           <Link to="/stores">استكشاف المتاجر</Link>
         </p>
       </footer>
+
+      {/* ── WHATSAPP FLOATING BUTTON ── */}
+      <a
+        href={WA_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="lp-wa-float"
+        aria-label="تواصل معنا على واتساب"
+      >
+        <FaWhatsapp className="lp-wa-icon" />
+        <span className="lp-wa-label">تواصل معنا</span>
+      </a>
 
     </div>
   );
